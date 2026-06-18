@@ -6,6 +6,7 @@
 <title>WRD WIP Load Dashboard</title>
 <style>
   :root{--bg:#0f1115;--panel:#181b22;--panel2:#1f232c;--line:#2a2f3a;--txt:#e8eaed;--mut:#9aa0ab;--accent:#4f9dff;--warn:#ff6b6b;--ok:#41d18f;--grid:#222732;}
+  body.light{--bg:#f4f6f9;--panel:#ffffff;--panel2:#eef1f6;--line:#dde2ea;--txt:#1b1f27;--mut:#647084;--grid:#e7ebf1;}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px}
   header{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
@@ -20,14 +21,13 @@
   .drop.hot{border-color:var(--accent);background:rgba(79,157,255,.06);color:var(--txt)}
   .drop b{color:var(--accent)} .drop input{display:none}
   .err{color:var(--warn);font-size:12px;margin-top:8px}
-  .tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--line)}
-  .tabs button{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--mut);padding:10px 16px;cursor:pointer;font-size:14px;font-weight:600}
-  .tabs button.on{color:var(--txt);border-bottom-color:var(--accent)}
+  .banner{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.45);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px;display:none;gap:10px;align-items:center;flex-wrap:wrap}
+  .banner.show{display:flex}.banner b{color:var(--warn)}
+  .banner .wk{background:rgba(255,107,107,.18);border-radius:6px;padding:2px 9px;font-size:12px;font-variant-numeric:tabular-nums}
   .filters{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:18px}
   .fg{display:flex;flex-direction:column;gap:6px}
   .fg label{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
   select,button.btn,input.cap{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
-  select[multiple]{min-width:185px;height:90px}
   button.btn{cursor:pointer}button.btn:hover{border-color:var(--accent)}
   .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
   .seg button{border:none;background:var(--panel2);color:var(--mut);padding:8px 12px;cursor:pointer;font-size:13px}
@@ -38,6 +38,9 @@
   .chip.on{color:var(--txt);border-color:var(--accent)}
   .chip .dot{width:8px;height:8px}
   .linkbtn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;padding:0}
+  .tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+  .tabs button{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--mut);padding:10px 16px;cursor:pointer;font-size:14px;font-weight:600}
+  .tabs button.on{color:var(--txt);border-bottom-color:var(--accent)}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:22px}
   .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
   .kpi .v{font-size:25px;font-weight:700;letter-spacing:-.5px}
@@ -64,29 +67,32 @@
   .calmonth{display:flex;gap:14px;align-items:flex-start}
   .calmonth .mname{width:84px;color:var(--mut);font-size:12px;padding-top:4px;flex:none}
   .caldays{display:grid;grid-template-columns:repeat(31,1fr);gap:3px;flex:1}
-  .cell{aspect-ratio:1;border-radius:3px;background:var(--grid);position:relative;font-size:9px;color:#8893a3;display:flex;align-items:flex-start;justify-content:flex-end;padding:1px 2px}
-  .cell.sun{opacity:.35}
-  .tip{position:fixed;pointer-events:none;background:#000;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;z-index:50;display:none;max-width:300px;line-height:1.5}
+  .cell{aspect-ratio:1;border-radius:3px;background:var(--grid);position:relative;font-size:9px;color:var(--mut);display:flex;align-items:flex-start;justify-content:flex-end;padding:1px 2px}
+  .cell.sun{opacity:.4}
+  .tip{position:fixed;pointer-events:none;background:#000;color:#fff;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:12px;z-index:50;display:none;max-width:300px;line-height:1.5}
   .muted{color:var(--mut)}
   .capwrap{display:flex;align-items:center;gap:8px}.capwrap input{width:80px}
+  .empty{text-align:center;color:var(--mut);padding:40px 20px}
+  .empty h3{color:var(--txt);font-weight:600;margin:0 0 8px}
   /* gantt */
   .gwrap{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
   .gleft{flex:none;background:var(--panel)}
   .gright{flex:1;overflow-x:auto}
   .ginner{position:relative}
-  .grow,.glabel-row{height:26px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.03)}
+  .grow,.glabel-row{height:26px;display:flex;align-items:center}
   .ghead,.ghead-l{height:30px;border-bottom:1px solid var(--line)}
   .grp-row,.glabel-grp{height:24px;display:flex;align-items:center;background:var(--panel2);font-size:12px;font-weight:600;color:var(--mut);padding:0 10px;border-bottom:1px solid var(--line)}
-  .glabel-row{padding:0 10px;font-size:12px;gap:7px;overflow:hidden;white-space:nowrap}
+  .glabel-row{padding:0 10px;font-size:12px;gap:7px;overflow:hidden;white-space:nowrap;border-bottom:1px solid rgba(128,128,128,.08)}
   .glabel-row .nm{overflow:hidden;text-overflow:ellipsis}
   .glabel-row .qt{color:var(--mut);flex:none;font-variant-numeric:tabular-nums}
   .dot{width:9px;height:9px;border-radius:3px;flex:none}
   .gbody{position:relative}
-  .gtrack{position:relative;height:26px;border-bottom:1px solid rgba(255,255,255,.03)}
-  .gbar{position:absolute;top:6px;height:14px;border-radius:4px;opacity:.5}
+  .gtrack{position:relative;height:26px;border-bottom:1px solid rgba(128,128,128,.08)}
+  .gbar{position:absolute;top:6px;height:14px;border-radius:4px;opacity:.5;overflow:hidden}
+  .gbar .gblab{font-size:9px;color:#fff;padding:1px 4px;white-space:nowrap;line-height:13px;mix-blend-mode:normal}
   .gbar.wash{top:9px;height:8px;opacity:1;border-radius:3px}
-  .gprog{position:absolute;top:17px;height:3px;border-radius:2px;background:#fff;opacity:.85}
-  .gline{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06)}
+  .gprog{position:absolute;top:17px;height:3px;border-radius:2px;background:var(--txt);opacity:.8}
+  .gline{position:absolute;top:0;bottom:0;width:1px;background:rgba(128,128,128,.14)}
   .gtoday{position:absolute;top:0;bottom:0;width:2px;background:#ffb454;z-index:3}
   .gmname{position:absolute;top:7px;font-size:11px;color:var(--mut);padding-left:4px}
 </style>
@@ -96,6 +102,7 @@
   <h1>WRD WIP <span data-i18n="title">负载仪表板</span></h1>
   <span class="meta" id="meta"></span>
   <span class="spacer"></span>
+  <div class="langbtn"><button id="themeBtn" title="theme">🌙</button></div>
   <div class="langbtn"><button id="lzh" class="on">中文</button><button id="len">EN</button></div>
 </header>
 <div class="wrap">
@@ -105,6 +112,8 @@
     <input type="file" id="file" accept=".xlsx,.xls">
     <div class="err" id="err"></div>
   </div>
+
+  <div class="banner" id="banner"></div>
 
   <div class="filters">
     <div class="fg"><label data-i18n="lblWindow">时间基准</label>
@@ -121,15 +130,17 @@
       <option value="In Progress" data-i18n="stIp">仅进行中</option>
       <option value="Pending" data-i18n="stPd">仅待做</option>
     </select></div>
+    <div class="fg" id="dbWrap" style="display:none"><label data-i18n="lblDevBulk">DEV / BULK</label><select id="fDevBulk"><option value="" data-i18n="dbAll">全部</option></select></div>
     <button class="btn" id="reset" data-i18n="reset">重置</button>
   </div>
 
   <div class="tabs">
     <button id="tabGanttBtn" class="on" data-i18n="tabGantt">计划甘特图</button>
     <button id="tabSumBtn" data-i18n="tabSummary">负载汇总</button>
+    <button id="tabOwnerBtn" data-i18n="tabOwner">负责人负载</button>
   </div>
 
-  <!-- ===== GANTT TAB ===== -->
+  <!-- ===== GANTT ===== -->
   <div id="paneGantt">
     <div class="card">
       <h2><span data-i18n="ganttTitle">计划甘特图</span><span class="hint" data-i18n="ganttHint">按客户分组 · 浅条=项目周期，深条=洗水周期，白线=进度，橙线=今天</span></h2>
@@ -138,11 +149,14 @@
     </div>
   </div>
 
-  <!-- ===== SUMMARY TAB ===== -->
+  <!-- ===== SUMMARY ===== -->
   <div id="paneSum" style="display:none">
     <div class="filters">
       <div class="fg"><label data-i18n="lblMetric">分析指标</label>
         <div class="seg" id="segMetric"><button data-v="fin" class="on" data-i18n="mFin">款数(洗水)</button><button data-v="pcs" data-i18n="mPcs">件数</button></div>
+      </div>
+      <div class="fg"><label data-i18n="lblRange">时间范围</label>
+        <div class="seg" id="segRange"><button data-v="7" data-i18n="r7">未来7天</button><button data-v="14" data-i18n="r14">未来14天</button><button data-v="30" data-i18n="r30">未来30天</button><button data-v="all" class="on" data-i18n="rAll">全部</button></div>
       </div>
       <div class="fg"><label data-i18n="lblQty">负载基准</label>
         <div class="seg" id="segQty"><button data-v="remaining" class="on" data-i18n="qtyRem">剩余(进度加权)</button><button data-v="planned" data-i18n="qtyPlan">计划全量</button></div>
@@ -161,7 +175,13 @@
     </div>
 
     <div class="card">
-      <h2><span id="calTitle"></span><span class="hint" data-i18n="calHint">颜色越深 = 当天负载越高 · 悬停看明细</span></h2>
+      <h2><span id="buTitle"></span><span class="hint" data-i18n="buHint">需求 vs 产能累积 · 需求超过产能即开始积压</span></h2>
+      <canvas id="buChart" height="280"></canvas>
+      <div class="legend" id="buLegend"></div>
+    </div>
+
+    <div class="card">
+      <h2><span id="calTitle"></span><span class="hint" data-i18n="calHint">蓝→黄→红 越红当天越烫手 · 悬停看明细</span></h2>
       <div class="cal" id="cal"></div>
       <div class="legend" id="calLegend"></div>
     </div>
@@ -169,6 +189,19 @@
     <div class="card">
       <h2><span data-i18n="tblTitle">项目明细</span><span class="hint" data-i18n="tblHint">点表头排序 · 每日量 = 总量 ÷ 工作日</span></h2>
       <table id="tbl"><thead></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <!-- ===== OWNER ===== -->
+  <div id="paneOwner" style="display:none">
+    <div class="card">
+      <h2><span id="ownWeekTitle"></span><span class="hint" data-i18n="ownHint">按负责人/组堆叠 · 看谁被压爆</span></h2>
+      <canvas id="ownChart" height="300"></canvas>
+      <div class="legend" id="ownLegend"></div>
+    </div>
+    <div class="card">
+      <h2><span data-i18n="ownTblTitle">负责人负载明细</span><span class="hint" data-i18n="ownTblHint">点表头排序</span></h2>
+      <table id="ownTbl"><thead></thead><tbody></tbody></table>
     </div>
   </div>
 </div>
@@ -202,42 +235,55 @@ t.sheetStubs=true}if(t.type=="array"){t.type="binary";var a=xk(e,t);t.type="arra
 <script>
 let DATA = {"source": "", "generated": "", "tasks": []};
 const palette=['#4f9dff','#41d18f','#ffb454','#ff6b6b','#b18cff','#3fd0d0','#f06ec0','#9aa0ab','#7d8aff','#ffd166'];
+const palette2=['#5b8def','#2bb673','#f4a259','#e26d5c','#9b6dff','#2bc4c4','#e879b9','#8a93a3','#d4b106','#ff8fa3'];
 const $=s=>document.querySelector(s);
 const LS={get(k,d){try{const v=localStorage.getItem('wrd_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('wrd_'+k,JSON.stringify(v));}catch(e){}}};
-let LANG=LS.get('lang','zh');
+let LANG=LS.get('lang','zh'), THEME=LS.get('theme','dark');
 
 const I18N={
  zh:{title:'负载仪表板',dropTitle:'把 Excel 甘特文件拖到这里，或 <b>点击选择文件</b>',dropHint:'支持 .xlsx · 读取第一个工作表 · 数据只在你浏览器里处理，不会上传到任何服务器',
   lblWindow:'时间基准',winProj:'项目周期',winWash:'洗水周期',lblQty:'负载基准',qtyRem:'剩余(进度加权)',qtyPlan:'计划全量',
   lblCust:'客户 / 部门',lblOwner:'负责人',lblStatus:'状态',stActive:'进行中 + 待做',stAll:'全部',stIp:'仅进行中',stPd:'仅待做',
-  lblCap:'周产能参考',reset:'重置',selAll:'全选',clrNone:'清空',tabGantt:'计划甘特图',tabSummary:'负载汇总',
+  lblCap:'周产能参考',reset:'重置',selAll:'全选',clrNone:'清空',lblDevBulk:'DEV / BULK',dbAll:'全部',tabGantt:'计划甘特图',tabSummary:'负载汇总',tabOwner:'负责人负载',
   ganttTitle:'计划甘特图',ganttHint:'按客户分组 · 浅条=项目周期，深条=洗水周期，白线=进度，橙线=今天',
-  lblMetric:'分析指标',mFin:'款数(洗水)',mPcs:'件数',weekHint:'按客户堆叠 · 红线 = 周产能参考',calHint:'颜色越深 = 当天负载越高 · 悬停看明细',
-  tblTitle:'项目明细',tblHint:'点表头排序 · 每日量 = 总量 ÷ 工作日',
+  lblMetric:'分析指标',mFin:'款数(洗水)',mPcs:'件数',lblRange:'时间范围',r7:'未来7天',r14:'未来14天',r30:'未来30天',rAll:'全部',
+  weekHint:'按客户堆叠 · 红线 = 周产能参考',calHint:'蓝→黄→红 越红当天越烫手 · 悬停看明细',tblTitle:'项目明细',tblHint:'点表头排序 · 每日量 = 总量 ÷ 工作日',
+  buHint:'需求 vs 产能累积 · 需求超过产能即开始积压',ownHint:'按负责人/组堆叠 · 看谁被压爆',ownTblTitle:'负责人负载明细',ownTblHint:'点表头排序',
   weekTitleF:'每周款数（洗水）',weekTitleP:'每周件数',calTitleF:'每日款数（洗水）热力图',calTitleP:'每日件数热力图',
-  kProjects:'项目数',kFin:'总款数（洗水）',kPcs:'件',kAvgF:'平均每日款数',kAvgP:'件/日',kPeakDay:'最高单日款数',kPeakWk:'最高单周款数',kOver:'超产能周数',
-  kAvgFmetric:m=>'平均每日'+(m==='fin'?'款数':'件数'),kPeakDayM:m=>'最高单日'+(m==='fin'?'款数':'件数'),kPeakWkM:m=>'最高单周'+(m==='fin'?'款数':'件数'),
-  inprog:'进行中',pend:'待做',unitF:'款',unitP:'件',perF:'款 / 工作日',perP:'件 / 工作日',
-  sSpread:n=>'摊到 '+n+' 个工作日',sCapRef:(c,u)=>'周产能参考 '+c+' '+u,sWeek:'周',capLine:(c,u)=>'周产能参考线 '+c+' '+u,
-  noLoad:'当前筛选下没有负载',less:'少',more:'多',peakApprox:(n,u)=>'峰值≈'+n+' '+u+'/日',today:'今天',sunDim:'周日已淡化（不出板）',setCap:'请填写周产能 →',
+  buTitleF:'积压预警（款/洗水累积）',buTitleP:'积压预警（件数累积）',ownWeekTitleF:'每周款数 · 按负责人',ownWeekTitleP:'每周件数 · 按负责人',
+  kProjects:'项目数',kFin:'总款数（洗水）',kPcs:'件',kAvgF:'平均每日款数',kAvgP:'件/日',kPeakDay:'最高单日款数',
+  kPeakWkM:m=>'最高单周'+(m==='fin'?'款数':'件数'),
+  inprog:'进行中',pend:'待做',unitF:'款',unitP:'件',
+  sSpread:n=>'摊到 '+n+' 个工作日',sCapRef:(c,u)=>'周产能参考 '+c+' '+u,sWeek:'周',capLine:(c,u)=>'周产能参考线 '+c+' '+u,kOver:'超产能周数',setCap:'请填写周产能 →',
+  noLoad:'当前筛选下没有负载',today:'今天',sunDim:'周日已淡化',hLow:'低',hNear:'接近产能',hOver:'超产能',hRelLow:'少',hRelHigh:'多',
   excl:n=>n+' 个项目缺洗水日期，已跳过',source:'来源',uploaded:'已上传',gProj:'项目周期',gWash:'洗水周期',gProgress:'进度',noGantt:'当前筛选下没有可画的项目',
+  alertOver:n=>'⚠ 超产能预警：'+n+' 周超出红线',overBy:'超',
+  buDemand:'需求累积',buCapacity:'产能累积',buBacklog:'积压',buSetCap:'填写周产能后显示积压预警',buOnTrack:'按当前产能可如期消化，无积压',buBacklogPeak:'最大积压',
+  emptyTitle:'拖入你的 Excel 甘特文件开始',emptySub:'数据只在本机处理，不上传。文件格式参考你们现有的甘特主表。',
   cCust:'客户',cName:'项目',cOwner:'负责人',cStatus:'状态',cFin:'款数',cPcs:'总件数',cWd:'工作日',cPerF:'每日款数',cPerP:'每日件数',cStart:'开始',cEnd:'结束',noData:'无数据',
+  oName:'负责人/组',oProj:'项目数',oFin:'总款数',oPcs:'总件数',oAvgF:'每日款',oPeakWk:'峰值周款',oShare:'款数占比',
   parseErr:'解析失败：找不到有效项目行。请确认上传的是甘特主表（第一个工作表，含 START/END 与 GARMENT QUANTITY 列）。',readErr:'读取文件出错：'},
  en:{title:'Load Dashboard',dropTitle:'Drop the Excel Gantt file here, or <b>click to choose a file</b>',dropHint:'.xlsx supported · reads the first sheet · processed only in your browser, never uploaded',
   lblWindow:'Time basis',winProj:'Project window',winWash:'Washing cycle',lblQty:'Load basis',qtyRem:'Remaining (weighted)',qtyPlan:'Planned (full)',
   lblCust:'Customer / Dept',lblOwner:'Owner',lblStatus:'Status',stActive:'In Progress + Pending',stAll:'All',stIp:'In Progress only',stPd:'Pending only',
-  lblCap:'Weekly capacity',reset:'Reset',selAll:'Select all',clrNone:'Clear',tabGantt:'Plan (Gantt)',tabSummary:'Load Summary',
-  ganttTitle:'Plan — Gantt chart',ganttHint:'Grouped by customer · light bar=project, dark bar=washing, white line=progress, orange=today',
-  lblMetric:'Metric',mFin:'Finishes (washes)',mPcs:'Pieces',weekHint:'Stacked by customer · red line = weekly capacity',calHint:'Darker = higher daily load · hover for detail',
-  tblTitle:'Project breakdown',tblHint:'Click header to sort · per day = total ÷ working days',
+  lblCap:'Weekly capacity',reset:'Reset',selAll:'Select all',clrNone:'Clear',lblDevBulk:'DEV / BULK',dbAll:'All',tabGantt:'Plan (Gantt)',tabSummary:'Load Summary',tabOwner:'Owner load',
+  ganttTitle:'Plan — Gantt chart',ganttHint:'Grouped by customer · light=project, dark=washing, white=progress, orange=today',
+  lblMetric:'Metric',mFin:'Finishes (washes)',mPcs:'Pieces',lblRange:'Time range',r7:'Next 7d',r14:'Next 14d',r30:'Next 30d',rAll:'All',
+  weekHint:'Stacked by customer · red line = weekly capacity',calHint:'Blue→amber→red: redder = hotter day · hover for detail',tblTitle:'Project breakdown',tblHint:'Click header to sort · per day = total ÷ working days',
+  buHint:'Demand vs capacity (cumulative) · backlog builds once demand exceeds capacity',ownHint:'Stacked by owner/team · see who is overloaded',ownTblTitle:'Owner load breakdown',ownTblHint:'Click header to sort',
   weekTitleF:'Weekly finishes (washes)',weekTitleP:'Weekly pieces',calTitleF:'Daily finishes (washes) heatmap',calTitleP:'Daily pieces heatmap',
-  kProjects:'Projects',kFin:'Total finishes (washes)',kPcs:'pcs',kAvgF:'Avg finishes / day',kAvgP:'pcs/day',kPeakDay:'Peak day finishes',kPeakWk:'Peak week finishes',kOver:'Weeks over capacity',
-  kAvgFmetric:m=>'Avg '+(m==='fin'?'finishes':'pieces')+' / day',kPeakDayM:m=>'Peak day '+(m==='fin'?'finishes':'pieces'),kPeakWkM:m=>'Peak week '+(m==='fin'?'finishes':'pieces'),
-  inprog:'in progress',pend:'pending',unitF:'washes',unitP:'pcs',perF:'washes / day',perP:'pcs / day',
-  sSpread:n=>'spread over '+n+' working days',sCapRef:(c,u)=>'capacity ref '+c+' '+u,sWeek:'wk',capLine:(c,u)=>'capacity ref '+c+' '+u,
-  noLoad:'No load under current filter',less:'less',more:'more',peakApprox:(n,u)=>'peak≈'+n+' '+u+'/day',today:'today',sunDim:'Sundays dimmed (no output)',setCap:'Enter weekly capacity →',
+  buTitleF:'Backlog projection (finishes cumulative)',buTitleP:'Backlog projection (pieces cumulative)',ownWeekTitleF:'Weekly finishes · by owner',ownWeekTitleP:'Weekly pieces · by owner',
+  kProjects:'Projects',kFin:'Total finishes (washes)',kPcs:'pcs',kAvgF:'Avg finishes / day',kAvgP:'pcs/day',kPeakDay:'Peak day finishes',
+  kPeakWkM:m=>'Peak week '+(m==='fin'?'finishes':'pieces'),
+  inprog:'in progress',pend:'pending',unitF:'washes',unitP:'pcs',
+  sSpread:n=>'spread over '+n+' working days',sCapRef:(c,u)=>'capacity ref '+c+' '+u,sWeek:'wk',capLine:(c,u)=>'capacity ref '+c+' '+u,kOver:'Weeks over capacity',setCap:'Enter weekly capacity →',
+  noLoad:'No load under current filter',today:'today',sunDim:'Sundays dimmed',hLow:'low',hNear:'near capacity',hOver:'over',hRelLow:'less',hRelHigh:'more',
   excl:n=>n+' project(s) missing washing dates, skipped',source:'Source',uploaded:'uploaded',gProj:'Project window',gWash:'Washing cycle',gProgress:'progress',noGantt:'No projects to draw under current filter',
+  alertOver:n=>'⚠ Over capacity: '+n+' week(s) above the red line',overBy:'over by',
+  buDemand:'Cumulative demand',buCapacity:'Cumulative capacity',buBacklog:'Backlog',buSetCap:'Enter weekly capacity to see backlog projection',buOnTrack:'On track at current capacity — no backlog',buBacklogPeak:'Peak backlog',
+  emptyTitle:'Drop your Excel Gantt file to start',emptySub:'Processed locally, never uploaded. Use your existing master Gantt sheet format.',
   cCust:'Customer',cName:'Project',cOwner:'Owner',cStatus:'Status',cFin:'Finishes',cPcs:'Pieces',cWd:'Work days',cPerF:'Fin/day',cPerP:'Pcs/day',cStart:'Start',cEnd:'End',noData:'No data',
+  oName:'Owner/team',oProj:'Projects',oFin:'Total finishes',oPcs:'Total pieces',oAvgF:'Fin/day',oPeakWk:'Peak week fin',oShare:'Finishes share',
   parseErr:'Parse failed: no valid project rows. Upload the master Gantt sheet (first sheet, with START/END and GARMENT QUANTITY).',readErr:'Error reading file: '}
 };
 const t=k=>I18N[LANG][k];
@@ -251,51 +297,76 @@ const TODAY=(()=>{const t=new Date();return new Date(t.getFullYear(),t.getMonth(
 function workdays(a,b){const o=[];let d=new Date(a);while(d<=b){if(d.getDay()!==0)o.push(new Date(d));d.setDate(d.getDate()+1);}return o;}
 function weekStart(dt){const d=new Date(dt);const wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd);return d;}
 function leadN(v){if(v==null)return 0;const m=String(v).match(/(\d+)/);return m?+m[1]:0;}
+function cssVar(n){return getComputedStyle(document.body).getPropertyValue(n).trim();}
+function chartColors(){return{line:cssVar('--line')||'#2a2f3a',mut:cssVar('--mut')||'#9aa0ab',txt:cssVar('--txt')||'#e8eaed'};}
 
-let dateBasis='proj', qtyBasis='remaining', metric='fin', activeTab='gantt', sortKey='end', sortDir=1, custColor={};
+let dateBasis='proj', qtyBasis='remaining', metric='fin', rangeMode='all', activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='remF', ownSortDir=1;
+let custColor={}, ownerColor={}, allCusts=[], selectedCusts=new Set();
 let capFin=LS.get('capFin',''), capPcs=LS.get('capPcs','');
-let selectedCusts=new Set(), allCusts=[];
 
+function applyTheme(){document.body.classList.toggle('light',THEME==='light');$('#themeBtn').textContent=THEME==='light'?'☀️':'🌙';}
 function applyLang(){
   document.documentElement.lang=LANG;
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
   $('#lzh').classList.toggle('on',LANG==='zh');$('#len').classList.toggle('on',LANG==='en');
   refreshMeta();
 }
+$('#themeBtn').onclick=()=>{THEME=THEME==='light'?'dark':'light';LS.set('theme',THEME);applyTheme();render();};
 $('#lzh').onclick=()=>{LANG='zh';LS.set('lang','zh');applyLang();renderChips();render();};
 $('#len').onclick=()=>{LANG='en';LS.set('lang','en');applyLang();renderChips();render();};
 function refreshMeta(){const tag=DATA.uploaded?t('uploaded'):(DATA.generated||'');$('#meta').textContent=DATA.source?`${t('source')}: ${DATA.source}${tag?' · '+tag:''}`:'';}
 
-// ---------- Excel parsing ----------
+// ---------- parsing ----------
 function lead(v){if(v==null)return null;if(typeof v==='number')return Math.round(v);const m=String(v).match(/^\s*(\d+)/);return m?+m[1]:null;}
 function jsDate(v){if(v instanceof Date)return key(v);if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}return null;}
-function col(L){return XLSX.utils.decode_col(L);}
+function nrm(v){return v==null?'':String(v).toUpperCase().replace(/[^A-Z]/g,'');}
+// Header-driven: map logical fields by header text so column inserts/renames don't break parsing.
+function mapColumns(rows){
+  let hrow=-1;
+  for(let i=0;i<Math.min(16,rows.length);i++){if((rows[i]||[]).some(v=>nrm(v)==='TASK')){hrow=i;break;}}
+  if(hrow<0)hrow=4;
+  const H=rows[hrow]||[],G=rows[hrow-1]||[],cols={},starts=[],ends=[];
+  H.forEach((v,c)=>{const n=nrm(v);if(!n)return;
+    if(n==='TASK')cols.name=c;else if(n==='ASSIGNEDTO')cols.owner=c;
+    else if(n==='STYLENUMBER'||n==='FINISHINGNUMBER'||n==='STYLENO')cols.fin=c;
+    else if(n==='GARMENTQUANTITY'||n==='GARMENTQTY'||n==='QUANTITY')cols.pcs=c;
+    else if(n==='DEVBULK')cols.devbulk=c;else if(n==='STATUS')cols.status=c;else if(n==='PROGRESS')cols.prog=c;
+    else if(n==='START')starts.push(c);else if(n==='END')ends.push(c);});
+  let washCol=null,projCol=null;
+  G.forEach((v,c)=>{const n=nrm(v);if(n.includes('WASHING'))washCol=c;if(n.includes('PROJECT'))projCol=c;});
+  const pick=grp=>{if(grp==null)return[null,null];const s=starts.filter(c=>c>=grp).sort((a,b)=>a-b)[0];const e=ends.filter(c=>s!=null&&c>=s).sort((a,b)=>a-b)[0];return[s==null?null:s,e==null?null:e];};
+  let [ws_,we_]=pick(washCol),[ps_,pe_]=pick(projCol);
+  if(ps_==null&&ws_==null){const ss=[...starts].sort((a,b)=>a-b),ee=[...ends].sort((a,b)=>a-b);
+    if(ss.length>=2){ws_=ss[0];we_=ee[0];ps_=ss[1];pe_=ee[1];}else if(ss.length===1){ps_=ss[0];pe_=ee[0];}}
+  cols.washStart=ws_;cols.washEnd=we_;cols.projStart=ps_;cols.projEnd=pe_;
+  if(cols.name==null)cols.name=1;
+  return {hrow,cols};
+}
 function parseWB(ab){
   const wb=XLSX.read(ab,{type:'array',cellDates:true});
   const ws=wb.Sheets[wb.SheetNames[0]];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,blankrows:true,defval:null});
+  const {hrow,cols}=mapColumns(rows);
   const tasks=[];let cur='?';
-  for(let i=7;i<rows.length;i++){
-    const row=rows[i]||[];const g=L=>row[col(L)];
-    const B=g('B'),E=g('E'),J=g('J'),K=g('K'),F=g('F');
-    if(B&&J==null&&E==null){const lab=String(B).trim();if(/^insert new rows/i.test(lab))continue;cur=lab;continue;}
-    if(!B||J==null||K==null)continue;
+  for(let i=hrow+1;i<rows.length;i++){
+    const row=rows[i]||[];const g=c=>c==null?null:row[c];
+    const B=g(cols.name),E=g(cols.pcs),PS=g(cols.projStart),PE=g(cols.projEnd);
+    if(B&&PS==null&&E==null){const lab=String(B).trim();if(/^insert new rows/i.test(lab))continue;cur=lab;continue;}
+    if(!B||PS==null||PE==null)continue;
     const pieces=lead(E);if(!pieces)continue;
-    tasks.push({cust:cur,name:String(B).trim(),owner:String(g('C')||'').replace(/\n/g,' ').trim(),
-      finishes:String(g('D')||'').trim(),pieces,status:String(F||'').trim(),
-      prog:parseFloat(g('G'))||0,start:jsDate(J),end:jsDate(K),washStart:jsDate(g('H')),washEnd:jsDate(g('I'))});
+    tasks.push({cust:cur,name:String(B).trim(),owner:String(g(cols.owner)||'').replace(/\n/g,' ').trim(),
+      finishes:String(g(cols.fin)||'').trim(),pieces,devbulk:String(g(cols.devbulk)||'').trim(),
+      status:String(g(cols.status)||'').trim(),prog:parseFloat(g(cols.prog))||0,
+      start:jsDate(PS),end:jsDate(PE),washStart:jsDate(g(cols.washStart)),washEnd:jsDate(g(cols.washEnd))});
   }
   return {tasks};
 }
 function loadFile(file){
-  $('#err').textContent='';
-  const r=new FileReader();
+  $('#err').textContent='';const r=new FileReader();
   r.onerror=()=>{$('#err').textContent=t('readErr')+r.error;};
-  r.onload=e=>{try{
-    const res=parseWB(e.target.result);
+  r.onload=e=>{try{const res=parseWB(e.target.result);
     if(!res.tasks.length){$('#err').textContent=t('parseErr');return;}
-    DATA={source:file.name,uploaded:true,tasks:res.tasks};
-    initFilters();refreshMeta();render();
+    DATA={source:file.name,uploaded:true,tasks:res.tasks};initFilters();refreshMeta();render();
   }catch(err){$('#err').textContent=t('readErr')+err.message;}};
   r.readAsArrayBuffer(file);
 }
@@ -308,14 +379,17 @@ drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])loadFile(e.dataTrans
 
 // ---------- filters/tabs ----------
 function initFilters(){
-  custColor={};DATA.tasks.forEach(t=>{if(!(t.cust in custColor))custColor[t.cust]=palette[Object.keys(custColor).length%palette.length];});
+  custColor={};ownerColor={};
+  DATA.tasks.forEach(t=>{if(!(t.cust in custColor))custColor[t.cust]=palette[Object.keys(custColor).length%palette.length];});
+  const owners=[...new Set(DATA.tasks.map(t=>t.owner).filter(Boolean))];
+  owners.forEach((o,i)=>ownerColor[o]=palette2[i%palette2.length]);
   allCusts=[...new Set(DATA.tasks.map(t=>t.cust))];
-  // restore the viewer's saved customer selection; if none match this file, show all
-  const saved=LS.get('custs',null);
-  const keep=saved?allCusts.filter(c=>saved.includes(c)):[];
+  const saved=LS.get('custs',null);const keep=saved?allCusts.filter(c=>saved.includes(c)):[];
   selectedCusts=new Set(keep.length?keep:allCusts);
-  const owners=[...new Set(DATA.tasks.map(t=>t.owner).filter(Boolean))].sort();
-  $('#fOwner').innerHTML='<option value="">—</option>'+owners.map(o=>`<option value="${o}">${o}</option>`).join('');
+  $('#fOwner').innerHTML='<option value="">—</option>'+owners.sort().map(o=>`<option value="${o}">${o}</option>`).join('');
+  const dbs=[...new Set(DATA.tasks.map(t=>t.devbulk).filter(Boolean))];
+  $('#dbWrap').style.display=dbs.length?'':'none';
+  $('#fDevBulk').innerHTML=`<option value="">${t('dbAll')}</option>`+dbs.sort().map(d=>`<option value="${d}">${d}</option>`).join('');
   renderChips();
 }
 function renderChips(){
@@ -324,40 +398,45 @@ function renderChips(){
 }
 $('#selAll').onclick=()=>{selectedCusts=new Set(allCusts);LS.set('custs',[...selectedCusts]);renderChips();render();};
 $('#clrNone').onclick=()=>{selectedCusts=new Set();LS.set('custs',[]);renderChips();render();};
-['#fOwner','#fStatus'].forEach(s=>$(s).addEventListener('change',render));
+['#fOwner','#fStatus','#fDevBulk'].forEach(s=>$(s).addEventListener('change',render));
 $('#cap').addEventListener('input',()=>{const raw=$('#cap').value;const v=raw===''?'':(+raw);if(metric==='fin'){capFin=v;LS.set('capFin',v);}else{capPcs=v;LS.set('capPcs',v);}render();});
-$('#reset').onclick=()=>{selectedCusts=new Set(allCusts);LS.set('custs',[...selectedCusts]);$('#fOwner').value='';$('#fStatus').value='active';
-  dateBasis='proj';qtyBasis='remaining';metric='fin';syncSeg();renderChips();render();};
+$('#reset').onclick=()=>{selectedCusts=new Set(allCusts);LS.set('custs',[...selectedCusts]);$('#fOwner').value='';$('#fStatus').value='active';$('#fDevBulk').value='';
+  dateBasis='proj';qtyBasis='remaining';metric='fin';rangeMode='all';syncSeg();renderChips();render();};
 function syncSeg(){
   document.querySelectorAll('#segWindow button').forEach(b=>b.classList.toggle('on',b.dataset.v===dateBasis));
   document.querySelectorAll('#segQty button').forEach(b=>b.classList.toggle('on',b.dataset.v===qtyBasis));
   document.querySelectorAll('#segMetric button').forEach(b=>b.classList.toggle('on',b.dataset.v===metric));
-  $('#cap').value=metric==='fin'?capFin:capPcs;
-  $('#cap').placeholder=LANG==='zh'?'填写':'set';
+  document.querySelectorAll('#segRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===rangeMode));
+  $('#cap').value=metric==='fin'?capFin:capPcs;$('#cap').placeholder=LANG==='zh'?'填写':'set';
   $('#capUnit').textContent=(metric==='fin'?t('unitF'):t('unitP'))+'/'+t('sWeek');
 }
 document.querySelectorAll('#segWindow button').forEach(b=>b.onclick=()=>{dateBasis=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segQty button').forEach(b=>b.onclick=()=>{qtyBasis=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segMetric button').forEach(b=>b.onclick=()=>{metric=b.dataset.v;syncSeg();render();});
+document.querySelectorAll('#segRange button').forEach(b=>b.onclick=()=>{rangeMode=b.dataset.v;syncSeg();render();});
 $('#tabGanttBtn').onclick=()=>switchTab('gantt');
 $('#tabSumBtn').onclick=()=>switchTab('sum');
+$('#tabOwnerBtn').onclick=()=>switchTab('owner');
 function switchTab(tb){activeTab=tb;
-  $('#tabGanttBtn').classList.toggle('on',tb==='gantt');$('#tabSumBtn').classList.toggle('on',tb==='sum');
-  $('#paneGantt').style.display=tb==='gantt'?'':'none';$('#paneSum').style.display=tb==='sum'?'':'none';render();}
+  $('#tabGanttBtn').classList.toggle('on',tb==='gantt');$('#tabSumBtn').classList.toggle('on',tb==='sum');$('#tabOwnerBtn').classList.toggle('on',tb==='owner');
+  $('#paneGantt').style.display=tb==='gantt'?'':'none';$('#paneSum').style.display=tb==='sum'?'':'none';$('#paneOwner').style.display=tb==='owner'?'':'none';render();}
 
 function selectedTasks(){
-  const ow=$('#fOwner').value,st=$('#fStatus').value;
+  const ow=$('#fOwner').value,st=$('#fStatus').value,db=$('#fDevBulk').value;
   return DATA.tasks.filter(t=>{
     if(!selectedCusts.has(t.cust))return false;
     if(ow&&t.owner!==ow)return false;
+    if(db&&t.devbulk!==db)return false;
     if(st==='active'&&!(t.status==='In Progress'||t.status==='Pending'))return false;
     if(st!=='active'&&st!=='all'&&t.status!==st)return false;
     return true;});
 }
+function winBound(){if(rangeMode==='all')return null;const e=new Date(TODAY);e.setDate(e.getDate()+(+rangeMode));return e;}
 
 function compute(tasks){
-  const wash=dateBasis==='wash', weighted=qtyBasis==='remaining';
-  const perF={},perP={},rows=[];let excluded=0;
+  const wash=dateBasis==='wash', weighted=qtyBasis==='remaining', wEnd=winBound();
+  const inWin=d=>(rangeMode==='all')||(d>=TODAY&&d<=wEnd);
+  const perFc={},perPc={},perFo={},perPo={},rows=[];let excluded=0;
   tasks.forEach(t=>{
     const finTot=leadN(t.finishes);
     const s=wash?t.washStart:t.start, e=wash?t.washEnd:t.end;
@@ -366,25 +445,51 @@ function compute(tasks){
     if(weighted){bF*=(1-(t.prog||0));bP*=(1-(t.prog||0));if(sd<TODAY)sd=new Date(TODAY);}
     if(ed<sd){rows.push({...t,finN:finTot,wdCount:0,perDayF:0,perDayP:0,remF:0,remP:0});return;}
     const wd=workdays(sd,ed);const pf=wd.length?bF/wd.length:0,pp=wd.length?bP/wd.length:0;
-    wd.forEach(d=>{const k=key(d);(perF[k]=perF[k]||{})[t.cust]=(perF[k][t.cust]||0)+pf;(perP[k]=perP[k]||{})[t.cust]=(perP[k][t.cust]||0)+pp;});
-    rows.push({...t,finN:finTot,wdCount:wd.length,perDayF:pf,perDayP:pp,remF:bF,remP:bP});
+    let wF=0,wP=0;
+    wd.forEach(d=>{if(!inWin(d))return;const k=key(d);
+      (perFc[k]=perFc[k]||{})[t.cust]=(perFc[k][t.cust]||0)+pf;(perPc[k]=perPc[k]||{})[t.cust]=(perPc[k][t.cust]||0)+pp;
+      const ow=t.owner||'—';(perFo[k]=perFo[k]||{})[ow]=(perFo[k][ow]||0)+pf;(perPo[k]=perPo[k]||{})[ow]=(perPo[k][ow]||0)+pp;
+      wF+=pf;wP+=pp;});
+    rows.push({...t,finN:finTot,wdCount:wd.length,perDayF:pf,perDayP:pp,remF:wF,remP:wP});
   });
-  return {perF,perP,rows,excluded};
+  return {perFc,perPc,perFo,perPo,rows,excluded};
 }
 const dayTotals=map=>Object.keys(map).sort().map(k=>({k,v:Object.values(map[k]).reduce((a,b)=>a+b,0)}));
 function peakOf(dt){return dt.reduce((m,d)=>d.v>m.v?d:m,{v:0,k:'-'});}
 function weekAgg(dt){const w={};dt.forEach(d=>{const wk=key(weekStart(parseD(d.k)));w[wk]=(w[wk]||0)+d.v;});return w;}
+function capOf(){const r=metric==='fin'?capFin:capPcs;return(r===''||r==null||isNaN(+r)||+r<=0)?null:+r;}
 
+// ---------- main render ----------
 function render(){
   const tasks=selectedTasks();
+  const C=compute(tasks);
+  updateBanner(C);
+  if(!DATA.tasks.length){showEmpty();return;}
   if(activeTab==='gantt'){drawGantt(tasks);return;}
-  const {perF,perP,rows,excluded}=compute(tasks);
-  const capRaw=metric==='fin'?capFin:capPcs;
-  const cap=(capRaw===''||capRaw==null||isNaN(+capRaw)||+capRaw<=0)?null:+capRaw;
-  const map=metric==='fin'?perF:perP, unit=metric==='fin'?t('unitF'):t('unitP');
-  const dtF=dayTotals(perF),dtP=dayTotals(perP);
-  const totF=rows.reduce((s,r)=>s+(r.remF||0),0),totP=rows.reduce((s,r)=>s+(r.remP||0),0);
-  const nDays=dayTotals(map).length;
+  if(activeTab==='owner'){drawOwner(C,tasks);return;}
+  drawSummary(C,tasks);
+}
+function showEmpty(){
+  $('#gantt').innerHTML=`<div class="empty"><h3>${t('emptyTitle')}</h3><div>${t('emptySub')}</div></div>`;
+  $('#ganttLegend').innerHTML='';
+}
+function updateBanner(C){
+  const cap=capOf();const b=$('#banner');
+  if(!cap){b.className='banner';return;}
+  const map=metric==='fin'?C.perFc:C.perPc;const w=weekAgg(dayTotals(map));
+  const over=Object.keys(w).filter(k=>w[k]>cap).sort();
+  if(!over.length){b.className='banner';return;}
+  const unit=metric==='fin'?t('unitF'):t('unitP');
+  const chips=over.slice(0,6).map(k=>`<span class="wk">${t('sWeek')} ${k.slice(5)} · ${fmt(w[k])} &gt; ${cap} (${t('overBy')} ${fmt(w[k]-cap)})</span>`).join('');
+  b.className='banner show';b.innerHTML=`<b>${t('alertOver')(over.length)}</b> ${chips}`;
+}
+
+function drawSummary(C,tasks){
+  const cap=capOf();
+  const map=metric==='fin'?C.perFc:C.perPc, unit=metric==='fin'?t('unitF'):t('unitP');
+  const dtF=dayTotals(C.perFc),dtP=dayTotals(C.perPc);
+  const sumMap=m=>Object.values(m).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
+  const totF=sumMap(C.perFc),totP=sumMap(C.perPc);
   const pkF=peakOf(dtF),pkP=peakOf(dtP);
   const avgF=dtF.length?totF/dtF.length:0,avgP=dtP.length?totP/dtP.length:0;
   const wF=weekAgg(dtF),wP=weekAgg(dtP);
@@ -392,136 +497,189 @@ function render(){
   const peakWeek=weeks.reduce((m,w)=>wMap[w]>wMap[m]?w:m,weeks[0]||'-');
   const peakWeekV=weeks.length?wMap[peakWeek]:0;
   const overCap=cap?weeks.filter(w=>wMap[w]>cap).length:0;
-  // peak week values for both metrics at the same week
-  const peakDayF=peakOf(dtF),peakDayP=peakOf(dtP);
-
-  // KPIs — finishes(washes) first, pieces second
-  const washExcl=(dateBasis==='wash'&&excluded)?`<div class="kpi"><div class="v" style="color:var(--mut);font-size:16px">${t('excl')(excluded)}</div></div>`:'';
+  const washExcl=(dateBasis==='wash'&&C.excluded)?`<div class="kpi"><div class="v" style="color:var(--mut);font-size:16px">${t('excl')(C.excluded)}</div></div>`:'';
   const kpis=[
-    {v:rows.filter(r=>!r.skipped).length,l:t('kProjects'),s:tasks.filter(x=>x.status==='In Progress').length+' '+t('inprog')+' / '+tasks.filter(x=>x.status==='Pending').length+' '+t('pend')},
+    {v:C.rows.filter(r=>!r.skipped).length,l:t('kProjects'),s:tasks.filter(x=>x.status==='In Progress').length+' '+t('inprog')+' / '+tasks.filter(x=>x.status==='Pending').length+' '+t('pend')},
     {v:fmt(totF),l:t('kFin'),s:fmt(totP)+' '+t('kPcs')},
     {v:fmt1(avgF),l:t('kAvgF'),s:fmt1(avgP)+' '+t('kAvgP')},
-    {v:fmt1(peakDayF.v),l:t('kPeakDay'),s:(peakDayF.k==='-'?'':peakDayF.k)+' · '+fmt(peakDayP.v)+' '+t('kPcs'),alert:peakDayF.v>avgF*2},
-    {v:fmt(metric==='fin'?peakWeekV:wF[peakWeek]||0),l:t('kPeakWkM')(metric),s:(peakWeek==='-'?'':t('sWeek')+' '+peakWeek)+' · '+fmt(metric==='fin'?(wP[peakWeek]||0):(wF[peakWeek]||0))+' '+(metric==='fin'?t('unitP'):t('unitF')),alert:cap&&peakWeekV>cap},
+    {v:fmt1(pkF.v),l:t('kPeakDay'),s:(pkF.k==='-'?'':pkF.k)+' · '+fmt(pkP.v)+' '+t('kPcs'),alert:pkF.v>avgF*2},
+    {v:fmt(peakWeekV),l:t('kPeakWkM')(metric),s:(peakWeek==='-'?'':t('sWeek')+' '+peakWeek)+' · '+fmt(metric==='fin'?(wP[peakWeek]||0):(wF[peakWeek]||0))+' '+(metric==='fin'?t('unitP'):t('unitF')),alert:cap&&peakWeekV>cap},
     {v:cap?overCap:'—',l:t('kOver'),s:cap?t('sCapRef')(cap,unit):t('setCap'),alert:overCap>0},
   ];
   $('#kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.alert?'alert':''}"><div class="v">${k.v}</div><div class="l">${k.l}</div><div class="s">${k.s}</div></div>`).join('')+washExcl;
-
   $('#weekTitle').textContent=metric==='fin'?t('weekTitleF'):t('weekTitleP');
   $('#calTitle').textContent=metric==='fin'?t('calTitleF'):t('calTitleP');
-  drawWeekChart(map,tasks,cap,unit);
-  drawCalendar(map,unit);
-  drawTable(rows.filter(r=>!r.skipped));
+  $('#buTitle').textContent=metric==='fin'?t('buTitleF'):t('buTitleP');
+  const custs=[...new Set(tasks.map(x=>x.cust))];
+  drawStacked($('#weekChart'),map,custs,c=>custColor[c]||'#888',cap,unit,$('#weekLegend'));
+  drawBurnup($('#buChart'),dayTotals(map),cap,unit);
+  drawCalendar(map,unit,cap);
+  drawTable(C.rows.filter(r=>!r.skipped));
 }
 
-// ---------- Gantt ----------
+// ---------- owner tab ----------
+function drawOwner(C,tasks){
+  const cap=capOf();const map=metric==='fin'?C.perFo:C.perPo,unit=metric==='fin'?t('unitF'):t('unitP');
+  $('#ownWeekTitle').textContent=metric==='fin'?t('ownWeekTitleF'):t('ownWeekTitleP');
+  const owners=[...new Set(tasks.map(x=>x.owner||'—'))];
+  drawStacked($('#ownChart'),map,owners,o=>ownerColor[o]||'#888',cap,unit,$('#ownLegend'));
+  // per-owner aggregates
+  const agg={};
+  C.rows.filter(r=>!r.skipped).forEach(r=>{const o=r.owner||'—';(agg[o]=agg[o]||{f:0,p:0,n:0})&&0;agg[o].f+=r.remF;agg[o].p+=r.remP;agg[o].n++;});
+  // peak week per owner
+  const wkF={};Object.keys(C.perFo).forEach(dk=>{const wk=key(weekStart(parseD(dk)));Object.entries(metric==='fin'?C.perFo[dk]:C.perPo[dk]).forEach(([o,v])=>{(wkF[o]=wkF[o]||{})[wk]=(wkF[o][wk]||0)+v;});});
+  const nDays={};Object.keys(C.perFo).forEach(dk=>{Object.keys(C.perFo[dk]).forEach(o=>{nDays[o]=(nDays[o]||new Set());nDays[o].add(dk);});});
+  const rows=Object.keys(agg).map(o=>{const peak=wkF[o]?Math.max(...Object.values(wkF[o])):0;const nd=nDays[o]?nDays[o].size:0;
+    return {o,f:agg[o].f,p:agg[o].p,n:agg[o].n,avgF:nd?agg[o].f/nd:0,peakWk:peak};});
+  const totF=rows.reduce((s,r)=>s+r.f,0)||1;
+  rows.forEach(r=>r.share=100*r.f/totF);
+  rows.sort((a,b)=>{let x=a[ownSortKey],y=b[ownSortKey];if(typeof x==='string')return x<y?-ownSortDir:x>y?ownSortDir:0;return((x||0)-(y||0))*ownSortDir;});
+  const maxF=Math.max(...rows.map(r=>r.f),0.001);
+  const cols=[{k:'o',t:'oName'},{k:'n',t:'oProj',num:1},{k:'f',t:'oFin',num:1},{k:'p',t:'oPcs',num:1},{k:'avgF',t:'oAvgF',num:1},{k:'peakWk',t:'oPeakWk',num:1},{k:'share',t:'oShare',num:1}];
+  $('#ownTbl thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.num?'num':''}" data-k="${c.k}">${t(c.t)}${ownSortKey===c.k?(ownSortDir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
+  $('#ownTbl tbody').innerHTML=rows.map(r=>`<tr>
+    <td><span class="pill" style="background:${(ownerColor[r.o]||'#888')}22;color:${ownerColor[r.o]||'#888'}">${r.o}</span></td>
+    <td class="num">${r.n}</td>
+    <td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div class="bar" style="width:${44*r.f/maxF+4}px"></div>${fmt(r.f)}</div></td>
+    <td class="num">${fmt(r.p)}</td><td class="num">${fmt1(r.avgF)}</td>
+    <td class="num" style="${cap&&r.peakWk>cap?'color:var(--warn);font-weight:600':''}">${fmt(r.peakWk)}</td>
+    <td class="num">${fmt1(100*r.f/totF)}%</td></tr>`).join('')||`<tr><td colspan="7" class="muted">${t('noData')}</td></tr>`;
+  $('#ownTbl thead').querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(ownSortKey===k)ownSortDir*=-1;else{ownSortKey=k;ownSortDir=k==='o'?1:-1;}drawOwner(C,tasks);});
+}
+
+// ---------- generic stacked weekly bar ----------
+function drawStacked(cv,map,groups,colorFn,CAP,unit,legendEl){
+  const W=cv.clientWidth,H=300;cv.width=W*devicePixelRatio;cv.height=H*devicePixelRatio;
+  const ctx=cv.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);ctx.clearRect(0,0,W,H);
+  const CC=chartColors();const padL=48,padB=46,padT=10,padR=10;
+  const wc={};Object.keys(map).forEach(dk=>{const w=key(weekStart(parseD(dk)));(wc[w]=wc[w]||{});Object.entries(map[dk]).forEach(([c,v])=>{wc[w][c]=(wc[w][c]||0)+v;});});
+  const weeks=Object.keys(wc).sort();const wtot=w=>Object.values(wc[w]).reduce((a,b)=>a+b,0);
+  if(!weeks.length){ctx.fillStyle=CC.mut;ctx.font='13px sans-serif';ctx.fillText(t('noLoad'),padL,H/2);legendEl.innerHTML='';return;}
+  const maxV=Math.max(...(CAP?[CAP]:[]),...weeks.map(wtot),1);
+  const plotW=W-padL-padR,plotH=H-padT-padB;
+  const bw=Math.min(46,plotW/Math.max(weeks.length,1)*0.7),step=plotW/Math.max(weeks.length,1);
+  ctx.strokeStyle=CC.line;ctx.fillStyle=CC.mut;ctx.font='10px sans-serif';
+  for(let i=0;i<=4;i++){const y=padT+plotH*i/4;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();ctx.fillText(fmt(maxV*(1-i/4)),4,y+3);}
+  if(CAP){const capY=padT+plotH*(1-CAP/maxV);ctx.strokeStyle='#ff6b6b';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(padL,capY);ctx.lineTo(W-padR,capY);ctx.stroke();ctx.setLineDash([]);}
+  cv._bars=[];
+  weeks.forEach((w,i)=>{const x=padL+step*i+(step-bw)/2;let acc=0;
+    groups.forEach(c=>{const v=wc[w][c]||0;if(!v)return;const h=plotH*v/maxV,y=padT+plotH-acc-h;ctx.fillStyle=colorFn(c);ctx.fillRect(x,y,bw,h);cv._bars.push({x,y,w:bw,h,week:w,grp:c,val:v});acc+=h;});
+    ctx.fillStyle=CC.mut;ctx.save();ctx.translate(x+bw/2,H-padB+12);ctx.rotate(-Math.PI/5);ctx.textAlign='right';ctx.fillText(w.slice(5),0,0);ctx.restore();
+    const tot=wtot(w);ctx.fillStyle=CC.txt;ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText(fmt(tot),x+bw/2,padT+plotH-plotH*tot/maxV-3);ctx.textAlign='left';ctx.font='10px sans-serif';});
+  legendEl.innerHTML=groups.map(c=>`<span><i style="background:${colorFn(c)}"></i>${c}</span>`).join('')+(CAP?`<span><i style="background:#ff6b6b"></i>${t('capLine')(CAP,unit)}</span>`:'');
+  cv.onmousemove=e=>{const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;const b=(cv._bars||[]).find(b=>mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);if(b)showTip(e,`<b>${t('sWeek')} ${b.week}</b><br>${b.grp}<br>${fmt1(b.val)} ${unit}`);else hideTip();};
+  cv.onmouseleave=hideTip;
+}
+
+// ---------- burn-up / backlog ----------
+function drawBurnup(cv,dt,CAP,unit){
+  const W=cv.clientWidth,H=280;cv.width=W*devicePixelRatio;cv.height=H*devicePixelRatio;
+  const ctx=cv.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);ctx.clearRect(0,0,W,H);
+  const CC=chartColors();const padL=52,padB=40,padT=10,padR=12;
+  if(!CAP){ctx.fillStyle=CC.mut;ctx.font='13px sans-serif';ctx.fillText(t('buSetCap'),padL,H/2);$('#buLegend').innerHTML='';return;}
+  if(!dt.length){ctx.fillStyle=CC.mut;ctx.font='13px sans-serif';ctx.fillText(t('noLoad'),padL,H/2);$('#buLegend').innerHTML='';return;}
+  const dailyCap=CAP/6; // 6 working days per week
+  let demand=0,capc=0,maxBacklog=0;const pts=dt.map((d,i)=>{demand+=d.v;capc+=dailyCap;const bl=Math.max(0,demand-capc);if(bl>maxBacklog)maxBacklog=bl;return{k:d.k,demand,capc,bl};});
+  const maxY=Math.max(...pts.map(p=>Math.max(p.demand,p.capc)),1);
+  const plotW=W-padL-padR,plotH=H-padT-padB;
+  const X=i=>padL+plotW*(pts.length<2?0.5:i/(pts.length-1));
+  const Y=v=>padT+plotH*(1-v/maxY);
+  ctx.strokeStyle=CC.line;ctx.fillStyle=CC.mut;ctx.font='10px sans-serif';
+  for(let i=0;i<=4;i++){const y=padT+plotH*i/4;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();ctx.fillText(fmt(maxY*(1-i/4)),4,y+3);}
+  // backlog shaded area between capc and demand where demand>capc
+  ctx.fillStyle='rgba(255,107,107,.18)';ctx.beginPath();let started=false;
+  for(let i=0;i<pts.length;i++){if(pts[i].bl>0){if(!started){ctx.moveTo(X(i),Y(pts[i].capc));started=true;}ctx.lineTo(X(i),Y(pts[i].demand));}}
+  for(let i=pts.length-1;i>=0;i--){if(pts[i].bl>0)ctx.lineTo(X(i),Y(pts[i].capc));}
+  if(started){ctx.closePath();ctx.fill();}
+  // demand line
+  ctx.strokeStyle='#4f9dff';ctx.lineWidth=2;ctx.beginPath();pts.forEach((p,i)=>{i?ctx.lineTo(X(i),Y(p.demand)):ctx.moveTo(X(i),Y(p.demand));});ctx.stroke();
+  // capacity line
+  ctx.strokeStyle='#41d18f';ctx.setLineDash([6,4]);ctx.beginPath();pts.forEach((p,i)=>{i?ctx.lineTo(X(i),Y(p.capc)):ctx.moveTo(X(i),Y(p.capc));});ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=1;
+  // x labels (few)
+  ctx.fillStyle=CC.mut;ctx.font='10px sans-serif';ctx.textAlign='center';
+  const ticks=Math.min(6,pts.length);for(let i=0;i<ticks;i++){const idx=Math.round(i*(pts.length-1)/(ticks-1||1));ctx.fillText(pts[idx].k.slice(5),X(idx),H-padB+14);}ctx.textAlign='left';
+  $('#buLegend').innerHTML=`<span><i style="background:#4f9dff"></i>${t('buDemand')}</span><span><i style="background:#41d18f"></i>${t('buCapacity')} (${fmt1(dailyCap)} ${unit}/d)</span>`+
+    (maxBacklog>0?`<span><i style="background:rgba(255,107,107,.5)"></i>${t('buBacklogPeak')}: ${fmt(maxBacklog)} ${unit}</span>`:`<span style="color:var(--ok)">✔ ${t('buOnTrack')}</span>`);
+  cv.onmousemove=e=>{const r=cv.getBoundingClientRect(),mx=e.clientX-r.left;const i=Math.max(0,Math.min(pts.length-1,Math.round((mx-padL)/plotW*(pts.length-1))));const p=pts[i];
+    showTip(e,`<b>${p.k}</b><br>${t('buDemand')}: ${fmt(p.demand)} ${unit}<br>${t('buCapacity')}: ${fmt(p.capc)} ${unit}<br>${t('buBacklog')}: ${fmt(p.bl)} ${unit}`);};
+  cv.onmouseleave=hideTip;
+}
+
+// ---------- gantt ----------
 function drawGantt(tasks){
   const host=$('#gantt');host.innerHTML='';
+  if(!tasks.length){host.innerHTML=`<div class="empty"><h3>${t('noGantt')}</h3></div>`;$('#ganttLegend').innerHTML='';return;}
   const draw=tasks.filter(t=>{const s=dateBasis==='wash'?t.washStart:t.start,e=dateBasis==='wash'?t.washEnd:t.end;return s&&e;});
-  if(!draw.length){host.innerHTML=`<div class="muted" style="padding:20px">${t('noGantt')}</div>`;$('#ganttLegend').innerHTML='';return;}
+  if(!draw.length){host.innerHTML=`<div class="empty"><h3>${t('noGantt')}</h3></div>`;$('#ganttLegend').innerHTML='';return;}
   let dates=[];draw.forEach(t=>{[t.start,t.end,t.washStart,t.washEnd].forEach(d=>{if(d)dates.push(parseD(d));});});
   let min=new Date(Math.min(...dates)),max=new Date(Math.max(...dates));
   min.setDate(min.getDate()-2);max.setDate(max.getDate()+2);
   const totalDays=diffDays(min,max)+1;
   const labelW=Math.min(260,Math.max(180,host.clientWidth*0.26));
-  const avail=host.clientWidth-labelW-2;
-  const ppd=Math.max(3.2,avail/totalDays);
-  const tlW=totalDays*ppd;
+  const ppd=Math.max(3.2,(host.clientWidth-labelW-2)/totalDays);const tlW=totalDays*ppd;
   const xOf=d=>diffDays(min,parseD(d))*ppd;
-  // sequence grouped by customer (keep first-seen order)
   const order=[...new Set(draw.map(t=>t.cust))];
   const seq=[];order.forEach(c=>{seq.push({grp:c});draw.filter(t=>t.cust===c).forEach(t=>seq.push({t}));});
-  // month ticks
-  let ticks='';let mc=new Date(min.getFullYear(),min.getMonth(),1);
   const mn=LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  let gridlines='';
-  while(mc<=max){const x=diffDays(min,mc)*ppd;if(x>=0){ticks+=`<div class="gmname" style="left:${x}px">${mc.getFullYear()===min.getFullYear()&&mc.getMonth()===min.getMonth()?'':''}${mn[mc.getMonth()]}${mc.getMonth()===0?"'"+String(mc.getFullYear()).slice(2):''}</div>`;gridlines+=`<div class="gline" style="left:${x}px"></div>`;}mc.setMonth(mc.getMonth()+1);}
-  const todayX=xOf(key(TODAY));const todayLine=(diffDays(min,TODAY)>=0&&TODAY<=max)?`<div class="gtoday" style="left:${todayX}px"></div>`:'';
-  // left labels
-  const leftRows=seq.map(it=>{
-    if(it.grp!==undefined)return `<div class="glabel-grp"><span class="dot" style="background:${custColor[it.grp]||'#888'}"></span>&nbsp;${it.grp}</div>`;
-    const r=it.t;return `<div class="glabel-row" title="${r.name}"><span class="dot" style="background:${custColor[r.cust]||'#888'}"></span><span class="nm">${r.name}</span><span class="qt">${leadN(r.finishes)}${t('unitF')}·${fmt(r.pieces)}${t('unitP')}</span></div>`;
-  }).join('');
-  // right rows
+  let ticks='',gridlines='';let mc=new Date(min.getFullYear(),min.getMonth(),1);
+  while(mc<=max){const x=diffDays(min,mc)*ppd;if(x>=0){ticks+=`<div class="gmname" style="left:${x}px">${mn[mc.getMonth()]}${mc.getMonth()===0?"'"+String(mc.getFullYear()).slice(2):''}</div>`;gridlines+=`<div class="gline" style="left:${x}px"></div>`;}mc.setMonth(mc.getMonth()+1);}
+  const todayLine=(diffDays(min,TODAY)>=0&&TODAY<=max)?`<div class="gtoday" style="left:${xOf(key(TODAY))}px"></div>`:'';
+  const leftRows=seq.map(it=>it.grp!==undefined
+    ?`<div class="glabel-grp"><span class="dot" style="background:${custColor[it.grp]||'#888'}"></span>&nbsp;${it.grp}</div>`
+    :`<div class="glabel-row" title="${it.t.name}"><span class="dot" style="background:${custColor[it.t.cust]||'#888'}"></span><span class="nm">${it.t.name}</span><span class="qt">${leadN(it.t.finishes)}${t('unitF')}·${fmt(it.t.pieces)}${t('unitP')}</span></div>`).join('');
   const bodyRows=seq.map(it=>{
     if(it.grp!==undefined)return `<div class="grp-row"></div>`;
-    const r=it.t;const ps=r.start,pe=r.end;
-    let bars='';
-    if(ps&&pe){const l=xOf(ps),w=Math.max(2,(diffDays(parseD(ps),parseD(pe))+1)*ppd);
+    const r=it.t;let bars='';
+    if(r.start&&r.end){const l=xOf(r.start),w=Math.max(2,(diffDays(parseD(r.start),parseD(r.end))+1)*ppd);
       const op=r.status==='Pending'?.32:.5;
-      bars+=`<div class="gbar" style="left:${l}px;width:${w}px;background:${custColor[r.cust]};opacity:${op}"></div>`;
+      bars+=`<div class="gbar" style="left:${l}px;width:${w}px;background:${custColor[r.cust]};opacity:${op}">${w>34?`<span class="gblab">${leadN(r.finishes)}${t('unitF')}</span>`:''}</div>`;
       if(r.prog>0)bars+=`<div class="gprog" style="left:${l}px;width:${w*Math.min(1,r.prog)}px"></div>`;}
     if(r.washStart&&r.washEnd){const l=xOf(r.washStart),w=Math.max(2,(diffDays(parseD(r.washStart),parseD(r.washEnd))+1)*ppd);
       bars+=`<div class="gbar wash" style="left:${l}px;width:${w}px;background:${custColor[r.cust]}"></div>`;}
-    return `<div class="gtrack" data-name="${r.name}">${bars}</div>`;
+    return `<div class="gtrack">${bars}</div>`;
   }).join('');
-  host.innerHTML=`<div class="gwrap">
-    <div class="gleft" style="width:${labelW}px"><div class="ghead-l"></div>${leftRows}</div>
-    <div class="gright"><div class="ginner" style="width:${tlW}px">
-      <div class="ghead" style="position:relative">${ticks}</div>
-      <div class="gbody">${gridlines}${todayLine}${bodyRows}</div>
-    </div></div></div>`;
-  // tooltips on tracks
-  host.querySelectorAll('.gtrack').forEach((el,idx)=>{});
-  let i2=0;const taskSeq=seq.filter(s=>s.t).map(s=>s.t);
+  host.innerHTML=`<div class="gwrap"><div class="gleft" style="width:${labelW}px"><div class="ghead-l"></div>${leftRows}</div>
+    <div class="gright"><div class="ginner" style="width:${tlW}px"><div class="ghead" style="position:relative">${ticks}</div>
+    <div class="gbody">${gridlines}${todayLine}${bodyRows}</div></div></div></div>`;
+  const taskSeq=seq.filter(s=>s.t).map(s=>s.t);
   host.querySelectorAll('.gtrack').forEach((el,idx)=>{const r=taskSeq[idx];if(!r)return;
     el.onmousemove=e=>{const sz={'In Progress':LANG==='zh'?'进行中':'In Progress','Pending':LANG==='zh'?'待做':'Pending','Completed':LANG==='zh'?'已完成':'Completed'}[r.status]||r.status;
       let h=`<b>${r.name}</b><br>${r.cust} · ${r.owner||''}<br>${sz} · ${Math.round((r.prog||0)*100)}%<br>${leadN(r.finishes)}${t('unitF')} · ${fmt(r.pieces)}${t('unitP')}<br>${t('gProj')}: ${r.start}→${r.end}`;
       if(r.washStart)h+=`<br>${t('gWash')}: ${r.washStart}→${r.washEnd}`;showTip(e,h);};
     el.onmouseleave=hideTip;});
-  $('#ganttLegend').innerHTML=`<span><i style="background:var(--accent);opacity:.5"></i>${t('gProj')}</span><span><i style="background:var(--accent)"></i>${t('gWash')}</span><span><i style="background:#fff"></i>${t('gProgress')}</span><span><i style="background:#ffb454"></i>${t('today')}</span>`;
+  $('#ganttLegend').innerHTML=`<span><i style="background:var(--accent);opacity:.5"></i>${t('gProj')}</span><span><i style="background:var(--accent)"></i>${t('gWash')}</span><span><i style="background:var(--txt)"></i>${t('gProgress')}</span><span><i style="background:#ffb454"></i>${t('today')}</span>`;
+  // auto-scroll so today is near the left third
+  const gr=host.querySelector('.gright');if(gr&&diffDays(min,TODAY)>=0&&TODAY<=max)gr.scrollLeft=Math.max(0,xOf(key(TODAY))-gr.clientWidth*0.3);
 }
 
-// ---------- weekly stacked bar ----------
-function drawWeekChart(map,tasks,CAP,unit){
-  const cv=$('#weekChart'),W=cv.clientWidth,H=300;
-  cv.width=W*devicePixelRatio;cv.height=H*devicePixelRatio;
-  const ctx=cv.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);ctx.clearRect(0,0,W,H);
-  const padL=48,padB=46,padT=10,padR=10;
-  const cs=[...new Set(tasks.map(t=>t.cust))];
-  const wc={};Object.keys(map).forEach(dk=>{const w=key(weekStart(parseD(dk)));(wc[w]=wc[w]||{});Object.entries(map[dk]).forEach(([c,v])=>{wc[w][c]=(wc[w][c]||0)+v;});});
-  const weeks=Object.keys(wc).sort();const wtot=w=>Object.values(wc[w]).reduce((a,b)=>a+b,0);
-  const maxV=Math.max(...(CAP?[CAP]:[]),...weeks.map(wtot),1);
-  const plotW=W-padL-padR,plotH=H-padT-padB;
-  const bw=Math.min(46,plotW/Math.max(weeks.length,1)*0.7),step=plotW/Math.max(weeks.length,1);
-  ctx.strokeStyle='#2a2f3a';ctx.fillStyle='#9aa0ab';ctx.font='10px sans-serif';
-  for(let i=0;i<=4;i++){const y=padT+plotH*i/4;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();ctx.fillText(fmt(maxV*(1-i/4)),4,y+3);}
-  if(CAP){const capY=padT+plotH*(1-CAP/maxV);ctx.strokeStyle='#ff6b6b';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(padL,capY);ctx.lineTo(W-padR,capY);ctx.stroke();ctx.setLineDash([]);}
-  cv._bars=[];
-  weeks.forEach((w,i)=>{const x=padL+step*i+(step-bw)/2;let acc=0;
-    cs.forEach(c=>{const v=wc[w][c]||0;if(!v)return;const h=plotH*v/maxV,y=padT+plotH-acc-h;ctx.fillStyle=custColor[c];ctx.fillRect(x,y,bw,h);cv._bars.push({x,y,w:bw,h,week:w,cust:c,val:v});acc+=h;});
-    ctx.fillStyle='#9aa0ab';ctx.save();ctx.translate(x+bw/2,H-padB+12);ctx.rotate(-Math.PI/5);ctx.textAlign='right';ctx.fillText(w.slice(5),0,0);ctx.restore();
-    const tot=wtot(w);ctx.fillStyle='#e8eaed';ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText(fmt(tot),x+bw/2,padT+plotH-plotH*tot/maxV-3);ctx.textAlign='left';ctx.font='10px sans-serif';});
-  $('#weekLegend').innerHTML=cs.map(c=>`<span><i style="background:${custColor[c]}"></i>${c}</span>`).join('')+(CAP?`<span><i style="background:#ff6b6b"></i>${t('capLine')(CAP,unit)}</span>`:'');
-  cv.onmousemove=e=>{const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;const b=(cv._bars||[]).find(b=>mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);if(b)showTip(e,`<b>${t('sWeek')} ${b.week}</b><br>${b.cust}<br>${fmt1(b.val)} ${unit}`);else hideTip();};
-  cv.onmouseleave=hideTip;
-}
-
-// ---------- calendar heatmap ----------
-function drawCalendar(map,unit){
-  const cal=$('#cal');cal.innerHTML='';
-  const dt=dayTotals(map);
+// ---------- calendar heatmap (cold->hot) ----------
+function hotColor(t){t=Math.max(0,t);const stops=[[0,[79,157,255]],[0.5,[255,209,102]],[1,[255,91,91]]];if(t>=1)return'rgb(229,57,53)';let lo=stops[0],hi=stops[stops.length-1];for(let i=0;i<stops.length-1;i++){if(t>=stops[i][0]&&t<=stops[i+1][0]){lo=stops[i];hi=stops[i+1];break;}}const f=(t-lo[0])/((hi[0]-lo[0])||1);const c=lo[1].map((v,i)=>Math.round(v+(hi[1][i]-v)*f));return`rgb(${c[0]},${c[1]},${c[2]})`;}
+function drawCalendar(map,unit,cap){
+  const cal=$('#cal');cal.innerHTML='';const dt=dayTotals(map);
   if(!dt.length){cal.innerHTML=`<div class="muted">${t('noLoad')}</div>`;$('#calLegend').innerHTML='';return;}
   const keys=dt.map(d=>d.k).sort();const first=parseD(keys[0]),last=parseD(keys[keys.length-1]);const max=peakOf(dt).v||1;
-  const months=[];let cur=new Date(first.getFullYear(),first.getMonth(),1);
-  while(cur<=last){months.push(new Date(cur));cur.setMonth(cur.getMonth()+1);}
+  const dailyCap=cap?cap/6:null;const denom=dailyCap||max;
   const mn=LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months=[];let cur=new Date(first.getFullYear(),first.getMonth(),1);while(cur<=last){months.push(new Date(cur));cur.setMonth(cur.getMonth()+1);}
   months.forEach(m=>{const row=document.createElement('div');row.className='calmonth';
     const dim=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();let cells='';
     for(let d=1;d<=dim;d++){const dd=new Date(m.getFullYear(),m.getMonth(),d),k=key(dd);
       const v=map[k]?Object.values(map[k]).reduce((a,b)=>a+b,0):0;const sun=dd.getDay()===0?'sun':'';
-      let bg='var(--grid)';if(v>0){const tt=Math.min(1,v/max);bg=`rgba(79,157,255,${0.18+0.82*tt})`;}
+      let bg='var(--grid)';if(v>0)bg=hotColor(v/denom);
       const border=k===key(TODAY)?'box-shadow:0 0 0 2px #ffb454 inset;':'';
-      cells+=`<div class="cell ${sun}" style="background:${bg};${border}" data-k="${k}" data-v="${v}">${d}</div>`;}
+      const tc=(v>0&&v/denom>0.45)?'color:#1a1d23;':'';
+      cells+=`<div class="cell ${sun}" style="background:${bg};${border}${tc}" data-k="${k}" data-v="${v}">${d}</div>`;}
     for(let d=dim;d<31;d++)cells+='<div></div>';
     row.innerHTML=`<div class="mname">${m.getFullYear()} ${mn[m.getMonth()]}</div><div class="caldays">${cells}</div>`;cal.appendChild(row);});
   cal.querySelectorAll('.cell').forEach(c=>{c.onmousemove=e=>{const k=c.dataset.k,v=+c.dataset.v;if(v===0){showTip(e,`${k}<br>${t('noLoad')}`);return;}
-    const det=map[k];const lines=Object.entries(det).sort((a,b)=>b[1]-a[1]).map(([cu,val])=>`<span style="color:${custColor[cu]}">■</span> ${cu}: ${fmt1(val)}`).join('<br>');
-    showTip(e,`<b>${k} · ${LANG==='zh'?'合计':'total'} ${fmt1(v)} ${unit}</b><br>${lines}`);};c.onmouseleave=hideTip;});
-  $('#calLegend').innerHTML=`<span>${t('less')} <i style="background:rgba(79,157,255,.2)"></i><i style="background:rgba(79,157,255,.5)"></i><i style="background:rgba(79,157,255,.85)"></i><i style="background:rgba(79,157,255,1)"></i> ${t('more')}（${t('peakApprox')(fmt1(max),unit)}）</span><span><i style="box-shadow:0 0 0 2px #ffb454 inset;background:var(--grid)"></i>${t('today')}</span><span class="muted">${t('sunDim')}</span>`;
+    const det=map[k];const lines=Object.entries(det).sort((a,b)=>b[1]-a[1]).map(([cu,val])=>`<span style="color:${custColor[cu]||ownerColor[cu]||'#888'}">■</span> ${cu}: ${fmt1(val)}`).join('<br>');
+    showTip(e,`<b>${k} · ${LANG==='zh'?'合计':'total'} ${fmt1(v)} ${unit}</b>${cap?` · ${fmt1(100*v/(cap/6))}%`:''}<br>${lines}`);};c.onmouseleave=hideTip;});
+  const lg=cap?`<span>${t('hLow')} <i style="background:${hotColor(0.1)}"></i><i style="background:${hotColor(0.5)}"></i><i style="background:${hotColor(0.85)}"></i><i style="background:${hotColor(1)}"></i> ${t('hOver')}（=${fmt1(cap/6)} ${unit}/${LANG==='zh'?'日':'d'}）</span>`
+    :`<span>${t('hRelLow')} <i style="background:${hotColor(0.1)}"></i><i style="background:${hotColor(0.5)}"></i><i style="background:${hotColor(0.85)}"></i><i style="background:${hotColor(1)}"></i> ${t('hRelHigh')}</span>`;
+  $('#calLegend').innerHTML=lg+`<span><i style="box-shadow:0 0 0 2px #ffb454 inset;background:var(--grid)"></i>${t('today')}</span><span class="muted">${t('sunDim')}</span>`;
 }
 
-// ---------- table ----------
+// ---------- project table ----------
 function drawTable(rows){
   const cols=[{k:'cust',t:'cCust'},{k:'name',t:'cName'},{k:'owner',t:'cOwner'},{k:'status',t:'cStatus'},{k:'finN',t:'cFin',num:1},{k:'pieces',t:'cPcs',num:1},{k:'wdCount',t:'cWd',num:1},{k:'perDayF',t:'cPerF',num:1},{k:'perDayP',t:'cPerP',num:1},{k:'start',t:'cStart'},{k:'end',t:'cEnd'}];
   $('#tbl thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.num?'num':''}" data-k="${c.k}">${t(c.t)}${sortKey===c.k?(sortDir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
@@ -540,11 +698,11 @@ function drawTable(rows){
   $('#tbl thead').querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;}drawTable(rows);});
 }
 
-function showTip(e,html){const t=$('#tip');t.innerHTML=html;t.style.display='block';let x=e.clientX+14,y=e.clientY+14;if(x+300>innerWidth)x=e.clientX-300;if(y+140>innerHeight)y=e.clientY-140;t.style.left=x+'px';t.style.top=y+'px';}
+function showTip(e,html){const el=$('#tip');el.innerHTML=html;el.style.display='block';let x=e.clientX+14,y=e.clientY+14;if(x+300>innerWidth)x=e.clientX-300;if(y+150>innerHeight)y=e.clientY-150;el.style.left=x+'px';el.style.top=y+'px';}
 function hideTip(){$('#tip').style.display='none';}
 
 // init
-initFilters();applyLang();syncSeg();render();
+applyTheme();initFilters();applyLang();syncSeg();render();
 let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(render,150);});
 </script>
 </body>
