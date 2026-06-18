@@ -155,6 +155,9 @@
       <div class="fg"><label data-i18n="lblMetric">分析指标</label>
         <div class="seg" id="segMetric"><button data-v="fin" class="on" data-i18n="mFin">款数(洗水)</button><button data-v="pcs" data-i18n="mPcs">件数</button></div>
       </div>
+      <div class="fg" id="stackWrap" style="display:none"><label data-i18n="lblStack">堆叠方式</label>
+        <div class="seg" id="segStack"><button data-v="cust" class="on" data-i18n="skCust">客户</button><button data-v="devbulk" data-i18n="skDev">DEV/BULK</button></div>
+      </div>
       <div class="fg"><label data-i18n="lblRange">时间范围</label>
         <div class="seg" id="segRange"><button data-v="7" data-i18n="r7">未来7天</button><button data-v="14" data-i18n="r14">未来14天</button><button data-v="30" data-i18n="r30">未来30天</button><button data-v="all" class="on" data-i18n="rAll">全部</button></div>
       </div>
@@ -181,7 +184,7 @@
     </div>
 
     <div class="card">
-      <h2><span id="calTitle"></span><span class="hint" data-i18n="calHint">蓝→黄→红 越红当天越烫手 · 悬停看明细</span></h2>
+      <h2><span id="calTitle"></span><label style="font-weight:400;font-size:12px;color:var(--mut);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="cellNum"><span data-i18n="showNums">格内显示数字</span></label></h2>
       <div class="cal" id="cal"></div>
       <div class="legend" id="calLegend"></div>
     </div>
@@ -247,6 +250,7 @@ const I18N={
   lblCap:'周产能参考',reset:'重置',selAll:'全选',clrNone:'清空',lblDevBulk:'DEV / BULK',dbAll:'全部',tabGantt:'计划甘特图',tabSummary:'负载汇总',tabOwner:'负责人负载',
   ganttTitle:'计划甘特图',ganttHint:'按客户分组 · 浅条=项目周期，深条=洗水周期，白线=进度，橙线=今天',
   lblMetric:'分析指标',mFin:'款数(洗水)',mPcs:'件数',lblRange:'时间范围',r7:'未来7天',r14:'未来14天',r30:'未来30天',rAll:'全部',
+  lblStack:'堆叠方式',skCust:'客户',skDev:'DEV/BULK',showNums:'格内显示数字',hRange:'每格 ',
   weekHint:'按客户堆叠 · 红线 = 周产能参考',calHint:'蓝→黄→红 越红当天越烫手 · 悬停看明细',tblTitle:'项目明细',tblHint:'点表头排序 · 每日量 = 总量 ÷ 工作日',
   buHint:'需求 vs 产能累积 · 需求超过产能即开始积压',ownHint:'按负责人/组堆叠 · 看谁被压爆',ownTblTitle:'负责人负载明细',ownTblHint:'点表头排序',
   weekTitleF:'每周款数（洗水）',weekTitleP:'每周件数',calTitleF:'每日款数（洗水）热力图',calTitleP:'每日件数热力图',
@@ -269,6 +273,7 @@ const I18N={
   lblCap:'Weekly capacity',reset:'Reset',selAll:'Select all',clrNone:'Clear',lblDevBulk:'DEV / BULK',dbAll:'All',tabGantt:'Plan (Gantt)',tabSummary:'Load Summary',tabOwner:'Owner load',
   ganttTitle:'Plan — Gantt chart',ganttHint:'Grouped by customer · light=project, dark=washing, white=progress, orange=today',
   lblMetric:'Metric',mFin:'Finishes (washes)',mPcs:'Pieces',lblRange:'Time range',r7:'Next 7d',r14:'Next 14d',r30:'Next 30d',rAll:'All',
+  lblStack:'Stack by',skCust:'Customer',skDev:'DEV/BULK',showNums:'numbers in cells',hRange:'per cell ',
   weekHint:'Stacked by customer · red line = weekly capacity',calHint:'Blue→amber→red: redder = hotter day · hover for detail',tblTitle:'Project breakdown',tblHint:'Click header to sort · per day = total ÷ working days',
   buHint:'Demand vs capacity (cumulative) · backlog builds once demand exceeds capacity',ownHint:'Stacked by owner/team · see who is overloaded',ownTblTitle:'Owner load breakdown',ownTblHint:'Click header to sort',
   weekTitleF:'Weekly finishes (washes)',weekTitleP:'Weekly pieces',calTitleF:'Daily finishes (washes) heatmap',calTitleP:'Daily pieces heatmap',
@@ -300,7 +305,8 @@ function leadN(v){if(v==null)return 0;const m=String(v).match(/(\d+)/);return m?
 function cssVar(n){return getComputedStyle(document.body).getPropertyValue(n).trim();}
 function chartColors(){return{line:cssVar('--line')||'#2a2f3a',mut:cssVar('--mut')||'#9aa0ab',txt:cssVar('--txt')||'#e8eaed'};}
 
-let dateBasis='proj', qtyBasis='remaining', metric='fin', rangeMode='all', activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='remF', ownSortDir=1;
+let dateBasis='proj', qtyBasis='remaining', metric='fin', rangeMode='all', stackDim='cust', showNums=false, activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='remF', ownSortDir=1;
+function dbColor(d){return d==='DEV'?'#ffb454':d==='BULK'?'#41d18f':'#9aa0ab';}
 let custColor={}, ownerColor={}, allCusts=[], selectedCusts=new Set();
 let capFin=LS.get('capFin',''), capPcs=LS.get('capPcs','');
 
@@ -389,6 +395,7 @@ function initFilters(){
   $('#fOwner').innerHTML='<option value="">—</option>'+owners.sort().map(o=>`<option value="${o}">${o}</option>`).join('');
   const dbs=[...new Set(DATA.tasks.map(t=>t.devbulk).filter(Boolean))];
   $('#dbWrap').style.display=dbs.length?'':'none';
+  $('#stackWrap').style.display=dbs.length?'':'none';
   $('#fDevBulk').innerHTML=`<option value="">${t('dbAll')}</option>`+dbs.sort().map(d=>`<option value="${d}">${d}</option>`).join('');
   renderChips();
 }
@@ -401,12 +408,13 @@ $('#clrNone').onclick=()=>{selectedCusts=new Set();LS.set('custs',[]);renderChip
 ['#fOwner','#fStatus','#fDevBulk'].forEach(s=>$(s).addEventListener('change',render));
 $('#cap').addEventListener('input',()=>{const raw=$('#cap').value;const v=raw===''?'':(+raw);if(metric==='fin'){capFin=v;LS.set('capFin',v);}else{capPcs=v;LS.set('capPcs',v);}render();});
 $('#reset').onclick=()=>{selectedCusts=new Set(allCusts);LS.set('custs',[...selectedCusts]);$('#fOwner').value='';$('#fStatus').value='active';$('#fDevBulk').value='';
-  dateBasis='proj';qtyBasis='remaining';metric='fin';rangeMode='all';syncSeg();renderChips();render();};
+  dateBasis='proj';qtyBasis='remaining';metric='fin';rangeMode='all';stackDim='cust';syncSeg();renderChips();render();};
 function syncSeg(){
   document.querySelectorAll('#segWindow button').forEach(b=>b.classList.toggle('on',b.dataset.v===dateBasis));
   document.querySelectorAll('#segQty button').forEach(b=>b.classList.toggle('on',b.dataset.v===qtyBasis));
   document.querySelectorAll('#segMetric button').forEach(b=>b.classList.toggle('on',b.dataset.v===metric));
   document.querySelectorAll('#segRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===rangeMode));
+  document.querySelectorAll('#segStack button').forEach(b=>b.classList.toggle('on',b.dataset.v===stackDim));
   $('#cap').value=metric==='fin'?capFin:capPcs;$('#cap').placeholder=LANG==='zh'?'填写':'set';
   $('#capUnit').textContent=(metric==='fin'?t('unitF'):t('unitP'))+'/'+t('sWeek');
 }
@@ -414,6 +422,8 @@ document.querySelectorAll('#segWindow button').forEach(b=>b.onclick=()=>{dateBas
 document.querySelectorAll('#segQty button').forEach(b=>b.onclick=()=>{qtyBasis=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segMetric button').forEach(b=>b.onclick=()=>{metric=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segRange button').forEach(b=>b.onclick=()=>{rangeMode=b.dataset.v;syncSeg();render();});
+document.querySelectorAll('#segStack button').forEach(b=>b.onclick=()=>{stackDim=b.dataset.v;syncSeg();render();});
+$('#cellNum').addEventListener('change',()=>{showNums=$('#cellNum').checked;render();});
 $('#tabGanttBtn').onclick=()=>switchTab('gantt');
 $('#tabSumBtn').onclick=()=>switchTab('sum');
 $('#tabOwnerBtn').onclick=()=>switchTab('owner');
@@ -436,7 +446,7 @@ function winBound(){if(rangeMode==='all')return null;const e=new Date(TODAY);e.s
 function compute(tasks){
   const wash=dateBasis==='wash', weighted=qtyBasis==='remaining', wEnd=winBound();
   const inWin=d=>(rangeMode==='all')||(d>=TODAY&&d<=wEnd);
-  const perFc={},perPc={},perFo={},perPo={},rows=[];let excluded=0;
+  const perFc={},perPc={},perFo={},perPo={},perFd={},perPd={},rows=[];let excluded=0;
   tasks.forEach(t=>{
     const finTot=leadN(t.finishes);
     const s=wash?t.washStart:t.start, e=wash?t.washEnd:t.end;
@@ -449,10 +459,11 @@ function compute(tasks){
     wd.forEach(d=>{if(!inWin(d))return;const k=key(d);
       (perFc[k]=perFc[k]||{})[t.cust]=(perFc[k][t.cust]||0)+pf;(perPc[k]=perPc[k]||{})[t.cust]=(perPc[k][t.cust]||0)+pp;
       const ow=t.owner||'—';(perFo[k]=perFo[k]||{})[ow]=(perFo[k][ow]||0)+pf;(perPo[k]=perPo[k]||{})[ow]=(perPo[k][ow]||0)+pp;
+      const db=t.devbulk||'—';(perFd[k]=perFd[k]||{})[db]=(perFd[k][db]||0)+pf;(perPd[k]=perPd[k]||{})[db]=(perPd[k][db]||0)+pp;
       wF+=pf;wP+=pp;});
     rows.push({...t,finN:finTot,wdCount:wd.length,perDayF:pf,perDayP:pp,remF:wF,remP:wP});
   });
-  return {perFc,perPc,perFo,perPo,rows,excluded};
+  return {perFc,perPc,perFo,perPo,perFd,perPd,rows,excluded};
 }
 const dayTotals=map=>Object.keys(map).sort().map(k=>({k,v:Object.values(map[k]).reduce((a,b)=>a+b,0)}));
 function peakOf(dt){return dt.reduce((m,d)=>d.v>m.v?d:m,{v:0,k:'-'});}
@@ -510,8 +521,10 @@ function drawSummary(C,tasks){
   $('#weekTitle').textContent=metric==='fin'?t('weekTitleF'):t('weekTitleP');
   $('#calTitle').textContent=metric==='fin'?t('calTitleF'):t('calTitleP');
   $('#buTitle').textContent=metric==='fin'?t('buTitleF'):t('buTitleP');
-  const custs=[...new Set(tasks.map(x=>x.cust))];
-  drawStacked($('#weekChart'),map,custs,c=>custColor[c]||'#888',cap,unit,$('#weekLegend'));
+  let wkMap,wkGroups,wkColor;
+  if(stackDim==='devbulk'){wkMap=metric==='fin'?C.perFd:C.perPd;wkGroups=[...new Set(tasks.map(x=>x.devbulk||'—'))];wkColor=dbColor;}
+  else{wkMap=map;wkGroups=[...new Set(tasks.map(x=>x.cust))];wkColor=c=>custColor[c]||'#888';}
+  drawStacked($('#weekChart'),wkMap,wkGroups,wkColor,cap,unit,$('#weekLegend'));
   drawBurnup($('#buChart'),dayTotals(map),cap,unit);
   drawCalendar(map,unit,cap);
   drawTable(C.rows.filter(r=>!r.skipped));
@@ -668,15 +681,17 @@ function drawCalendar(map,unit,cap){
       let bg='var(--grid)';if(v>0)bg=hotColor(v/denom);
       const border=k===key(TODAY)?'box-shadow:0 0 0 2px #ffb454 inset;':'';
       const tc=(v>0&&v/denom>0.45)?'color:#1a1d23;':'';
-      cells+=`<div class="cell ${sun}" style="background:${bg};${border}${tc}" data-k="${k}" data-v="${v}">${d}</div>`;}
+      const num=(showNums&&v>0)?`<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">${fmt(v)}</span>`:'';
+      cells+=`<div class="cell ${sun}" style="background:${bg};${border}${tc}" data-k="${k}" data-v="${v}">${num}${d}</div>`;}
     for(let d=dim;d<31;d++)cells+='<div></div>';
     row.innerHTML=`<div class="mname">${m.getFullYear()} ${mn[m.getMonth()]}</div><div class="caldays">${cells}</div>`;cal.appendChild(row);});
   cal.querySelectorAll('.cell').forEach(c=>{c.onmousemove=e=>{const k=c.dataset.k,v=+c.dataset.v;if(v===0){showTip(e,`${k}<br>${t('noLoad')}`);return;}
     const det=map[k];const lines=Object.entries(det).sort((a,b)=>b[1]-a[1]).map(([cu,val])=>`<span style="color:${custColor[cu]||ownerColor[cu]||'#888'}">■</span> ${cu}: ${fmt1(val)}`).join('<br>');
     showTip(e,`<b>${k} · ${LANG==='zh'?'合计':'total'} ${fmt1(v)} ${unit}</b>${cap?` · ${fmt1(100*v/(cap/6))}%`:''}<br>${lines}`);};c.onmouseleave=hideTip;});
-  const lg=cap?`<span>${t('hLow')} <i style="background:${hotColor(0.1)}"></i><i style="background:${hotColor(0.5)}"></i><i style="background:${hotColor(0.85)}"></i><i style="background:${hotColor(1)}"></i> ${t('hOver')}（=${fmt1(cap/6)} ${unit}/${LANG==='zh'?'日':'d'}）</span>`
-    :`<span>${t('hRelLow')} <i style="background:${hotColor(0.1)}"></i><i style="background:${hotColor(0.5)}"></i><i style="background:${hotColor(0.85)}"></i><i style="background:${hotColor(1)}"></i> ${t('hRelHigh')}</span>`;
-  $('#calLegend').innerHTML=lg+`<span><i style="box-shadow:0 0 0 2px #ffb454 inset;background:var(--grid)"></i>${t('today')}</span><span class="muted">${t('sunDim')}</span>`;
+  const e=[0,.25,.5,.75,1].map(x=>x*denom);const dd=LANG==='zh'?'日':'d';
+  let bk='';for(let i=0;i<4;i++){const lab=(i===3&&cap)?('≥'+fmt1(e[3])):(fmt1(e[i])+'–'+fmt1(e[i+1]));bk+=`<span><i style="background:${hotColor((i+0.5)/4)}"></i>${lab}</span>`;}
+  const note=cap?`（${unit}/${dd} · ${LANG==='zh'?'红=达/超日产能':'red = at/over daily cap'} ${fmt1(denom)}）`:`（${unit}/${dd}）`;
+  $('#calLegend').innerHTML=bk+`<span class="muted">${note}</span><span><i style="box-shadow:0 0 0 2px #ffb454 inset;background:var(--grid)"></i>${t('today')}</span><span class="muted">${t('sunDim')}</span>`;
 }
 
 // ---------- project table ----------
