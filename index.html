@@ -110,7 +110,7 @@
   <span class="meta" id="meta"></span>
   <span class="spacer"></span>
   <div class="langbtn"><button id="themeBtn" title="theme">🌙</button></div>
-  <div class="langbtn"><button id="lzh" class="on">中文</button><button id="len">EN</button></div>
+  <div class="langbtn"><button id="lzh" class="on">中文</button><button id="len">EN</button><button id="lvi">VI</button></div>
 </header>
 <div class="wrap">
   <div class="drop" id="drop">
@@ -292,7 +292,8 @@ const I18N={
   emptyTitle:'拖入你的 Excel 甘特文件开始',emptySub:'数据只在本机处理，不上传。文件格式参考你们现有的甘特主表。',
   cCust:'客户',cName:'项目',cOwner:'负责人',cStatus:'状态',cFin:'款数',cPcs:'总件数',cWd:'工作日',cPerF:'每日款数',cPerP:'每日件数',cStart:'开始',cEnd:'结束',noData:'无数据',
   oName:'负责人/组',oProj:'项目数',oFin:'总款数',oPcs:'总件数',oAvgF:'每日款',oPeakWk:'峰值周款',oShare:'款数占比',
-  parseErr:'解析失败：找不到有效项目行。请确认上传的是甘特主表（第一个工作表，含 START/END 与 GARMENT QUANTITY 列）。',readErr:'读取文件出错：'},
+  parseErr:'解析失败：找不到有效项目行。请确认上传的是甘特主表（第一个工作表，含 START/END 与 GARMENT QUANTITY 列）。',readErr:'读取文件出错：',
+  total:'合计',dayU:'日',fill:'填写',sep:'、',capRed:'红=达/超日产能'},
  en:{title:'Load Dashboard',dropTitle:'Drop the Excel Gantt file here, or <b>click to choose a file</b>',dropHint:'.xlsx supported · reads the first sheet · processed only in your browser, never uploaded',
   lblWindow:'Time basis',winProj:'Project window',winWash:'Washing cycle',lblQty:'Load basis',qtyRem:'Remaining (weighted)',qtyPlan:'Planned (full)',
   lblCust:'Customer / Dept',lblOwner:'Owner',lblStatus:'Status',stActive:'In Progress + Pending',stAll:'All',stIp:'In Progress only',stPd:'Pending only',
@@ -318,7 +319,35 @@ const I18N={
   emptyTitle:'Drop your Excel Gantt file to start',emptySub:'Processed locally, never uploaded. Use your existing master Gantt sheet format.',
   cCust:'Customer',cName:'Project',cOwner:'Owner',cStatus:'Status',cFin:'Finishes',cPcs:'Pieces',cWd:'Work days',cPerF:'Fin/day',cPerP:'Pcs/day',cStart:'Start',cEnd:'End',noData:'No data',
   oName:'Owner/team',oProj:'Projects',oFin:'Total finishes',oPcs:'Total pieces',oAvgF:'Fin/day',oPeakWk:'Peak week fin',oShare:'Finishes share',
-  parseErr:'Parse failed: no valid project rows. Upload the master Gantt sheet (first sheet, with START/END and GARMENT QUANTITY).',readErr:'Error reading file: '}
+  parseErr:'Parse failed: no valid project rows. Upload the master Gantt sheet (first sheet, with START/END and GARMENT QUANTITY).',readErr:'Error reading file: ',
+  total:'total',dayU:'d',fill:'set',sep:', ',capRed:'red = at/over daily cap'},
+ vi:{title:'Bảng tải WIP',dropTitle:'Kéo file Excel Gantt vào đây, hoặc <b>bấm để chọn file</b>',dropHint:'Hỗ trợ .xlsx · đọc sheet đầu tiên · chỉ xử lý trên trình duyệt của bạn, không tải lên máy chủ',
+  lblWindow:'Mốc thời gian',winProj:'Kỳ dự án',winWash:'Chu kỳ giặt',lblQty:'Cơ sở tải',qtyRem:'Còn lại (theo tiến độ)',qtyPlan:'Kế hoạch (toàn bộ)',
+  lblCust:'Khách hàng / Bộ phận',lblOwner:'Phụ trách',lblStatus:'Trạng thái',stActive:'Đang làm + Chờ',stAll:'Tất cả',stIp:'Chỉ đang làm',stPd:'Chỉ chờ',
+  lblCap:'Năng lực/tuần',reset:'Đặt lại',selAll:'Chọn tất cả',clrNone:'Bỏ chọn',lblDevBulk:'DEV / BULK',dbAll:'Tất cả',tabGantt:'Sơ đồ Gantt',tabSummary:'Tổng hợp tải',tabOwner:'Tải theo người',
+  ganttTitle:'Kế hoạch — Sơ đồ Gantt',ganttHint:'Nhóm theo khách hàng · thanh nhạt=kỳ dự án, thanh đậm=chu kỳ giặt, vạch trắng=tiến độ, cam=hôm nay',
+  lblMetric:'Chỉ số',mFin:'Số kiểu (giặt)',mPcs:'Số cái',lblRange:'Khoảng thời gian',r7:'7 ngày tới',r14:'14 ngày tới',r30:'30 ngày tới',rAll:'Tất cả',
+  lblStack:'Xếp chồng theo',skCust:'Khách hàng',skDev:'DEV/BULK',showNums:'hiện số trong ô',hRange:'mỗi ô ',
+  shareBtn:'📋 Tổng hợp',sumTitle:'Tổng hợp tải / email',fmtPlain:'Văn bản',fmtEmail:'Email',btnCopy:'Sao chép',btnCopied:'Đã chép ✓',btnMail:'Mở bằng email',btnExcel:'Xuất Excel',btnWord:'Xuất Word',btnClose:'Đóng',
+  sScope:'Phạm vi lọc',sKey:'Chỉ số chính',sProjects:'Số dự án',sTotFin:'Tổng số kiểu (giặt)',sTotPcs:'Tổng số cái',sAvg:'Trung bình mỗi ngày',sPeakDay:'Cao nhất 1 ngày',sPeakWk:'Cao nhất 1 tuần',sCapRefL:'Năng lực/tuần',sOverL:'Số tuần vượt năng lực',sNoCap:'chưa đặt',sAlertL:'⚠ Tuần vượt năng lực',sWeeklyL:'Số kiểu theo tuần (giặt)',sOwnersL:'Tải theo người',sDevBulkL:'Số kiểu DEV/BULK',sAllCusts:'Tất cả khách hàng',
+  sSubject:'Tổng hợp tải WIP xưởng mẫu WRD',sHi:'Chào mọi người,',sIntro:'Dưới đây là tổng hợp tải WIP xưởng mẫu hiện tại (kiểu = lần giặt):',sBye:'— Tự động tạo bởi bảng tải WRD',
+  weekHint:'Xếp chồng theo khách hàng · vạch đỏ = năng lực/tuần',calHint:'Xanh→vàng→đỏ: càng đỏ càng nặng · rê chuột xem chi tiết',tblTitle:'Chi tiết dự án',tblHint:'Bấm tiêu đề để sắp xếp · mỗi ngày = tổng ÷ ngày làm việc',
+  buHint:'Nhu cầu vs năng lực (lũy kế) · tồn đọng khi nhu cầu vượt năng lực',ownHint:'Xếp chồng theo người/nhóm · xem ai quá tải',ownTblTitle:'Chi tiết tải theo người',ownTblHint:'Bấm tiêu đề để sắp xếp',
+  weekTitleF:'Số kiểu theo tuần (giặt)',weekTitleP:'Số cái theo tuần',calTitleF:'Bản đồ nhiệt số kiểu/ngày (giặt)',calTitleP:'Bản đồ nhiệt số cái/ngày',
+  buTitleF:'Dự báo tồn đọng (kiểu lũy kế)',buTitleP:'Dự báo tồn đọng (số cái lũy kế)',ownWeekTitleF:'Số kiểu theo tuần · theo người',ownWeekTitleP:'Số cái theo tuần · theo người',
+  kProjects:'Dự án',kFin:'Tổng số kiểu (giặt)',kPcs:'cái',kAvgF:'TB kiểu / ngày',kAvgP:'cái/ngày',kPeakDay:'Kiểu cao nhất/ngày',
+  kPeakWkM:m=>'Cao nhất tuần '+(m==='fin'?'số kiểu':'số cái'),
+  inprog:'đang làm',pend:'chờ',unitF:'kiểu',unitP:'cái',
+  sSpread:n=>'trải trên '+n+' ngày làm việc',sCapRef:(c,u)=>'năng lực '+c+' '+u,sWeek:'tuần',capLine:(c,u)=>'vạch năng lực '+c+' '+u,kOver:'Số tuần vượt năng lực',setCap:'Nhập năng lực/tuần →',
+  noLoad:'Không có tải theo bộ lọc hiện tại',today:'hôm nay',sunDim:'CN đã làm mờ',hLow:'thấp',hNear:'gần năng lực',hOver:'vượt',hRelLow:'ít',hRelHigh:'nhiều',
+  excl:n=>n+' dự án thiếu ngày giặt, đã bỏ qua',source:'Nguồn',uploaded:'đã tải lên',gProj:'Kỳ dự án',gWash:'Chu kỳ giặt',gProgress:'tiến độ',noGantt:'Không có dự án để vẽ theo bộ lọc hiện tại',
+  alertOver:n=>'⚠ Vượt năng lực: '+n+' tuần trên vạch đỏ',overBy:'vượt',
+  buDemand:'Nhu cầu lũy kế',buCapacity:'Năng lực lũy kế',buBacklog:'Tồn đọng',buSetCap:'Nhập năng lực/tuần để xem dự báo tồn đọng',buOnTrack:'Đúng tiến độ với năng lực hiện tại — không tồn đọng',buBacklogPeak:'Tồn đọng cao nhất',
+  emptyTitle:'Kéo file Excel Gantt vào để bắt đầu',emptySub:'Xử lý cục bộ, không tải lên. Dùng đúng định dạng sheet Gantt chính của bạn.',
+  cCust:'Khách hàng',cName:'Dự án',cOwner:'Phụ trách',cStatus:'Trạng thái',cFin:'Số kiểu',cPcs:'Số cái',cWd:'Ngày làm',cPerF:'Kiểu/ngày',cPerP:'Cái/ngày',cStart:'Bắt đầu',cEnd:'Kết thúc',noData:'Không có dữ liệu',
+  oName:'Người/nhóm',oProj:'Dự án',oFin:'Tổng kiểu',oPcs:'Tổng cái',oAvgF:'Kiểu/ngày',oPeakWk:'Kiểu tuần đỉnh',oShare:'Tỷ lệ kiểu',
+  parseErr:'Phân tích thất bại: không tìm thấy dòng dự án hợp lệ. Hãy tải lên sheet Gantt chính (sheet đầu tiên, có START/END và GARMENT QUANTITY).',readErr:'Lỗi đọc file: ',
+  total:'tổng',dayU:'ng',fill:'nhập',sep:', ',capRed:'đỏ = đạt/vượt năng lực ngày'}
 };
 const t=k=>I18N[LANG][k];
 
@@ -332,6 +361,7 @@ function workdays(a,b){const o=[];let d=new Date(a);while(d<=b){if(d.getDay()!==
 function weekStart(dt){const d=new Date(dt);const wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd);return d;}
 function leadN(v){if(v==null)return 0;const m=String(v).match(/(\d+)/);return m?+m[1]:0;}
 function cssVar(n){return getComputedStyle(document.body).getPropertyValue(n).trim();}
+function MONTHS(){return LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:LANG==='vi'?['Th1','Th2','Th3','Th4','Th5','Th6','Th7','Th8','Th9','Th10','Th11','Th12']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];}
 function chartColors(){return{line:cssVar('--line')||'#2a2f3a',mut:cssVar('--mut')||'#9aa0ab',txt:cssVar('--txt')||'#e8eaed'};}
 
 let dateBasis='proj', qtyBasis='remaining', metric='fin', rangeMode='all', stackDim='cust', showNums=false, activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='remF', ownSortDir=1;
@@ -343,12 +373,14 @@ function applyTheme(){document.body.classList.toggle('light',THEME==='light');$(
 function applyLang(){
   document.documentElement.lang=LANG;
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
-  $('#lzh').classList.toggle('on',LANG==='zh');$('#len').classList.toggle('on',LANG==='en');
+  $('#lzh').classList.toggle('on',LANG==='zh');$('#len').classList.toggle('on',LANG==='en');$('#lvi').classList.toggle('on',LANG==='vi');
   refreshMeta();
 }
 $('#themeBtn').onclick=()=>{THEME=THEME==='light'?'dark':'light';LS.set('theme',THEME);applyTheme();render();};
-$('#lzh').onclick=()=>{LANG='zh';LS.set('lang','zh');applyLang();renderChips();render();};
-$('#len').onclick=()=>{LANG='en';LS.set('lang','en');applyLang();renderChips();render();};
+function setLang(l){LANG=l;LS.set('lang',l);applyLang();renderChips();render();}
+$('#lzh').onclick=()=>setLang('zh');
+$('#len').onclick=()=>setLang('en');
+$('#lvi').onclick=()=>setLang('vi');
 function refreshMeta(){const tag=DATA.uploaded?t('uploaded'):(DATA.generated||'');$('#meta').textContent=DATA.source?`${t('source')}: ${DATA.source}${tag?' · '+tag:''}`:'';}
 
 // ---------- parsing ----------
@@ -444,7 +476,7 @@ function syncSeg(){
   document.querySelectorAll('#segMetric button').forEach(b=>b.classList.toggle('on',b.dataset.v===metric));
   document.querySelectorAll('#segRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===rangeMode));
   document.querySelectorAll('#segStack button').forEach(b=>b.classList.toggle('on',b.dataset.v===stackDim));
-  $('#cap').value=metric==='fin'?capFin:capPcs;$('#cap').placeholder=LANG==='zh'?'填写':'set';
+  $('#cap').value=metric==='fin'?capFin:capPcs;$('#cap').placeholder=t('fill');
   $('#capUnit').textContent=(metric==='fin'?t('unitF'):t('unitP'))+'/'+t('sWeek');
 }
 document.querySelectorAll('#segWindow button').forEach(b=>b.onclick=()=>{dateBasis=b.dataset.v;syncSeg();render();});
@@ -662,7 +694,7 @@ function drawGantt(tasks){
   const xOf=d=>diffDays(min,parseD(d))*ppd;
   const order=[...new Set(draw.map(t=>t.cust))];
   const seq=[];order.forEach(c=>{seq.push({grp:c});draw.filter(t=>t.cust===c).forEach(t=>seq.push({t}));});
-  const mn=LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mn=MONTHS();
   let ticks='',gridlines='';let mc=new Date(min.getFullYear(),min.getMonth(),1);
   while(mc<=max){const x=diffDays(min,mc)*ppd;if(x>=0){ticks+=`<div class="gmname" style="left:${x}px">${mn[mc.getMonth()]}${mc.getMonth()===0?"'"+String(mc.getFullYear()).slice(2):''}</div>`;gridlines+=`<div class="gline" style="left:${x}px"></div>`;}mc.setMonth(mc.getMonth()+1);}
   const todayLine=(diffDays(min,TODAY)>=0&&TODAY<=max)?`<div class="gtoday" style="left:${xOf(key(TODAY))}px"></div>`:'';
@@ -685,7 +717,7 @@ function drawGantt(tasks){
     <div class="gbody">${gridlines}${todayLine}${bodyRows}</div></div></div></div>`;
   const taskSeq=seq.filter(s=>s.t).map(s=>s.t);
   host.querySelectorAll('.gtrack').forEach((el,idx)=>{const r=taskSeq[idx];if(!r)return;
-    el.onmousemove=e=>{const sz={'In Progress':LANG==='zh'?'进行中':'In Progress','Pending':LANG==='zh'?'待做':'Pending','Completed':LANG==='zh'?'已完成':'Completed'}[r.status]||r.status;
+    el.onmousemove=e=>{const sz=statusTxt(r.status);
       let h=`<b>${r.name}</b><br>${r.cust} · ${r.owner||''}<br>${sz} · ${Math.round((r.prog||0)*100)}%<br>${leadN(r.finishes)}${t('unitF')} · ${fmt(r.pieces)}${t('unitP')}<br>${t('gProj')}: ${r.start}→${r.end}`;
       if(r.washStart)h+=`<br>${t('gWash')}: ${r.washStart}→${r.washEnd}`;showTip(e,h);};
     el.onmouseleave=hideTip;});
@@ -701,7 +733,7 @@ function drawCalendar(map,unit,cap){
   if(!dt.length){cal.innerHTML=`<div class="muted">${t('noLoad')}</div>`;$('#calLegend').innerHTML='';return;}
   const keys=dt.map(d=>d.k).sort();const first=parseD(keys[0]),last=parseD(keys[keys.length-1]);const max=peakOf(dt).v||1;
   const dailyCap=cap?cap/6:null;const denom=dailyCap||max;
-  const mn=LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mn=MONTHS();
   const months=[];let cur=new Date(first.getFullYear(),first.getMonth(),1);while(cur<=last){months.push(new Date(cur));cur.setMonth(cur.getMonth()+1);}
   months.forEach(m=>{const row=document.createElement('div');row.className='calmonth';
     const dim=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();let cells='';
@@ -716,10 +748,10 @@ function drawCalendar(map,unit,cap){
     row.innerHTML=`<div class="mname">${m.getFullYear()} ${mn[m.getMonth()]}</div><div class="caldays">${cells}</div>`;cal.appendChild(row);});
   cal.querySelectorAll('.cell').forEach(c=>{c.onmousemove=e=>{const k=c.dataset.k,v=+c.dataset.v;if(v===0){showTip(e,`${k}<br>${t('noLoad')}`);return;}
     const det=map[k];const lines=Object.entries(det).sort((a,b)=>b[1]-a[1]).map(([cu,val])=>`<span style="color:${custColor[cu]||ownerColor[cu]||'#888'}">■</span> ${cu}: ${fmt1(val)}`).join('<br>');
-    showTip(e,`<b>${k} · ${LANG==='zh'?'合计':'total'} ${fmt1(v)} ${unit}</b>${cap?` · ${fmt1(100*v/(cap/6))}%`:''}<br>${lines}`);};c.onmouseleave=hideTip;});
-  const e=[0,.25,.5,.75,1].map(x=>x*denom);const dd=LANG==='zh'?'日':'d';
+    showTip(e,`<b>${k} · ${t('total')} ${fmt1(v)} ${unit}</b>${cap?` · ${fmt1(100*v/(cap/6))}%`:''}<br>${lines}`);};c.onmouseleave=hideTip;});
+  const e=[0,.25,.5,.75,1].map(x=>x*denom);const dd=t('dayU');
   let bk='';for(let i=0;i<4;i++){const lab=(i===3&&cap)?('≥'+fmt1(e[3])):(fmt1(e[i])+'–'+fmt1(e[i+1]));bk+=`<span><i style="background:${hotColor((i+0.5)/4)}"></i>${lab}</span>`;}
-  const note=cap?`（${unit}/${dd} · ${LANG==='zh'?'红=达/超日产能':'red = at/over daily cap'} ${fmt1(denom)}）`:`（${unit}/${dd}）`;
+  const note=cap?`（${unit}/${dd} · ${t('capRed')} ${fmt1(denom)}）`:`（${unit}/${dd}）`;
   $('#calLegend').innerHTML=bk+`<span class="muted">${note}</span><span><i style="box-shadow:0 0 0 2px #ffb454 inset;background:var(--grid)"></i>${t('today')}</span><span class="muted">${t('sunDim')}</span>`;
 }
 
@@ -730,7 +762,7 @@ function drawTable(rows){
   const sorted=[...rows].sort((a,b)=>{let x=a[sortKey],y=b[sortKey];if(typeof x==='string'){x=x||'';y=y||'';return x<y?-sortDir:x>y?sortDir:0;}return((x||0)-(y||0))*sortDir;});
   const maxF=Math.max(...rows.map(r=>r.perDayF),0.001);
   const sc=s=>s==='In Progress'?'ip':s==='Pending'?'pd':'cp';
-  const sz=s=>LANG==='zh'?({'In Progress':'进行中','Pending':'待做','Completed':'已完成'}[s]||s):s;
+  const sz=statusTxt;
   $('#tbl tbody').innerHTML=sorted.map(r=>`<tr>
     <td><span class="pill" style="background:${(custColor[r.cust]||'#888')}22;color:${custColor[r.cust]||'#888'}">${r.cust}</span></td>
     <td>${r.name}</td><td class="muted">${r.owner}</td>
@@ -747,7 +779,7 @@ function hideTip(){$('#tip').style.display='none';}
 
 // ---------- shared report data ----------
 function capFinVal(){return(capFin===''||capFin==null||isNaN(+capFin)||+capFin<=0)?null:+capFin;}
-function statusTxt(s){return LANG==='zh'?({'In Progress':'进行中','Pending':'待做','Completed':'已完成'}[s]||s):s;}
+function statusTxt(s){const m=LANG==='zh'?{'In Progress':'进行中','Pending':'待做','Completed':'已完成'}:LANG==='vi'?{'In Progress':'Đang làm','Pending':'Chờ','Completed':'Hoàn thành'}:null;return m?(m[s]||s):s;}
 function computeReport(){
   const tasks=selectedTasks();const C=compute(tasks);const rows=C.rows.filter(r=>!r.skipped);
   const dtF=dayTotals(C.perFc),dtP=dayTotals(C.perPc);
@@ -763,7 +795,7 @@ function computeReport(){
   const owners=Object.keys(oF).sort((a,b)=>oF[b]-oF[a]).map(o=>({o,f:oF[o],p:oP[o],n:oN[o],peakWk:wkO[o]?Math.max(...Object.values(wkO[o])):0}));
   const dbm={};rows.forEach(r=>{const d=r.devbulk||'—';(dbm[d]=dbm[d]||{f:0,p:0});dbm[d].f+=r.remF;dbm[d].p+=r.remP;});
   const devbulk=Object.keys(dbm).sort().map(d=>({d,f:dbm[d].f,p:dbm[d].p}));const hasDB=devbulk.some(x=>x.d!=='—');
-  const custLabel=selectedCusts.size===allCusts.length?t('sAllCusts'):[...selectedCusts].join(LANG==='zh'?'、':', ');
+  const custLabel=selectedCusts.size===allCusts.length?t('sAllCusts'):[...selectedCusts].join(t('sep'));
   const stMap={active:t('stActive'),all:t('stAll'),'In Progress':t('stIp'),'Pending':t('stPd')};
   const rangeLabel=rangeMode==='all'?t('rAll'):t('r'+rangeMode);
   const basis=dateBasis==='wash'?t('winWash'):t('winProj');
@@ -810,7 +842,7 @@ function ganttImage(tasks){
   const cv=document.createElement('canvas');cv.width=Wt*dpr;cv.height=H*dpr;const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
   ctx.fillStyle='#fff';ctx.fillRect(0,0,Wt,H);
   const ppd=plotW/totalDays,x=d=>labelW+diffDays(min,parseD(d))*ppd;
-  const mn=LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mn=MONTHS();
   let mc=new Date(min.getFullYear(),min.getMonth(),1);ctx.font='10px sans-serif';
   while(mc<=max){const xx=labelW+diffDays(min,mc)*ppd;if(xx>=labelW){ctx.strokeStyle='#e6e6e6';ctx.beginPath();ctx.moveTo(xx,headH-4);ctx.lineTo(xx,H);ctx.stroke();ctx.fillStyle='#999';ctx.fillText(mn[mc.getMonth()],xx+2,12);}mc.setMonth(mc.getMonth()+1);}
   if(diffDays(min,TODAY)>=0&&TODAY<=max){const tx=x(key(TODAY));ctx.strokeStyle='#ff9800';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(tx,headH-4);ctx.lineTo(tx,H);ctx.stroke();ctx.lineWidth=1;}
