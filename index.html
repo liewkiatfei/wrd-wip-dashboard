@@ -605,7 +605,7 @@ function initFilters(){
   const off=new Set(LS.get('custsOff',[]));
   selectedCusts=new Set(allCusts.filter(c=>!off.has(c)));
   if(!selectedCusts.size)selectedCusts=new Set(allCusts);
-  $('#fOwner').innerHTML='<option value="">—</option>'+owners.sort().map(o=>`<option value="${o}">${o}</option>`).join('');
+  $('#fOwner').innerHTML='<option value="">—</option>'+owners.sort().map(o=>`<option value="${esc(o)}">${esc(ownLab(o))}</option>`).join('');
   const dbs=[...new Set(DATA.tasks.map(t=>t.devbulk).filter(Boolean))];
   $('#dbWrap').style.display=dbs.length?'':'none';
   $('#stackWrap').style.display=dbs.length?'':'none';
@@ -758,7 +758,7 @@ function drawOwner(C,tasks){
   const cap=capOf();const map=metric==='fin'?C.perFo:C.perPo,unit=metric==='fin'?t('unitF'):t('unitP');
   $('#ownWeekTitle').textContent=metric==='fin'?t('ownWeekTitleF'):t('ownWeekTitleP');
   const owners=[...new Set(tasks.map(x=>x.owner||'—'))];
-  drawStacked($('#ownChart'),map,owners,o=>ownerColor[o]||'#888',cap,unit,$('#ownLegend'));
+  drawStacked($('#ownChart'),map,owners,o=>ownerColor[o]||'#888',cap,unit,$('#ownLegend'),ownLab);
   // per-owner aggregates
   const agg={};
   C.rows.filter(r=>!r.skipped).forEach(r=>{const o=r.owner||'—';(agg[o]=agg[o]||{f:0,p:0,n:0})&&0;agg[o].f+=r.remF;agg[o].p+=r.remP;agg[o].n++;});
@@ -774,7 +774,7 @@ function drawOwner(C,tasks){
   const cols=[{k:'o',t:'oName'},{k:'n',t:'oProj',num:1},{k:'f',t:'oFin',num:1},{k:'p',t:'oPcs',num:1},{k:'avgF',t:'oAvgF',num:1},{k:'peakWk',t:'oPeakWk',num:1},{k:'share',t:'oShare',num:1}];
   $('#ownTbl thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.num?'num':''}" data-k="${c.k}">${t(c.t)}${ownSortKey===c.k?(ownSortDir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
   $('#ownTbl tbody').innerHTML=rows.map(r=>`<tr>
-    <td><span class="pill" style="background:${(ownerColor[r.o]||'#888')}22;color:${ownerColor[r.o]||'#888'}">${r.o}</span></td>
+    <td><span class="pill" style="background:${(ownerColor[r.o]||'#888')}22;color:${ownerColor[r.o]||'#888'}">${esc(ownLab(r.o))}</span></td>
     <td class="num">${r.n}</td>
     <td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div class="bar" style="width:${44*r.f/maxF+4}px"></div>${fmt(r.f)}</div></td>
     <td class="num">${fmt(r.p)}</td><td class="num">${fmt1(r.avgF)}</td>
@@ -784,7 +784,7 @@ function drawOwner(C,tasks){
 }
 
 // ---------- generic stacked weekly bar ----------
-function drawStacked(cv,map,groups,colorFn,CAP,unit,legendEl){
+function drawStacked(cv,map,groups,colorFn,CAP,unit,legendEl,labFn=x=>x){
   const W=cv.clientWidth,H=300;cv.width=W*devicePixelRatio;cv.height=H*devicePixelRatio;
   const ctx=cv.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);ctx.clearRect(0,0,W,H);
   const CC=chartColors();const padL=48,padB=46,padT=10,padR=10;
@@ -806,7 +806,7 @@ function drawStacked(cv,map,groups,colorFn,CAP,unit,legendEl){
     groups.forEach(c=>{const v=wc[w][c]||0;if(!v)return;const h=plotH*v/maxV,y=padT+plotH-acc-h;ctx.fillStyle=colorFn(c);ctx.fillRect(x,y,bw,h);cv._bars.push({x,y,w:bw,h,week:w,grp:c,val:v});acc+=h;});
     ctx.fillStyle=CC.mut;ctx.save();ctx.translate(x+bw/2,H-padB+12);ctx.rotate(-Math.PI/5);ctx.textAlign='right';ctx.fillText(w.slice(5),0,0);ctx.restore();
     const tot=wtot(w);ctx.fillStyle=CC.txt;ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText(fmt(tot),x+bw/2,padT+plotH-plotH*tot/maxV-3);ctx.textAlign='left';ctx.font='10px sans-serif';});
-  legendEl.innerHTML=groups.map(c=>`<span><i style="background:${colorFn(c)}"></i>${c}</span>`).join('')+(weeks.some(w=>weekWd(w)<6)?`<span><i style="background:rgba(177,140,255,.5)"></i>${t('holT')}</span>`:'')+(CAP?`<span><i style="background:#ff6b6b"></i>${t('capLine')(CAP,unit)}</span>`:'');
+  legendEl.innerHTML=groups.map(c=>`<span><i style="background:${colorFn(c)}"></i>${esc(labFn(c))}</span>`).join('')+(weeks.some(w=>weekWd(w)<6)?`<span><i style="background:rgba(177,140,255,.5)"></i>${t('holT')}</span>`:'')+(CAP?`<span><i style="background:#ff6b6b"></i>${t('capLine')(CAP,unit)}</span>`:'');
   cv.onmousemove=e=>{const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;const b=(cv._bars||[]).find(b=>mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);if(b){const hs=holInRange(b.week,key(new Date(parseD(b.week).getTime()+6*864e5)));showTip(e,`<b>${t('sWeek')} ${b.week}</b><br>${b.grp}<br>${fmt1(b.val)} ${unit}`+(hs.length?`<br><span style="color:#b18cff">📅 ${hs.map(holLabel).join(', ')}</span>`:''));}else hideTip();};
   cv.onmouseleave=hideTip;
 }
@@ -993,7 +993,7 @@ function insights(R){
    const pc=w=>{const a=availOf(w);return a?Math.round(100*(R.wP[w]||0)/a):0;};
    if(wks.length){const over=wks.find(w=>pc(w)>100),w=over||wks.reduce((m,x)=>pc(x)>pc(m)?x:m,wks[0]);
      if(over){const c=topInWeek(R.C.perPc,w),o=topInWeek(R.C.perPo,w);
-       add(t('insNext')(w,fmt(R.wP[w]),fmt(availOf(w)),pc(w),c?c.g:'—',o?o.g:'—'),true);
+       add(t('insNext')(w,fmt(R.wP[w]),fmt(availOf(w)),pc(w),c?c.g:'—',o?ownLab(o.g):'—'),true);
        const prev=wks.filter(x=>x<w&&x>=key(new Date(parseD(w).getTime()-21*864e5))&&pc(x)<70).pop();
        if(prev)add(t('insMove')(prev,pc(prev)));
        const worst=wks.reduce((m,x)=>pc(x)>pc(m)?x:m,wks[0]),nOver=wks.filter(x=>pc(x)>100).length;
@@ -1003,10 +1003,10 @@ function insights(R){
   if(R.peakWeek!=='-'){const x=avgW?(R.wF[R.peakWeek]/avgW).toFixed(1):'1.0';
     add(t('insPeak')(R.peakWeek,fp(R.wF[R.peakWeek],R.wP[R.peakWeek]||0),x),+x>=1.5);
     const c=topInWeek(R.C.perFc,R.peakWeek),o=topInWeek(R.C.perFo,R.peakWeek);
-    if(c&&o)add(t('insPeakWho')(c.g,c.sh,o.g,o.sh));
+    if(c&&o)add(t('insPeakWho')(c.g,c.sh,ownLab(o.g),o.sh));
     if(R.peakWeekP!==R.peakWeek&&R.peakWeekP!=='-')add(t('insPeakP')(R.peakWeekP,fp(R.wF[R.peakWeekP]||0,R.wP[R.peakWeekP]||0)));}
   if(R.cap&&R.over.length)add(t('insCap')(R.over.length,R.over[0]),true);
-  if(R.owners.length>1){const o=R.owners[0],sh=pct(o.f,R.totF);add(t('insOwner')(o.o,sh,sh>=40),sh>=40);}
+  if(R.owners.length>1){const o=R.owners[0],sh=pct(o.f,R.totF);add(t('insOwner')(ownLab(o.o),sh,sh>=40),sh>=40);}
   const cs={};R.rows.forEach(r=>{cs[r.cust]=(cs[r.cust]||0)+r.remF;});const tc=Object.keys(cs).sort((a,b)=>cs[b]-cs[a]);
   if(tc.length>1)add(t('insCust')(tc[0],pct(cs[tc[0]],R.totF)));
   const td=key(TODAY),d7=addDays(td,6),d14=addDays(td,13);
@@ -1018,6 +1018,9 @@ function insights(R){
   if(R.hol.length)add(t('insHol')(R.hol.map(holLabel).join(t('sep'))),R.hol.some(h=>holLost(h)>=3));
   return out;
 }
+// "Jeff/Trinh" -> "Jeff/Trinh (A08)": brand codes taken from the customer names this owner team handles
+const custCode=c=>{const m=String(c).match(/\b(A[A-Z]?\d{1,2})\b/);return m?m[1]:'';};
+function ownLab(o){const cs=[...new Set(DATA.tasks.filter(x=>(x.owner||'—')===o).map(x=>custCode(x.cust)).filter(Boolean))].sort();return cs.length?`${o} (${cs.join(' ')})`:o;}
 function weekPcs(C){return weekAgg(dayTotals(C.perPc));}
 function tlColor(p){return p>100?'#ff6b6b':p>=85?'#ffb454':'#41d18f';}
 function drawTL(C){
@@ -1035,7 +1038,7 @@ function drawHeat(C){
   const mx=Math.max(1,...own.flatMap(o=>weeks.map(k=>wk[o][k]||0)));
   if(!weeks.length){$('#heat').innerHTML=`<div class="muted">${t('noLoad')}</div>`;return;}
   $('#heat').innerHTML=`<table class="hm"><tr><th>${t('hmGrp')}</th>${weeks.map(k=>`<th style="${weekWd(k)<6?'color:#b18cff':''}">${k.slice(5)}${weekWd(k)<6?'📅':''}</th>`).join('')}</tr>`+
-    own.map(o=>`<tr><td class="own">${esc(o)}</td>${weeks.map(k=>{const v=wk[o][k]||0,f=(wf[o]||{})[k]||0,a=v/mx;
+    own.map(o=>`<tr><td class="own">${esc(ownLab(o))}</td>${weeks.map(k=>{const v=wk[o][k]||0,f=(wf[o]||{})[k]||0,a=v/mx;
       return `<td title="${esc(o)} · ${k}: ${fp(f,v)}" style="background:rgba(255,107,107,${v?(0.12+0.78*a).toFixed(2):0});${a>0.55?'color:#1a1d23;font-weight:600':''}">${v?fmt(v):''}</td>`;}).join('')}</tr>`).join('')+'</table>';}
 function drawInsights(){const R=computeReport();
   $('#insCard').innerHTML=`<h4>${t('insT')}</h4><ul>${insights(R).map(i=>`<li class="${i.hot?'hot':''}">${esc(i.txt)}</li>`).join('')}</ul>`;}
@@ -1062,7 +1065,7 @@ function genSummary1(){
   if(R.over.length){L.push('');L.push(`【${t('sAlertL')}】`);R.over.forEach(w=>L.push(`• ${W} ${w}: ${fp(R.wF[w],R.wP[w]||0)} > ${fmt(capWk(R.cap,w))} (${t('overBy')} ${fmt(R.wF[w]-capWk(R.cap,w))})`));}
   if(R.late.length){L.push('');L.push(`【${t('sOverdueL')}】`);R.late.forEach(x=>L.push(`• ${x.cust} · ${x.name} [${fmt(leadN(x.finishes)||0)} ${uF} (${fmt(x.pieces)} ${uP})] — ${isOverdue(x)?t('overdue')+' ('+x.end+')':t('lateStart')+' ('+x.start+')'}`));}
   if(R.weeks.length){L.push('');L.push(`【${t('sWeeklyL')}】`);R.weeks.slice(0,12).forEach(w=>L.push(`• ${w}: ${fp(R.wF[w],R.wP[w]||0)}${weekWd(w)<6?` [${weekWd(w)}/6 ${t('wdU')}]`:''}${R.cap&&R.wF[w]>capWk(R.cap,w)?' ⚠':''}`));}
-  if(R.owners.length){L.push('');L.push(`【${t('sOwnersL')}】`);R.owners.forEach(o=>L.push(`• ${o.o}: ${fp(o.f,o.p)} · ${pct(o.f,R.totF)}%`));}
+  if(R.owners.length){L.push('');L.push(`【${t('sOwnersL')}】`);R.owners.forEach(o=>L.push(`• ${ownLab(o.o)}: ${fp(o.f,o.p)} · ${pct(o.f,R.totF)}%`));}
   if(R.hasDB){L.push('');L.push(`【${t('sDevBulkL')}】`);R.devbulk.forEach(x=>L.push(`• ${x.d}: ${fp(x.f,x.p)}`));}
   const body=L.join('\n');
   const subject=`${t('sSubject')} (${key(TODAY)})`;
@@ -1115,7 +1118,7 @@ function buildExcel(){
   u.book_append_sheet(wb,u.aoa_to_sheet(sum),'Summary');
   const wk=[[t('sWeek'),uF,uP,'Over?']];R.weeks.forEach(w=>wk.push([w,Math.round(R.wF[w]),Math.round(R.wP[w]||0),R.cap&&R.wF[w]>R.cap?'YES':'']));
   u.book_append_sheet(wb,u.aoa_to_sheet(wk),'Weekly');
-  const ow=[[t('oName'),t('oProj'),t('oFin'),t('oPcs'),t('oPeakWk')]];R.owners.forEach(o=>ow.push([o.o,o.n,Math.round(o.f),Math.round(o.p),Math.round(o.peakWk)]));
+  const ow=[[t('oName'),t('oProj'),t('oFin'),t('oPcs'),t('oPeakWk')]];R.owners.forEach(o=>ow.push([ownLab(o.o),o.n,Math.round(o.f),Math.round(o.p),Math.round(o.peakWk)]));
   u.book_append_sheet(wb,u.aoa_to_sheet(ow),'By Owner');
   if(R.hasDB){const db=[['DEV/BULK',uF,uP]];R.devbulk.forEach(x=>db.push([x.d,Math.round(x.f),Math.round(x.p)]));u.book_append_sheet(wb,u.aoa_to_sheet(db),'DEV-BULK');}
   const pj=[[t('cCust'),t('cName'),t('cOwner'),t('cStatus'),'DEV/BULK',t('cFin'),t('cPcs'),t('cWd'),t('cPerF'),t('cPerP'),t('cStart'),t('cEnd')]];
@@ -1142,7 +1145,7 @@ function buildWord(){
     [t('sCapRefL'),R.cap?`${R.cap} ${uF}/${t('sWeek')}`:t('sNoCap')],[t('sOverL'),R.cap?R.over.length:'—']]);
   const alertT=R.over.length?htmlTable([t('sWeek'),uF,t('sCapRefL'),'+'],R.over.map(w=>[w,fmt(R.wF[w]),R.cap,'+'+fmt(R.wF[w]-R.cap)])):'';
   const weekT=htmlTable([t('sWeek'),uF,uP],R.weeks.map(w=>[w,fmt(R.wF[w]),fmt(R.wP[w]||0)]));
-  const ownT=htmlTable([t('oName'),t('oProj'),t('oFin'),t('oPcs'),t('oPeakWk')],R.owners.map(o=>[o.o,o.n,fmt(o.f),fmt(o.p),fmt(o.peakWk)]));
+  const ownT=htmlTable([t('oName'),t('oProj'),t('oFin'),t('oPcs'),t('oPeakWk')],R.owners.map(o=>[ownLab(o.o),o.n,fmt(o.f),fmt(o.p),fmt(o.peakWk)]));
   const dbT=R.hasDB?htmlTable(['DEV/BULK',uF,uP],R.devbulk.map(x=>[x.d,fmt(x.f),fmt(x.p)])):'';
   const pjT=htmlTable([t('cCust'),t('cName'),t('cOwner'),t('cStatus'),'DEV/BULK',t('cFin'),t('cPcs'),t('cPerF'),t('cPerP'),t('cStart'),t('cEnd')],
     R.rows.map(r=>[r.cust,r.name,r.owner,statusTxt(r.status),r.devbulk||'',r.finN,fmt(r.pieces),fmt1(r.perDayF),fmt1(r.perDayP),r.start,r.end]));
