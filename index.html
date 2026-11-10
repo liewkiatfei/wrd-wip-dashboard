@@ -516,7 +516,7 @@ let capFin=LS.get('capFin',''), capPcs=LS.get('capPcs','');
 // pcs-first capacity for peak projects. Defaults from YDVL Oct-2026 report: technical heads = washing 30 + dry process 37 + PP 8 = 75;
 // 2026 Jan-Oct median 73 pcs (dev + pre-pro) per technical head per month. Keys v2 so old per-washer values don't linger.
 let tlHeads=LS.get('tlHeads2',75), tlPer=LS.get('tlPer2',73), tlRoutine=LS.get('tlRoutine',80);
-const MACHINES=[['600KG',2],['250KG',7],['100KG',12],['50KG',4]];
+const MACHINES=[['600 lb',2],['250 lb',7],['100 lb',12],['50 lb',4]]; // capacity in pounds (report header says KG but it is lb)
 const availWk=()=>tlHeads*tlPer/4.33*(1-tlRoutine/100);
 const availOf=wk=>availWk()*weekWd(wk)/6;
 
