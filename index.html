@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WRD WIP Load Dashboard</title>
+<title>WRD Sample Peak WIP Dashboard</title>
 <style>
   :root{--bg:#0f1115;--panel:#181b22;--panel2:#1f232c;--line:#2a2f3a;--txt:#e8eaed;--mut:#9aa0ab;--accent:#4f9dff;--warn:#ff6b6b;--ok:#41d18f;--grid:#222732;}
   body.light{--bg:#f4f6f9;--panel:#ffffff;--panel2:#eef1f6;--line:#dde2ea;--txt:#1b1f27;--mut:#647084;--grid:#e7ebf1;}
@@ -27,6 +27,16 @@
   .filters{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:18px}
   .fg{display:flex;flex-direction:column;gap:6px}
   .fg label{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+  .daterow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut)}
+  input.dt{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;color-scheme:dark}
+  body.light input.dt{color-scheme:light}
+  .banner.check{background:rgba(255,180,84,.12);border-color:rgba(255,180,84,.5)}.banner.check b{color:#ffb454}
+  .pill.od{background:rgba(255,107,107,.22);color:var(--warn);font-weight:600;margin-left:4px}
+  .pill.ls{background:rgba(255,180,84,.18);color:#ffb454;margin-left:4px}
+  .pill.tpl{background:rgba(177,140,255,.16);color:#b18cff;margin-left:4px}
+  .gbar.od{outline:2px solid var(--warn);outline-offset:1px}
+  .gbar.ls{outline:2px dashed #ffb454;outline-offset:1px}
+  .tplmark{color:#b18cff;font-size:10px;margin-left:4px}
   select,button.btn,input.cap{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
   button.btn{cursor:pointer}button.btn:hover{border-color:var(--accent)}
   .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
@@ -102,11 +112,21 @@
   .gline{position:absolute;top:0;bottom:0;width:1px;background:rgba(128,128,128,.14)}
   .gtoday{position:absolute;top:0;bottom:0;width:2px;background:#ffb454;z-index:3}
   .gmname{position:absolute;top:7px;font-size:11px;color:var(--mut);padding-left:4px}
+  /* phone / embedded in the WRD Learning App Tools page */
+  .seg{flex-wrap:wrap}
+  body.embed header{padding:10px 14px}body.embed .wrap{padding:12px 14px}
+  @media (max-width:700px){
+    header{padding:10px 14px;gap:8px}header h1{font-size:15px}.wrap{padding:12px}
+    .filters{gap:10px}.filters .fg{flex:1 1 100%}.chips{max-width:none}
+    .seg{align-self:flex-start}.seg button{padding:7px 9px;font-size:12px}.daterow{flex-wrap:wrap}
+    .kpis{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{padding:12px}
+    .card{padding:12px;overflow-x:auto}table{font-size:12px}
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>WRD WIP <span data-i18n="title">负载仪表板</span></h1>
+  <h1>WRD <span data-i18n="title">Sample Peak WIP Dashboard</span></h1>
   <span class="meta" id="meta"></span>
   <span class="spacer"></span>
   <div class="langbtn"><button id="themeBtn" title="theme">🌙</button></div>
@@ -121,6 +141,7 @@
   </div>
 
   <div class="banner" id="banner"></div>
+  <div class="banner check" id="checkBanner"></div>
 
   <div class="filters">
     <div class="fg"><label data-i18n="lblWindow">时间基准</label>
@@ -131,12 +152,13 @@
       <div class="chips" id="custChips"></div>
     </div>
     <div class="fg"><label data-i18n="lblOwner">负责人</label><select id="fOwner"><option value="">—</option></select></div>
-    <div class="fg"><label data-i18n="lblStatus">状态</label><select id="fStatus">
-      <option value="active" data-i18n="stActive">进行中 + 待做</option>
-      <option value="all" data-i18n="stAll">全部</option>
-      <option value="In Progress" data-i18n="stIp">仅进行中</option>
-      <option value="Pending" data-i18n="stPd">仅待做</option>
-    </select></div>
+    <div class="fg"><label data-i18n="lblStatus">状态</label>
+      <div class="seg" id="segStatus"><button data-v="In Progress" data-i18n="inprogT">进行中</button><button data-v="Pending" data-i18n="pendT">待做</button><button data-v="Completed" data-i18n="doneT">已完成</button></div>
+    </div>
+    <div class="fg"><label data-i18n="lblRange">时间范围</label>
+      <div class="seg" id="segRange"><button data-v="today" data-i18n="rToday">今天起</button><button data-v="7" data-i18n="r7">未来7天</button><button data-v="14" data-i18n="r14">未来14天</button><button data-v="30" data-i18n="r30">未来30天</button><button data-v="month" data-i18n="rMonth">本月</button><button data-v="next" data-i18n="rNext">下月</button><button data-v="all" data-i18n="rAll">全部</button></div>
+      <div class="daterow"><input type="date" class="dt" id="dFrom"><span>→</span><input type="date" class="dt" id="dTo"><span class="muted" data-i18n="rHint">可直接改日期 · 留空 = 不限</span></div>
+    </div>
     <div class="fg" id="dbWrap" style="display:none"><label data-i18n="lblDevBulk">DEV / BULK</label><select id="fDevBulk"><option value="" data-i18n="dbAll">全部</option></select></div>
     <button class="btn" id="reset" data-i18n="reset">重置</button>
     <button class="btn" id="shareBtn" data-i18n="shareBtn">📋 生成总结</button>
@@ -165,9 +187,6 @@
       </div>
       <div class="fg" id="stackWrap" style="display:none"><label data-i18n="lblStack">堆叠方式</label>
         <div class="seg" id="segStack"><button data-v="cust" class="on" data-i18n="skCust">客户</button><button data-v="devbulk" data-i18n="skDev">DEV/BULK</button></div>
-      </div>
-      <div class="fg"><label data-i18n="lblRange">时间范围</label>
-        <div class="seg" id="segRange"><button data-v="7" data-i18n="r7">未来7天</button><button data-v="14" data-i18n="r14">未来14天</button><button data-v="30" data-i18n="r30">未来30天</button><button data-v="all" class="on" data-i18n="rAll">全部</button></div>
       </div>
       <div class="fg"><label data-i18n="lblQty">负载基准</label>
         <div class="seg" id="segQty"><button data-v="remaining" class="on" data-i18n="qtyRem">剩余(进度加权)</button><button data-v="planned" data-i18n="qtyPlan">计划全量</button></div>
@@ -264,10 +283,12 @@ const palette=['#4f9dff','#41d18f','#ffb454','#ff6b6b','#b18cff','#3fd0d0','#f06
 const palette2=['#5b8def','#2bb673','#f4a259','#e26d5c','#9b6dff','#2bc4c4','#e879b9','#8a93a3','#d4b106','#ff8fa3'];
 const $=s=>document.querySelector(s);
 const LS={get(k,d){try{const v=localStorage.getItem('wrd_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('wrd_'+k,JSON.stringify(v));}catch(e){}}};
-let LANG=LS.get('lang','zh'), THEME=LS.get('theme','dark');
+const QS=new URLSearchParams(location.search);
+let LANG=['zh','en','vi'].includes(QS.get('lang'))?QS.get('lang'):LS.get('lang','zh'), THEME=LS.get('theme','dark');
+(()=>{let inFrame=false;try{inFrame=window.self!==window.top;}catch(e){inFrame=true;}if(inFrame||QS.get('embed')==='1')document.body.classList.add('embed');})();
 
 const I18N={
- zh:{title:'负载仪表板',dropTitle:'把 Excel 甘特文件拖到这里，或 <b>点击选择文件</b>',dropHint:'支持 .xlsx · 读取第一个工作表 · 数据只在你浏览器里处理，不会上传到任何服务器',
+ zh:{title:'Sample Peak WIP Dashboard',inprogT:'进行中',pendT:'待做',doneT:'已完成',rToday:'今天起',rMonth:'本月',rNext:'下月',rHint:'可直接改日期 · 留空 = 不限',rOpen:'不限',done:'已完成',overdue:'逾期',lateStart:'该开始未开始',tplTag:'需模版',sTplL:'DEV 需猫须模版',sOverdueL:'⚠ 逾期 / 该开始未开始',chkTitle:'⚠ 数据待核对：',chkDoneFuture:'标“已完成”但开始日还没到',chkEndBefore:'结束日早于开始日',noStatus:'请至少选一个状态',dropTitle:'把 Excel 甘特文件拖到这里，或 <b>点击选择文件</b>',dropHint:'支持 .xlsx · 读取第一个工作表 · 数据只在你浏览器里处理，不会上传到任何服务器',
   lblWindow:'时间基准',winProj:'项目周期',winWash:'洗水周期',lblQty:'负载基准',qtyRem:'剩余(进度加权)',qtyPlan:'计划全量',
   lblCust:'客户 / 部门',lblOwner:'负责人',lblStatus:'状态',stActive:'进行中 + 待做',stAll:'全部',stIp:'仅进行中',stPd:'仅待做',
   lblCap:'周产能参考',reset:'重置',selAll:'全选',clrNone:'清空',lblDevBulk:'DEV / BULK',dbAll:'全部',tabGantt:'计划甘特图',tabSummary:'负载汇总',tabOwner:'负责人负载',
@@ -276,7 +297,7 @@ const I18N={
   lblStack:'堆叠方式',skCust:'客户',skDev:'DEV/BULK',showNums:'格内显示数字',hRange:'每格 ',
   shareBtn:'📋 生成总结',sumTitle:'负载总结 / 邮件',fmtPlain:'纯文本',fmtEmail:'邮件格式',btnCopy:'复制到剪贴板',btnCopied:'已复制 ✓',btnMail:'用邮件打开',btnExcel:'导出 Excel',btnWord:'导出 Word',btnClose:'关闭',
   sScope:'筛选范围',sKey:'关键指标',sProjects:'项目数',sTotFin:'总款数(洗水)',sTotPcs:'总件数',sAvg:'平均每日',sPeakDay:'最高单日',sPeakWk:'最高单周',sCapRefL:'周产能参考',sOverL:'超产能周数',sNoCap:'未设',sAlertL:'⚠ 超产能周',sWeeklyL:'每周款数(洗水)',sOwnersL:'负责人负载',sDevBulkL:'DEV/BULK 款数',sAllCusts:'全部客户',
-  sSubject:'WRD 版房 WIP 负载总结',sHi:'各位好，',sIntro:'以下为当前版房 WIP 负载总结（款=洗水）：',sBye:'— 本总结由 WRD 负载仪表板自动生成',
+  sSubject:'WRD 版房 WIP 负载总结',sHi:'各位好，',sIntro:'以下为当前版房 WIP 负载总结（款=洗水）：',sBye:'— 本总结由 WRD Sample Peak WIP Dashboard 自动生成',
   weekHint:'按客户堆叠 · 红线 = 周产能参考',calHint:'蓝→黄→红 越红当天越烫手 · 悬停看明细',tblTitle:'项目明细',tblHint:'点表头排序 · 每日量 = 总量 ÷ 工作日',
   buHint:'需求 vs 产能累积 · 需求超过产能即开始积压',ownHint:'按负责人/组堆叠 · 看谁被压爆',ownTblTitle:'负责人负载明细',ownTblHint:'点表头排序',
   weekTitleF:'每周款数（洗水）',weekTitleP:'每周件数',calTitleF:'每日款数（洗水）热力图',calTitleP:'每日件数热力图',
@@ -294,7 +315,7 @@ const I18N={
   oName:'负责人/组',oProj:'项目数',oFin:'总款数',oPcs:'总件数',oAvgF:'每日款',oPeakWk:'峰值周款',oShare:'款数占比',
   parseErr:'解析失败：找不到有效项目行。请确认上传的是甘特主表（第一个工作表，含 START/END 与 GARMENT QUANTITY 列）。',readErr:'读取文件出错：',
   total:'合计',dayU:'日',fill:'填写',sep:'、',capRed:'红=达/超日产能'},
- en:{title:'Load Dashboard',dropTitle:'Drop the Excel Gantt file here, or <b>click to choose a file</b>',dropHint:'.xlsx supported · reads the first sheet · processed only in your browser, never uploaded',
+ en:{title:'Sample Peak WIP Dashboard',inprogT:'In Progress',pendT:'Pending',doneT:'Completed',rToday:'From today',rMonth:'This month',rNext:'Next month',rHint:'edit dates directly · blank = open',rOpen:'open',done:'completed',overdue:'overdue',lateStart:'start overdue',tplTag:'template',sTplL:'DEV needing whisker template',sOverdueL:'⚠ Overdue / late start',chkTitle:'⚠ Data to check:',chkDoneFuture:'marked Completed but start date not reached',chkEndBefore:'end date before start date',noStatus:'Pick at least one status',dropTitle:'Drop the Excel Gantt file here, or <b>click to choose a file</b>',dropHint:'.xlsx supported · reads the first sheet · processed only in your browser, never uploaded',
   lblWindow:'Time basis',winProj:'Project window',winWash:'Washing cycle',lblQty:'Load basis',qtyRem:'Remaining (weighted)',qtyPlan:'Planned (full)',
   lblCust:'Customer / Dept',lblOwner:'Owner',lblStatus:'Status',stActive:'In Progress + Pending',stAll:'All',stIp:'In Progress only',stPd:'Pending only',
   lblCap:'Weekly capacity',reset:'Reset',selAll:'Select all',clrNone:'Clear',lblDevBulk:'DEV / BULK',dbAll:'All',tabGantt:'Plan (Gantt)',tabSummary:'Load Summary',tabOwner:'Owner load',
@@ -303,7 +324,7 @@ const I18N={
   lblStack:'Stack by',skCust:'Customer',skDev:'DEV/BULK',showNums:'numbers in cells',hRange:'per cell ',
   shareBtn:'📋 Summary',sumTitle:'Load summary / email',fmtPlain:'Plain text',fmtEmail:'Email',btnCopy:'Copy to clipboard',btnCopied:'Copied ✓',btnMail:'Open in email',btnExcel:'Export Excel',btnWord:'Export Word',btnClose:'Close',
   sScope:'Filter scope',sKey:'Key metrics',sProjects:'Projects',sTotFin:'Total finishes (washes)',sTotPcs:'Total pieces',sAvg:'Avg per day',sPeakDay:'Peak day',sPeakWk:'Peak week',sCapRefL:'Weekly capacity',sOverL:'Weeks over capacity',sNoCap:'not set',sAlertL:'⚠ Over-capacity weeks',sWeeklyL:'Weekly finishes (washes)',sOwnersL:'Owner load',sDevBulkL:'DEV/BULK finishes',sAllCusts:'All customers',
-  sSubject:'WRD sample-room WIP load summary',sHi:'Hi all,',sIntro:'Current sample-room WIP load summary (finishes = washes):',sBye:'— Auto-generated by the WRD load dashboard',
+  sSubject:'WRD sample-room WIP load summary',sHi:'Hi all,',sIntro:'Current sample-room WIP load summary (finishes = washes):',sBye:'— Auto-generated by the WRD Sample Peak WIP Dashboard',
   weekHint:'Stacked by customer · red line = weekly capacity',calHint:'Blue→amber→red: redder = hotter day · hover for detail',tblTitle:'Project breakdown',tblHint:'Click header to sort · per day = total ÷ working days',
   buHint:'Demand vs capacity (cumulative) · backlog builds once demand exceeds capacity',ownHint:'Stacked by owner/team · see who is overloaded',ownTblTitle:'Owner load breakdown',ownTblHint:'Click header to sort',
   weekTitleF:'Weekly finishes (washes)',weekTitleP:'Weekly pieces',calTitleF:'Daily finishes (washes) heatmap',calTitleP:'Daily pieces heatmap',
@@ -321,7 +342,7 @@ const I18N={
   oName:'Owner/team',oProj:'Projects',oFin:'Total finishes',oPcs:'Total pieces',oAvgF:'Fin/day',oPeakWk:'Peak week fin',oShare:'Finishes share',
   parseErr:'Parse failed: no valid project rows. Upload the master Gantt sheet (first sheet, with START/END and GARMENT QUANTITY).',readErr:'Error reading file: ',
   total:'total',dayU:'d',fill:'set',sep:', ',capRed:'red = at/over daily cap'},
- vi:{title:'Bảng tải WIP',dropTitle:'Kéo file Excel Gantt vào đây, hoặc <b>bấm để chọn file</b>',dropHint:'Hỗ trợ .xlsx · đọc sheet đầu tiên · chỉ xử lý trên trình duyệt của bạn, không tải lên máy chủ',
+ vi:{title:'Sample Peak WIP Dashboard',inprogT:'Đang làm',pendT:'Chờ',doneT:'Hoàn thành',rToday:'Từ hôm nay',rMonth:'Tháng này',rNext:'Tháng sau',rHint:'sửa ngày trực tiếp · để trống = không giới hạn',rOpen:'không giới hạn',done:'hoàn thành',overdue:'trễ hạn',lateStart:'trễ bắt đầu',tplTag:'cần mẫu',sTplL:'DEV cần làm mẫu râu mèo',sOverdueL:'⚠ Trễ hạn / trễ bắt đầu',chkTitle:'⚠ Dữ liệu cần kiểm tra:',chkDoneFuture:'ghi Hoàn thành nhưng chưa tới ngày bắt đầu',chkEndBefore:'ngày kết thúc trước ngày bắt đầu',noStatus:'Hãy chọn ít nhất một trạng thái',dropTitle:'Kéo file Excel Gantt vào đây, hoặc <b>bấm để chọn file</b>',dropHint:'Hỗ trợ .xlsx · đọc sheet đầu tiên · chỉ xử lý trên trình duyệt của bạn, không tải lên máy chủ',
   lblWindow:'Mốc thời gian',winProj:'Kỳ dự án',winWash:'Chu kỳ giặt',lblQty:'Cơ sở tải',qtyRem:'Còn lại (theo tiến độ)',qtyPlan:'Kế hoạch (toàn bộ)',
   lblCust:'Khách hàng / Bộ phận',lblOwner:'Phụ trách',lblStatus:'Trạng thái',stActive:'Đang làm + Chờ',stAll:'Tất cả',stIp:'Chỉ đang làm',stPd:'Chỉ chờ',
   lblCap:'Năng lực/tuần',reset:'Đặt lại',selAll:'Chọn tất cả',clrNone:'Bỏ chọn',lblDevBulk:'DEV / BULK',dbAll:'Tất cả',tabGantt:'Sơ đồ Gantt',tabSummary:'Tổng hợp tải',tabOwner:'Tải theo người',
@@ -330,7 +351,7 @@ const I18N={
   lblStack:'Xếp chồng theo',skCust:'Khách hàng',skDev:'DEV/BULK',showNums:'hiện số trong ô',hRange:'mỗi ô ',
   shareBtn:'📋 Tổng hợp',sumTitle:'Tổng hợp tải / email',fmtPlain:'Văn bản',fmtEmail:'Email',btnCopy:'Sao chép',btnCopied:'Đã chép ✓',btnMail:'Mở bằng email',btnExcel:'Xuất Excel',btnWord:'Xuất Word',btnClose:'Đóng',
   sScope:'Phạm vi lọc',sKey:'Chỉ số chính',sProjects:'Số dự án',sTotFin:'Tổng số kiểu (giặt)',sTotPcs:'Tổng số cái',sAvg:'Trung bình mỗi ngày',sPeakDay:'Cao nhất 1 ngày',sPeakWk:'Cao nhất 1 tuần',sCapRefL:'Năng lực/tuần',sOverL:'Số tuần vượt năng lực',sNoCap:'chưa đặt',sAlertL:'⚠ Tuần vượt năng lực',sWeeklyL:'Số kiểu theo tuần (giặt)',sOwnersL:'Tải theo người',sDevBulkL:'Số kiểu DEV/BULK',sAllCusts:'Tất cả khách hàng',
-  sSubject:'Tổng hợp tải WIP xưởng mẫu WRD',sHi:'Chào mọi người,',sIntro:'Dưới đây là tổng hợp tải WIP xưởng mẫu hiện tại (kiểu = lần giặt):',sBye:'— Tự động tạo bởi bảng tải WRD',
+  sSubject:'Tổng hợp tải WIP xưởng mẫu WRD',sHi:'Chào mọi người,',sIntro:'Dưới đây là tổng hợp tải WIP xưởng mẫu hiện tại (kiểu = lần giặt):',sBye:'— Tự động tạo bởi WRD Sample Peak WIP Dashboard',
   weekHint:'Xếp chồng theo khách hàng · vạch đỏ = năng lực/tuần',calHint:'Xanh→vàng→đỏ: càng đỏ càng nặng · rê chuột xem chi tiết',tblTitle:'Chi tiết dự án',tblHint:'Bấm tiêu đề để sắp xếp · mỗi ngày = tổng ÷ ngày làm việc',
   buHint:'Nhu cầu vs năng lực (lũy kế) · tồn đọng khi nhu cầu vượt năng lực',ownHint:'Xếp chồng theo người/nhóm · xem ai quá tải',ownTblTitle:'Chi tiết tải theo người',ownTblHint:'Bấm tiêu đề để sắp xếp',
   weekTitleF:'Số kiểu theo tuần (giặt)',weekTitleP:'Số cái theo tuần',calTitleF:'Bản đồ nhiệt số kiểu/ngày (giặt)',calTitleP:'Bản đồ nhiệt số cái/ngày',
@@ -364,9 +385,32 @@ function cssVar(n){return getComputedStyle(document.body).getPropertyValue(n).tr
 function MONTHS(){return LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:LANG==='vi'?['Th1','Th2','Th3','Th4','Th5','Th6','Th7','Th8','Th9','Th10','Th11','Th12']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];}
 function chartColors(){return{line:cssVar('--line')||'#2a2f3a',mut:cssVar('--mut')||'#9aa0ab',txt:cssVar('--txt')||'#e8eaed'};}
 
-let dateBasis='proj', qtyBasis='remaining', metric='fin', rangeMode='all', stackDim='cust', showNums=false, activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='remF', ownSortDir=1;
+let dateBasis='proj', qtyBasis='remaining', metric='fin', stackDim='cust', showNums=false, activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='remF', ownSortDir=1;
 function dbColor(d){return d==='DEV'?'#ffb454':d==='BULK'?'#41d18f':'#9aa0ab';}
 let custColor={}, ownerColor={}, allCusts=[], selectedCusts=new Set();
+// ---- shared filter state: one time window + one status set, used by every tab and the summary ----
+const STATUSES=['In Progress','Pending','Completed'], DEF_STATUS=['In Progress','Pending'];
+let statusSet=new Set(DEF_STATUS), winPreset='today', winFrom='', winTo='';
+function presetRange(v){const y=TODAY.getFullYear(),m=TODAY.getMonth();
+  if(v==='all')return['',''];
+  if(v==='today')return[key(TODAY),''];
+  if(v==='month')return[key(new Date(y,m,1)),key(new Date(y,m+1,0))];
+  if(v==='next')return[key(new Date(y,m+1,1)),key(new Date(y,m+2,0))];
+  const e=new Date(TODAY);e.setDate(e.getDate()+(+v)-1);return[key(TODAY),key(e)];}
+[winFrom,winTo]=presetRange(winPreset);
+const isDone=x=>x.status==='Completed';
+const stOf=x=>STATUSES.includes(x.status)?x.status:'Pending'; // blank/unknown status counts as Pending
+const isOverdue=x=>!isDone(x)&&!!x.end&&x.end<key(TODAY);
+const isLateStart=x=>x.status==='Pending'&&!!x.start&&x.start<key(TODAY)&&!isOverdue(x);
+const needsTpl=x=>x.devbulk==='DEV'; // DEV samples need a whisker template; BULK normally not
+function spanOf(x){return dateBasis==='wash'?[x.washStart,x.washEnd]:[x.start,x.end];}
+// unfinished work past its end date is still live today
+function liveEnd(x,e){return(e&&!isDone(x)&&e<key(TODAY))?key(TODAY):e;}
+function inWindow(x){const[s,e0]=spanOf(x);if(!s||!e0)return true;const e=liveEnd(x,e0);return(!winTo||s<=winTo)&&(!winFrom||e>=winFrom);}
+const inWinKey=k=>(!winFrom||k>=winFrom)&&(!winTo||k<=winTo);
+function winLabel(){return`${winFrom||t('rOpen')} → ${winTo||t('rOpen')}`;}
+function winTag(){return(winFrom||'start')+'_'+(winTo||'open');}
+function workdaySpan(dt){return dt.length?workdays(parseD(dt[0].k),parseD(dt[dt.length-1].k)).length:0;}
 let capFin=LS.get('capFin',''), capPcs=LS.get('capPcs','');
 
 function applyTheme(){document.body.classList.toggle('light',THEME==='light');$('#themeBtn').textContent=THEME==='light'?'☀️':'🌙';}
@@ -451,8 +495,9 @@ function initFilters(){
   const owners=[...new Set(DATA.tasks.map(t=>t.owner).filter(Boolean))];
   owners.forEach((o,i)=>ownerColor[o]=palette2[i%palette2.length]);
   allCusts=[...new Set(DATA.tasks.map(t=>t.cust))];
-  const saved=LS.get('custs',null);const keep=saved?allCusts.filter(c=>saved.includes(c)):[];
-  selectedCusts=new Set(keep.length?keep:allCusts);
+  const off=new Set(LS.get('custsOff',[]));
+  selectedCusts=new Set(allCusts.filter(c=>!off.has(c)));
+  if(!selectedCusts.size)selectedCusts=new Set(allCusts);
   $('#fOwner').innerHTML='<option value="">—</option>'+owners.sort().map(o=>`<option value="${o}">${o}</option>`).join('');
   const dbs=[...new Set(DATA.tasks.map(t=>t.devbulk).filter(Boolean))];
   $('#dbWrap').style.display=dbs.length?'':'none';
@@ -460,21 +505,27 @@ function initFilters(){
   $('#fDevBulk').innerHTML=`<option value="">${t('dbAll')}</option>`+dbs.sort().map(d=>`<option value="${d}">${d}</option>`).join('');
   renderChips();
 }
+function saveCusts(){const old=LS.get('custsOff',[]).filter(c=>!allCusts.includes(c));LS.set('custsOff',old.concat(allCusts.filter(c=>!selectedCusts.has(c))));}
 function renderChips(){
   $('#custChips').innerHTML=allCusts.map(c=>`<button class="chip ${selectedCusts.has(c)?'on':''}" data-c="${c}"><span class="dot" style="background:${custColor[c]||'#888'}"></span>${c}</button>`).join('');
-  $('#custChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const c=b.dataset.c;selectedCusts.has(c)?selectedCusts.delete(c):selectedCusts.add(c);LS.set('custs',[...selectedCusts]);renderChips();render();});
+  $('#custChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const c=b.dataset.c;selectedCusts.has(c)?selectedCusts.delete(c):selectedCusts.add(c);saveCusts();renderChips();render();});
 }
-$('#selAll').onclick=()=>{selectedCusts=new Set(allCusts);LS.set('custs',[...selectedCusts]);renderChips();render();};
-$('#clrNone').onclick=()=>{selectedCusts=new Set();LS.set('custs',[]);renderChips();render();};
-['#fOwner','#fStatus','#fDevBulk'].forEach(s=>$(s).addEventListener('change',render));
+$('#selAll').onclick=()=>{selectedCusts=new Set(allCusts);saveCusts();renderChips();render();};
+$('#clrNone').onclick=()=>{selectedCusts=new Set();saveCusts();renderChips();render();};
+['#fOwner','#fDevBulk'].forEach(s=>$(s).addEventListener('change',render));
+document.querySelectorAll('#segStatus button').forEach(b=>b.onclick=()=>{const v=b.dataset.v;statusSet.has(v)?statusSet.delete(v):statusSet.add(v);syncSeg();render();});
+['#dFrom','#dTo'].forEach(s=>$(s).addEventListener('change',()=>{winFrom=$('#dFrom').value;winTo=$('#dTo').value;
+  if(winFrom&&winTo&&winTo<winFrom)[winFrom,winTo]=[winTo,winFrom];winPreset='custom';syncSeg();render();}));
 $('#cap').addEventListener('input',()=>{const raw=$('#cap').value;const v=raw===''?'':(+raw);if(metric==='fin'){capFin=v;LS.set('capFin',v);}else{capPcs=v;LS.set('capPcs',v);}render();});
-$('#reset').onclick=()=>{selectedCusts=new Set(allCusts);LS.set('custs',[...selectedCusts]);$('#fOwner').value='';$('#fStatus').value='active';$('#fDevBulk').value='';
-  dateBasis='proj';qtyBasis='remaining';metric='fin';rangeMode='all';stackDim='cust';syncSeg();renderChips();render();};
+$('#reset').onclick=()=>{selectedCusts=new Set(allCusts);saveCusts();$('#fOwner').value='';$('#fDevBulk').value='';statusSet=new Set(DEF_STATUS);
+  dateBasis='proj';qtyBasis='remaining';metric='fin';winPreset='today';[winFrom,winTo]=presetRange(winPreset);stackDim='cust';syncSeg();renderChips();render();};
 function syncSeg(){
   document.querySelectorAll('#segWindow button').forEach(b=>b.classList.toggle('on',b.dataset.v===dateBasis));
   document.querySelectorAll('#segQty button').forEach(b=>b.classList.toggle('on',b.dataset.v===qtyBasis));
   document.querySelectorAll('#segMetric button').forEach(b=>b.classList.toggle('on',b.dataset.v===metric));
-  document.querySelectorAll('#segRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===rangeMode));
+  document.querySelectorAll('#segRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===winPreset));
+  document.querySelectorAll('#segStatus button').forEach(b=>b.classList.toggle('on',statusSet.has(b.dataset.v)));
+  $('#dFrom').value=winFrom;$('#dTo').value=winTo;
   document.querySelectorAll('#segStack button').forEach(b=>b.classList.toggle('on',b.dataset.v===stackDim));
   $('#cap').value=metric==='fin'?capFin:capPcs;$('#cap').placeholder=t('fill');
   $('#capUnit').textContent=(metric==='fin'?t('unitF'):t('unitP'))+'/'+t('sWeek');
@@ -482,7 +533,7 @@ function syncSeg(){
 document.querySelectorAll('#segWindow button').forEach(b=>b.onclick=()=>{dateBasis=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segQty button').forEach(b=>b.onclick=()=>{qtyBasis=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segMetric button').forEach(b=>b.onclick=()=>{metric=b.dataset.v;syncSeg();render();});
-document.querySelectorAll('#segRange button').forEach(b=>b.onclick=()=>{rangeMode=b.dataset.v;syncSeg();render();});
+document.querySelectorAll('#segRange button').forEach(b=>b.onclick=()=>{winPreset=b.dataset.v;[winFrom,winTo]=presetRange(winPreset);syncSeg();render();});
 document.querySelectorAll('#segStack button').forEach(b=>b.onclick=()=>{stackDim=b.dataset.v;syncSeg();render();});
 $('#cellNum').addEventListener('change',()=>{showNums=$('#cellNum').checked;render();});
 $('#tabGanttBtn').onclick=()=>switchTab('gantt');
@@ -493,27 +544,20 @@ function switchTab(tb){activeTab=tb;
   $('#paneGantt').style.display=tb==='gantt'?'':'none';$('#paneSum').style.display=tb==='sum'?'':'none';$('#paneOwner').style.display=tb==='owner'?'':'none';render();}
 
 function selectedTasks(){
-  const ow=$('#fOwner').value,st=$('#fStatus').value,db=$('#fDevBulk').value;
-  return DATA.tasks.filter(t=>{
-    if(!selectedCusts.has(t.cust))return false;
-    if(ow&&t.owner!==ow)return false;
-    if(db&&t.devbulk!==db)return false;
-    if(st==='active'&&!(t.status==='In Progress'||t.status==='Pending'))return false;
-    if(st!=='active'&&st!=='all'&&t.status!==st)return false;
-    return true;});
+  const ow=$('#fOwner').value,db=$('#fDevBulk').value;
+  return DATA.tasks.filter(t=>selectedCusts.has(t.cust)&&(!ow||t.owner===ow)&&(!db||t.devbulk===db)&&statusSet.has(stOf(t))&&inWindow(t));
 }
-function winBound(){if(rangeMode==='all')return null;const e=new Date(TODAY);e.setDate(e.getDate()+(+rangeMode));return e;}
 
 function compute(tasks){
-  const wash=dateBasis==='wash', weighted=qtyBasis==='remaining', wEnd=winBound();
-  const inWin=d=>(rangeMode==='all')||(d>=TODAY&&d<=wEnd);
+  const wash=dateBasis==='wash', weighted=qtyBasis==='remaining';
+  const inWin=d=>inWinKey(key(d));
   const perFc={},perPc={},perFo={},perPo={},perFd={},perPd={},rows=[];let excluded=0;
   tasks.forEach(t=>{
     const finTot=leadN(t.finishes);
     const s=wash?t.washStart:t.start, e=wash?t.washEnd:t.end;
     if(!s||!e){excluded++;rows.push({...t,finN:finTot,wdCount:0,perDayF:0,perDayP:0,remF:0,remP:0,skipped:true});return;}
     let sd=parseD(s),ed=parseD(e);let bF=finTot,bP=t.pieces;
-    if(weighted){bF*=(1-(t.prog||0));bP*=(1-(t.prog||0));if(sd<TODAY)sd=new Date(TODAY);}
+    if(weighted){bF*=(1-(t.prog||0));bP*=(1-(t.prog||0));if(sd<TODAY)sd=new Date(TODAY);if(ed<TODAY&&!isDone(t))ed=new Date(TODAY);}
     if(ed<sd){rows.push({...t,finN:finTot,wdCount:0,perDayF:0,perDayP:0,remF:0,remP:0});return;}
     const wd=workdays(sd,ed);const pf=wd.length?bF/wd.length:0,pp=wd.length?bP/wd.length:0;
     let wF=0,wP=0;
@@ -535,7 +579,7 @@ function capOf(){const r=metric==='fin'?capFin:capPcs;return(r===''||r==null||is
 function render(){
   const tasks=selectedTasks();
   const C=compute(tasks);
-  updateBanner(C);
+  updateBanner(C);updateCheck();
   if(!DATA.tasks.length){showEmpty();return;}
   if(activeTab==='gantt'){drawGantt(tasks);return;}
   if(activeTab==='owner'){drawOwner(C,tasks);return;}
@@ -545,6 +589,11 @@ function showEmpty(){
   $('#gantt').innerHTML=`<div class="empty"><h3>${t('emptyTitle')}</h3><div>${t('emptySub')}</div></div>`;
   $('#ganttLegend').innerHTML='';
 }
+function updateCheck(){const b=$('#checkBanner'),td=key(TODAY),bad=[];
+  DATA.tasks.forEach(x=>{if(isDone(x)&&x.start&&x.start>td)bad.push([x,t('chkDoneFuture')]);else if(x.start&&x.end&&x.end<x.start)bad.push([x,t('chkEndBefore')]);});
+  if(!bad.length){b.className='banner check';b.innerHTML='';return;}
+  b.className='banner check show';
+  b.innerHTML=`<b>${t('chkTitle')}</b> `+bad.slice(0,8).map(([x,why])=>`<span class="wk" style="background:rgba(255,180,84,.18)">${esc(x.cust)} · ${esc(x.name)} — ${why}</span>`).join('')+(bad.length>8?` …+${bad.length-8}`:'');}
 function updateBanner(C){
   const cap=capOf();const b=$('#banner');
   if(!cap){b.className='banner';return;}
@@ -563,7 +612,7 @@ function drawSummary(C,tasks){
   const sumMap=m=>Object.values(m).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
   const totF=sumMap(C.perFc),totP=sumMap(C.perPc);
   const pkF=peakOf(dtF),pkP=peakOf(dtP);
-  const avgF=dtF.length?totF/dtF.length:0,avgP=dtP.length?totP/dtP.length:0;
+  const nWd=workdaySpan(dtF)||1,avgF=totF/nWd,avgP=totP/nWd;
   const wF=weekAgg(dtF),wP=weekAgg(dtP);
   const wMap=metric==='fin'?wF:wP;const weeks=Object.keys(wMap).sort();
   const peakWeek=weeks.reduce((m,w)=>wMap[w]>wMap[m]?w:m,weeks[0]||'-');
@@ -571,7 +620,7 @@ function drawSummary(C,tasks){
   const overCap=cap?weeks.filter(w=>wMap[w]>cap).length:0;
   const washExcl=(dateBasis==='wash'&&C.excluded)?`<div class="kpi"><div class="v" style="color:var(--mut);font-size:16px">${t('excl')(C.excluded)}</div></div>`:'';
   const kpis=[
-    {v:C.rows.filter(r=>!r.skipped).length,l:t('kProjects'),s:tasks.filter(x=>x.status==='In Progress').length+' '+t('inprog')+' / '+tasks.filter(x=>x.status==='Pending').length+' '+t('pend')},
+    {v:C.rows.filter(r=>!r.skipped).length,l:t('kProjects'),s:statusLine(tasks),alert:tasks.some(isOverdue)},
     {v:fmt(totF),l:t('kFin'),s:fmt(totP)+' '+t('kPcs')},
     {v:fmt1(avgF),l:t('kAvgF'),s:fmt1(avgP)+' '+t('kAvgP')},
     {v:fmt1(pkF.v),l:t('kPeakDay'),s:(pkF.k==='-'?'':pkF.k)+' · '+fmt(pkP.v)+' '+t('kPcs'),alert:pkF.v>avgF*2},
@@ -590,6 +639,9 @@ function drawSummary(C,tasks){
   drawCalendar(map,unit,cap);
   drawTable(C.rows.filter(r=>!r.skipped));
 }
+
+function statusLine(tasks){const n=s=>tasks.filter(x=>stOf(x)===s).length,od=tasks.filter(isOverdue).length;
+  return `${n('In Progress')} ${t('inprog')} / ${n('Pending')} ${t('pend')}`+(n('Completed')?` / ${n('Completed')} ${t('done')}`:'')+(od?` · <span style="color:var(--warn)">${od} ${t('overdue')}</span>`:'');}
 
 // ---------- owner tab ----------
 function drawOwner(C,tasks){
@@ -682,16 +734,19 @@ function drawBurnup(cv,dt,CAP,unit){
 // ---------- gantt ----------
 function drawGantt(tasks){
   const host=$('#gantt');host.innerHTML='';
-  if(!tasks.length){host.innerHTML=`<div class="empty"><h3>${t('noGantt')}</h3></div>`;$('#ganttLegend').innerHTML='';return;}
+  if(!tasks.length){host.innerHTML=`<div class="empty"><h3>${statusSet.size?t('noGantt'):t('noStatus')}</h3></div>`;$('#ganttLegend').innerHTML='';return;}
   const draw=tasks.filter(t=>{const s=dateBasis==='wash'?t.washStart:t.start,e=dateBasis==='wash'?t.washEnd:t.end;return s&&e;});
   if(!draw.length){host.innerHTML=`<div class="empty"><h3>${t('noGantt')}</h3></div>`;$('#ganttLegend').innerHTML='';return;}
   let dates=[];draw.forEach(t=>{[t.start,t.end,t.washStart,t.washEnd].forEach(d=>{if(d)dates.push(parseD(d));});});
-  let min=new Date(Math.min(...dates)),max=new Date(Math.max(...dates));
+  let min=new Date(Math.min(...dates)),max=new Date(Math.max(...dates,TODAY));
   min.setDate(min.getDate()-2);max.setDate(max.getDate()+2);
+  if(winFrom){min=parseD(winFrom);min.setDate(min.getDate()-3);}
+  if(winTo){max=parseD(winTo);max.setDate(max.getDate()+1);}
   const totalDays=diffDays(min,max)+1;
   const labelW=Math.min(260,Math.max(180,host.clientWidth*0.26));
   const ppd=Math.max(3.2,(host.clientWidth-labelW-2)/totalDays);const tlW=totalDays*ppd;
   const xOf=d=>diffDays(min,parseD(d))*ppd;
+  const span=(s,e)=>{const l=Math.max(0,xOf(s)),r=Math.min(tlW,(diffDays(min,parseD(e))+1)*ppd);return r>l?{l,w:Math.max(2,r-l)}:null;};
   const order=[...new Set(draw.map(t=>t.cust))];
   const seq=[];order.forEach(c=>{seq.push({grp:c});draw.filter(t=>t.cust===c).forEach(t=>seq.push({t}));});
   const mn=MONTHS();
@@ -700,16 +755,17 @@ function drawGantt(tasks){
   const todayLine=(diffDays(min,TODAY)>=0&&TODAY<=max)?`<div class="gtoday" style="left:${xOf(key(TODAY))}px"></div>`:'';
   const leftRows=seq.map(it=>it.grp!==undefined
     ?`<div class="glabel-grp"><span class="dot" style="background:${custColor[it.grp]||'#888'}"></span>&nbsp;${it.grp}</div>`
-    :`<div class="glabel-row" title="${it.t.name}"><span class="dot" style="background:${custColor[it.t.cust]||'#888'}"></span><span class="nm">${it.t.name}</span><span class="qt">${leadN(it.t.finishes)}${t('unitF')}·${fmt(it.t.pieces)}${t('unitP')}</span></div>`).join('');
+    :`<div class="glabel-row" title="${it.t.name}"><span class="dot" style="background:${custColor[it.t.cust]||'#888'}"></span><span class="nm">${it.t.name}</span>${needsTpl(it.t)?`<span class="tplmark" title="${t('tplTag')}">✂</span>`:''}<span class="qt">${leadN(it.t.finishes)}${t('unitF')}·${fmt(it.t.pieces)}${t('unitP')}</span></div>`).join('');
   const bodyRows=seq.map(it=>{
     if(it.grp!==undefined)return `<div class="grp-row"></div>`;
     const r=it.t;let bars='';
-    if(r.start&&r.end){const l=xOf(r.start),w=Math.max(2,(diffDays(parseD(r.start),parseD(r.end))+1)*ppd);
-      const op=r.status==='Pending'?.32:.5;
-      bars+=`<div class="gbar" style="left:${l}px;width:${w}px;background:${custColor[r.cust]};opacity:${op}">${w>34?`<span class="gblab">${leadN(r.finishes)}${t('unitF')}</span>`:''}</div>`;
+    const flag=isOverdue(r)?' od':isLateStart(r)?' ls':'';
+    const pb=r.start&&r.end?span(r.start,liveEnd(r,r.end)):null;
+    if(pb){const{l,w}=pb;const op=r.status==='Pending'?.32:isDone(r)?.25:.5;
+      bars+=`<div class="gbar${flag}" style="left:${l}px;width:${w}px;background:${custColor[r.cust]};opacity:${op}">${w>34?`<span class="gblab">${leadN(r.finishes)}${t('unitF')}</span>`:''}</div>`;
       if(r.prog>0)bars+=`<div class="gprog" style="left:${l}px;width:${w*Math.min(1,r.prog)}px"></div>`;}
-    if(r.washStart&&r.washEnd){const l=xOf(r.washStart),w=Math.max(2,(diffDays(parseD(r.washStart),parseD(r.washEnd))+1)*ppd);
-      bars+=`<div class="gbar wash" style="left:${l}px;width:${w}px;background:${custColor[r.cust]}"></div>`;}
+    const wb=r.washStart&&r.washEnd?span(r.washStart,r.washEnd):null;
+    if(wb)bars+=`<div class="gbar wash" style="left:${wb.l}px;width:${wb.w}px;background:${custColor[r.cust]}"></div>`;
     return `<div class="gtrack">${bars}</div>`;
   }).join('');
   host.innerHTML=`<div class="gwrap"><div class="gleft" style="width:${labelW}px"><div class="ghead-l"></div>${leftRows}</div>
@@ -718,10 +774,10 @@ function drawGantt(tasks){
   const taskSeq=seq.filter(s=>s.t).map(s=>s.t);
   host.querySelectorAll('.gtrack').forEach((el,idx)=>{const r=taskSeq[idx];if(!r)return;
     el.onmousemove=e=>{const sz=statusTxt(r.status);
-      let h=`<b>${r.name}</b><br>${r.cust} · ${r.owner||''}<br>${sz} · ${Math.round((r.prog||0)*100)}%<br>${leadN(r.finishes)}${t('unitF')} · ${fmt(r.pieces)}${t('unitP')}<br>${t('gProj')}: ${r.start}→${r.end}`;
+      let h=`<b>${r.name}</b><br>${r.cust} · ${r.owner||''}<br>${sz} · ${Math.round((r.prog||0)*100)}%${isOverdue(r)?` · <b style="color:var(--warn)">${t('overdue')}</b>`:isLateStart(r)?` · <b style="color:#ffb454">${t('lateStart')}</b>`:''}${needsTpl(r)?` · ✂ ${t('tplTag')}`:''}<br>${leadN(r.finishes)}${t('unitF')} · ${fmt(r.pieces)}${t('unitP')}<br>${t('gProj')}: ${r.start}→${r.end}`;
       if(r.washStart)h+=`<br>${t('gWash')}: ${r.washStart}→${r.washEnd}`;showTip(e,h);};
     el.onmouseleave=hideTip;});
-  $('#ganttLegend').innerHTML=`<span><i style="background:var(--accent);opacity:.5"></i>${t('gProj')}</span><span><i style="background:var(--accent)"></i>${t('gWash')}</span><span><i style="background:var(--txt)"></i>${t('gProgress')}</span><span><i style="background:#ffb454"></i>${t('today')}</span>`;
+  $('#ganttLegend').innerHTML=`<span><i style="background:var(--accent);opacity:.5"></i>${t('gProj')}</span><span><i style="background:var(--accent)"></i>${t('gWash')}</span><span><i style="background:var(--txt)"></i>${t('gProgress')}</span><span><i style="background:#ffb454"></i>${t('today')}</span><span><i style="outline:2px solid var(--warn);background:transparent"></i>${t('overdue')}</span><span><i style="outline:2px dashed #ffb454;background:transparent"></i>${t('lateStart')}</span><span>✂ ${t('tplTag')} (DEV)</span>`;
   // auto-scroll so today is near the left third
   const gr=host.querySelector('.gright');if(gr&&diffDays(min,TODAY)>=0&&TODAY<=max)gr.scrollLeft=Math.max(0,xOf(key(TODAY))-gr.clientWidth*0.3);
 }
@@ -765,8 +821,8 @@ function drawTable(rows){
   const sz=statusTxt;
   $('#tbl tbody').innerHTML=sorted.map(r=>`<tr>
     <td><span class="pill" style="background:${(custColor[r.cust]||'#888')}22;color:${custColor[r.cust]||'#888'}">${r.cust}</span></td>
-    <td>${r.name}</td><td class="muted">${r.owner}</td>
-    <td><span class="pill ${sc(r.status)}">${sz(r.status)}</span></td>
+    <td>${r.name}${needsTpl(r)?`<span class="pill tpl">✂ ${t('tplTag')}</span>`:''}</td><td class="muted">${r.owner}</td>
+    <td><span class="pill ${sc(r.status)}">${sz(r.status)}</span>${isOverdue(r)?`<span class="pill od">${t('overdue')}</span>`:isLateStart(r)?`<span class="pill ls">${t('lateStart')}</span>`:''}</td>
     <td class="num">${r.finN||'-'}</td><td class="num">${fmt(r.pieces)}</td><td class="num">${r.wdCount}</td>
     <td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div class="bar" style="width:${36*r.perDayF/maxF+4}px"></div>${fmt1(r.perDayF)}</div></td>
     <td class="num">${fmt1(r.perDayP)}</td>
@@ -786,33 +842,36 @@ function computeReport(){
   const totF=rows.reduce((s,r)=>s+r.remF,0),totP=rows.reduce((s,r)=>s+r.remP,0);
   const wF=weekAgg(dtF),wP=weekAgg(dtP);const weeks=Object.keys(wF).sort();
   const pkF=peakOf(dtF),pkP=peakOf(dtP);
-  const avgF=dtF.length?totF/dtF.length:0,avgP=dtP.length?totP/dtP.length:0;
+  const nWd=workdaySpan(dtF)||1,avgF=totF/nWd,avgP=totP/nWd;
   const peakWeek=weeks.reduce((m,w)=>wF[w]>wF[m]?w:m,weeks[0]||'-');
   const cap=capFinVal();const over=cap?weeks.filter(w=>wF[w]>cap):[];
-  const ip=tasks.filter(x=>x.status==='In Progress').length,pd=tasks.filter(x=>x.status==='Pending').length;
+  const ip=tasks.filter(x=>stOf(x)==='In Progress').length,pd=tasks.filter(x=>stOf(x)==='Pending').length,dn=tasks.filter(isDone).length;
+  const late=tasks.filter(x=>isOverdue(x)||isLateStart(x));
+  const tpl=rows.filter(needsTpl),tplF=tpl.reduce((s,r)=>s+r.remF,0);
   const oF={},oP={},oN={};rows.forEach(r=>{const o=r.owner||'—';oF[o]=(oF[o]||0)+r.remF;oP[o]=(oP[o]||0)+r.remP;oN[o]=(oN[o]||0)+1;});
   const wkO={};Object.keys(C.perFo).forEach(dk=>{const wk=key(weekStart(parseD(dk)));Object.entries(C.perFo[dk]).forEach(([o,v])=>{(wkO[o]=wkO[o]||{})[wk]=(wkO[o][wk]||0)+v;});});
   const owners=Object.keys(oF).sort((a,b)=>oF[b]-oF[a]).map(o=>({o,f:oF[o],p:oP[o],n:oN[o],peakWk:wkO[o]?Math.max(...Object.values(wkO[o])):0}));
   const dbm={};rows.forEach(r=>{const d=r.devbulk||'—';(dbm[d]=dbm[d]||{f:0,p:0});dbm[d].f+=r.remF;dbm[d].p+=r.remP;});
   const devbulk=Object.keys(dbm).sort().map(d=>({d,f:dbm[d].f,p:dbm[d].p}));const hasDB=devbulk.some(x=>x.d!=='—');
   const custLabel=selectedCusts.size===allCusts.length?t('sAllCusts'):[...selectedCusts].join(t('sep'));
-  const stMap={active:t('stActive'),all:t('stAll'),'In Progress':t('stIp'),'Pending':t('stPd')};
-  const rangeLabel=rangeMode==='all'?t('rAll'):t('r'+rangeMode);
+  const stLabel=STATUSES.filter(x=>statusSet.has(x)).map(statusTxt).join(' + ')||'—';
   const basis=dateBasis==='wash'?t('winWash'):t('winProj');
-  const scopeStr=`${custLabel} · ${stMap[$('#fStatus').value]} · ${basis} · ${rangeLabel}`;
-  return {tasks,C,rows,dtF,dtP,totF,totP,wF,wP,weeks,pkF,pkP,avgF,avgP,peakWeek,cap,over,ip,pd,owners,devbulk,hasDB,scopeStr};
+  const scopeStr=`${winLabel()} · ${custLabel} · ${stLabel} · ${basis}`;
+  return {tasks,C,rows,dtF,dtP,totF,totP,wF,wP,weeks,pkF,pkP,avgF,avgP,peakWeek,cap,over,ip,pd,dn,late,tpl,tplF,owners,devbulk,hasDB,scopeStr};
 }
 function genSummary(){
   const R=computeReport();const uF=t('unitF'),uP=t('unitP'),W=t('sWeek');const L=[];
   L.push(`${t('sScope')}: ${R.scopeStr}`);
   L.push('');L.push(`【${t('sKey')}】`);
-  L.push(`• ${t('sProjects')}: ${R.rows.length} (${R.ip} ${t('inprog')} / ${R.pd} ${t('pend')})`);
+  L.push(`• ${t('sProjects')}: ${R.rows.length} (${R.ip} ${t('inprog')} / ${R.pd} ${t('pend')}${R.dn?' / '+R.dn+' '+t('done'):''})`);
+  if(R.tpl.length)L.push(`• ${t('sTplL')}: ${R.tpl.length} (${fmt(R.tplF)} ${uF})`);
   L.push(`• ${t('sTotFin')}: ${fmt(R.totF)} ${uF}　${t('sTotPcs')}: ${fmt(R.totP)} ${uP}`);
   L.push(`• ${t('sAvg')}: ${fmt1(R.avgF)} ${uF} / ${fmt1(R.avgP)} ${uP}`);
   L.push(`• ${t('sPeakDay')}: ${fmt1(R.pkF.v)} ${uF} (${R.pkF.k})`);
   L.push(`• ${t('sPeakWk')}: ${fmt(R.wF[R.peakWeek]||0)} ${uF} (${W} ${R.peakWeek})`);
   L.push(`• ${t('sCapRefL')}: ${R.cap?R.cap+' '+uF+'/'+W:t('sNoCap')}　${t('sOverL')}: ${R.cap?R.over.length:'—'}`);
   if(R.over.length){L.push('');L.push(`【${t('sAlertL')}】`);R.over.forEach(w=>L.push(`• ${W} ${w}: ${fmt(R.wF[w])} > ${R.cap} (${t('overBy')} ${fmt(R.wF[w]-R.cap)})`));}
+  if(R.late.length){L.push('');L.push(`【${t('sOverdueL')}】`);R.late.forEach(x=>L.push(`• ${x.cust} · ${x.name} — ${isOverdue(x)?t('overdue')+' ('+x.end+')':t('lateStart')+' ('+x.start+')'}`));}
   if(R.weeks.length){L.push('');L.push(`【${t('sWeeklyL')}】`);R.weeks.slice(0,12).forEach(w=>L.push(`• ${w}: ${fmt(R.wF[w])} ${uF}${R.cap&&R.wF[w]>R.cap?' ⚠':''}`));}
   if(R.owners.length){L.push('');L.push(`【${t('sOwnersL')}】`);R.owners.forEach(o=>L.push(`• ${o.o}: ${fmt(o.f)} ${uF} / ${fmt(o.p)} ${uP}`));}
   if(R.hasDB){L.push('');L.push(`【${t('sDevBulkL')}】`);R.devbulk.forEach(x=>L.push(`• ${x.d}: ${fmt(x.f)} ${uF}`));}
@@ -859,7 +918,7 @@ function ganttImage(tasks){
 
 function buildExcel(){
   const R=computeReport();const u=XLSX.utils,wb=u.book_new(),fd=key(TODAY),uF=t('unitF'),uP=t('unitP');
-  const sum=[['WRD WIP '+t('title')],[t('source'),DATA.source||''],['Date',fd],[t('sScope'),R.scopeStr],[],
+  const sum=[['WRD '+t('title')],[t('source'),DATA.source||''],['Date',fd],[t('sScope'),R.scopeStr],[],
     [t('sKey')],[t('sProjects'),R.rows.length],[t('sTotFin')+' ('+uF+')',Math.round(R.totF)],[t('sTotPcs')+' ('+uP+')',Math.round(R.totP)],
     [t('sAvg')+' ('+uF+')',+R.avgF.toFixed(1)],[t('sAvg')+' ('+uP+')',+R.avgP.toFixed(1)],
     [t('sPeakDay')+' ('+uF+')',+R.pkF.v.toFixed(1),R.pkF.k],[t('sPeakWk')+' ('+uF+')',Math.round(R.wF[R.peakWeek]||0),R.peakWeek],
@@ -873,7 +932,7 @@ function buildExcel(){
   const pj=[[t('cCust'),t('cName'),t('cOwner'),t('cStatus'),'DEV/BULK',t('cFin'),t('cPcs'),t('cWd'),t('cPerF'),t('cPerP'),t('cStart'),t('cEnd')]];
   R.rows.forEach(r=>pj.push([r.cust,r.name,r.owner,r.status,r.devbulk||'',r.finN,r.pieces,r.wdCount,+r.perDayF.toFixed(1),+r.perDayP.toFixed(1),r.start,r.end]));
   u.book_append_sheet(wb,u.aoa_to_sheet(pj),'Projects');
-  XLSX.writeFile(wb,'WRD_WIP_Report_'+fd+'.xlsx');
+  XLSX.writeFile(wb,'WRD_SamplePeak_WIP_'+winTag()+'.xlsx');
 }
 function buildWord(){
   const R=computeReport();const fd=key(TODAY),uF=t('unitF'),uP=t('unitP');
@@ -886,7 +945,7 @@ function buildWord(){
   });
   const imgG=ganttImage(R.tasks);
   const kpi=htmlTable(['',''],[
-    [t('sProjects'),`${R.rows.length} (${R.ip} ${t('inprog')} / ${R.pd} ${t('pend')})`],
+    [t('sProjects'),`${R.rows.length} (${R.ip} ${t('inprog')} / ${R.pd} ${t('pend')}${R.dn?' / '+R.dn+' '+t('done'):''})`],
     [t('sTotFin'),`${fmt(R.totF)} ${uF}`],[t('sTotPcs'),`${fmt(R.totP)} ${uP}`],
     [t('sAvg'),`${fmt1(R.avgF)} ${uF} / ${fmt1(R.avgP)} ${uP}`],
     [t('sPeakDay'),`${fmt1(R.pkF.v)} ${uF} (${R.pkF.k})`],
@@ -899,8 +958,8 @@ function buildWord(){
   const pjT=htmlTable([t('cCust'),t('cName'),t('cOwner'),t('cStatus'),'DEV/BULK',t('cFin'),t('cPcs'),t('cPerF'),t('cPerP'),t('cStart'),t('cEnd')],
     R.rows.map(r=>[r.cust,r.name,r.owner,statusTxt(r.status),r.devbulk||'',r.finN,fmt(r.pieces),fmt1(r.perDayF),fmt1(r.perDayP),r.start,r.end]));
   const css=`body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;font-size:11pt;color:#222}h1{font-size:18pt;margin:0 0 4px}h2{font-size:13pt;border-bottom:1px solid #ccc;padding-bottom:3px;margin:18px 0 8px}table{border-collapse:collapse;width:100%;font-size:9pt;margin:4px 0}td,th{border:1px solid #bbb;padding:3px 6px}th{background:#f0f0f0;text-align:left}img{max-width:100%}.muted{color:#888;font-size:9pt}`;
-  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>WRD WIP Report</title><style>${css}</style></head><body>`+
-    `<h1>WRD WIP ${esc(t('title'))}</h1><p class='muted'>${esc(t('source'))}: ${esc(DATA.source||'')} · ${fd}<br>${esc(t('sScope'))}: ${esc(R.scopeStr)}</p>`+
+  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>WRD Sample Peak WIP Report</title><style>${css}</style></head><body>`+
+    `<h1>WRD ${esc(t('title'))}</h1><p class='muted'>${esc(t('source'))}: ${esc(DATA.source||'')} · ${fd}<br>${esc(t('sScope'))}: ${esc(R.scopeStr)}</p>`+
     `<h2>${esc(t('sKey'))}</h2>${kpi}`+
     (alertT?`<h2>${esc(t('sAlertL'))}</h2>${alertT}`:'')+
     `<h2>${esc(metric==='fin'?t('weekTitleF'):t('weekTitleP'))}</h2>${imgW?`<img src='${imgW}'>`:''}`+
@@ -911,7 +970,7 @@ function buildWord(){
     (dbT?`<h2>${esc(t('sDevBulkL'))}</h2>${dbT}`:'')+
     `<h2>${esc(t('tblTitle'))}</h2>${pjT}`+
     `<p class='muted' style='margin-top:16px'>${esc(t('sBye'))}</p></body></html>`;
-  saveBlob('﻿'+html,'application/msword','WRD_WIP_Report_'+fd+'.doc');
+  saveBlob('﻿'+html,'application/msword','WRD_SamplePeak_WIP_'+winTag()+'.doc');
 }
 
 let sumFmt='plain',sumData=null;
