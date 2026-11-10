@@ -58,6 +58,11 @@
   .kpi .s{color:var(--mut);font-size:11px;margin-top:6px}
   .kpi.alert .v{color:var(--warn)}
   .ins h4{margin:0 0 8px;font-size:14px}
+  .ttl{display:inline-flex;align-items:center;gap:6px}
+  .qi{display:inline-block;color:var(--mut);font-weight:400;font-size:12px;cursor:help;user-select:none;opacity:.75}
+  .qi:hover{opacity:1;color:var(--accent)}
+  label .qi{margin-left:4px}
+  .tip .hl{margin-top:4px}.tip .hl b{color:#9cc8ff}
   details.insg{border-top:1px solid var(--line);padding:6px 0}details.insg:first-of-type{border-top:0}
   details.insg summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px;list-style:none}
   details.insg summary::-webkit-details-marker{display:none}details.insg summary::before{content:'▸';color:var(--mut);margin-right:6px;transition:transform .15s}
@@ -161,7 +166,7 @@
   <div class="banner check" id="checkBanner"></div>
 
   <div class="filters">
-    <div class="fg"><label data-i18n="lblWindow">时间基准</label>
+    <div class="fg"><label><span data-i18n="lblWindow">时间基准</span><span class="qi" data-help="window">ⓘ</span></label>
       <div class="seg" id="segWindow"><button data-v="proj" class="on" data-i18n="winProj">项目周期</button><button data-v="wash" data-i18n="winWash">洗水周期</button></div>
     </div>
     <div class="fg" style="flex:1 1 360px">
@@ -190,7 +195,7 @@
   <!-- ===== GANTT ===== -->
   <div id="paneGantt">
     <div class="card">
-      <h2><span data-i18n="ganttTitle">计划甘特图</span><span class="hint" data-i18n="ganttHint">按客户分组 · 浅条=项目周期，深条=洗水周期，白线=进度，橙线=今天</span></h2>
+      <h2><span class="ttl"><span data-i18n="ganttTitle">计划甘特图</span><span class="qi" data-help="gantt">ⓘ</span></span><span class="hint" data-i18n="ganttHint">按客户分组 · 浅条=项目周期，深条=洗水周期，白线=进度，橙线=今天</span></h2>
       <div id="gantt"></div>
       <div class="legend" id="ganttLegend"></div>
     </div>
@@ -200,16 +205,16 @@
   <div id="paneSum" style="display:none">
     <div class="filters sticky" id="sumFilters">
       <div class="ctx" id="sumCtx"></div>
-      <div class="fg"><label data-i18n="lblMetric">分析指标</label>
+      <div class="fg"><label><span data-i18n="lblMetric">分析指标</span><span class="qi" data-help="metric">ⓘ</span></label>
         <div class="seg" id="segMetric"><button data-v="fin" class="on" data-i18n="mFin">款数(洗水)</button><button data-v="pcs" data-i18n="mPcs">件数</button></div>
       </div>
       <div class="fg" id="stackWrap" style="display:none"><label data-i18n="lblStack">堆叠方式</label>
         <div class="seg" id="segStack"><button data-v="cust" class="on" data-i18n="skCust">客户</button><button data-v="devbulk" data-i18n="skDev">DEV/BULK</button></div>
       </div>
-      <div class="fg"><label data-i18n="lblQty">负载基准</label>
+      <div class="fg"><label><span data-i18n="lblQty">负载基准</span><span class="qi" data-help="qty">ⓘ</span></label>
         <div class="seg" id="segQty"><button data-v="remaining" class="on" data-i18n="qtyRem">剩余(进度加权)</button><button data-v="planned" data-i18n="qtyPlan">计划全量</button></div>
       </div>
-      <div class="fg"><label data-i18n="lblCap">周产能参考</label>
+      <div class="fg"><label><span data-i18n="lblCap">周产能参考</span><span class="qi" data-help="cap">ⓘ</span></label>
         <div class="capwrap"><input class="cap" type="number" id="cap" step="10"><span class="muted" id="capUnit"></span></div>
       </div>
     </div>
@@ -218,7 +223,7 @@
     <div class="kpis" id="kpis"></div>
 
     <div class="card" id="tlCard">
-      <h2><span data-i18n="tlTitle">产能 vs 负载（件数）</span><span class="hint" data-i18n="tlHint">可用 = 技术人数（洗水+手工+喷马骝）× 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小</span></h2>
+      <h2><span class="ttl"><span data-i18n="tlTitle">产能 vs 负载（件数）</span><span class="qi" data-help="tl">ⓘ</span></span><span class="hint" data-i18n="tlHint">可用 = 技术人数（洗水+手工+喷马骝）× 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小</span></h2>
       <div class="tlcfg"><label><span data-i18n="tlHeads">技术人数</span><input class="cap" type="number" id="tlHeads" min="1"></label>
         <label><span data-i18n="tlPer">每人每月件数</span><input class="cap" type="number" id="tlPer" min="1"></label>
         <label><span data-i18n="tlRoutine">日常办占比 %</span><input class="cap" type="number" id="tlRoutine" min="0" max="99"></label>
@@ -229,30 +234,30 @@
     </div>
 
     <div class="card">
-      <h2><span data-i18n="hmTitle">负责人组 × 周</span><span class="hint" data-i18n="hmHint">格内 = 件数 · 颜色越深越忙 · 鼠标停留看款数</span></h2>
+      <h2><span class="ttl"><span data-i18n="hmTitle">负责人组 × 周</span><span class="qi" data-help="hm">ⓘ</span></span><span class="hint" data-i18n="hmHint">格内 = 件数 · 颜色越深越忙 · 鼠标停留看款数</span></h2>
       <div id="heat" style="overflow-x:auto"></div>
     </div>
 
     <div class="card">
-      <h2><span id="weekTitle"></span><span class="hint" data-i18n="weekHint">按客户堆叠 · 红线 = 周产能参考</span></h2>
+      <h2><span class="ttl"><span id="weekTitle"></span><span class="qi" data-help="week">ⓘ</span></span><span class="hint" data-i18n="weekHint">按客户堆叠 · 红线 = 周产能参考</span></h2>
       <canvas id="weekChart" height="300"></canvas>
       <div class="legend" id="weekLegend"></div>
     </div>
 
     <div class="card">
-      <h2><span id="buTitle"></span><span class="hint" data-i18n="buHint">需求 vs 产能累积 · 需求超过产能即开始积压</span></h2>
+      <h2><span class="ttl"><span id="buTitle"></span><span class="qi" data-help="bu">ⓘ</span></span><span class="hint" data-i18n="buHint">需求 vs 产能累积 · 需求超过产能即开始积压</span></h2>
       <canvas id="buChart" height="280"></canvas>
       <div class="legend" id="buLegend"></div>
     </div>
 
     <div class="card">
-      <h2><span id="calTitle"></span><label style="font-weight:400;font-size:12px;color:var(--mut);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="cellNum"><span data-i18n="showNums">格内显示数字</span></label></h2>
+      <h2><span class="ttl"><span id="calTitle"></span><span class="qi" data-help="cal">ⓘ</span></span><label style="font-weight:400;font-size:12px;color:var(--mut);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="cellNum"><span data-i18n="showNums">格内显示数字</span></label></h2>
       <div class="cal" id="cal"></div>
       <div class="legend" id="calLegend"></div>
     </div>
 
     <div class="card">
-      <h2><span data-i18n="tblTitle">项目明细</span><span class="hint" data-i18n="tblHint">点表头排序 · 每日量 = 总量 ÷ 工作日</span></h2>
+      <h2><span class="ttl"><span data-i18n="tblTitle">项目明细</span><span class="qi" data-help="tbl">ⓘ</span></span><span class="hint" data-i18n="tblHint">点表头排序 · 每日量 = 总量 ÷ 工作日</span></h2>
       <table id="tbl"><thead></thead><tbody></tbody></table>
     </div>
   </div>
@@ -260,12 +265,12 @@
   <!-- ===== OWNER ===== -->
   <div id="paneOwner" style="display:none">
     <div class="card">
-      <h2><span id="ownWeekTitle"></span><span class="hint" data-i18n="ownHint">按负责人/组堆叠 · 看谁被压爆</span></h2>
+      <h2><span class="ttl"><span id="ownWeekTitle"></span><span class="qi" data-help="ownWeek">ⓘ</span></span><span class="hint" data-i18n="ownHint">按负责人/组堆叠 · 看谁被压爆</span></h2>
       <canvas id="ownChart" height="300"></canvas>
       <div class="legend" id="ownLegend"></div>
     </div>
     <div class="card">
-      <h2><span data-i18n="ownTblTitle">负责人负载明细</span><span class="hint" data-i18n="ownTblHint">点表头排序</span></h2>
+      <h2><span class="ttl"><span data-i18n="ownTblTitle">负责人负载明细</span><span class="qi" data-help="ownTbl">ⓘ</span></span><span class="hint" data-i18n="ownTblHint">点表头排序</span></h2>
       <table id="ownTbl"><thead></thead><tbody></tbody></table>
     </div>
   </div>
@@ -740,14 +745,14 @@ function drawSummary(C,tasks){
   const overCap=cap?weeks.filter(w=>wMap[w]>capWk(cap,w)).length:0;
   const washExcl=(dateBasis==='wash'&&C.excluded)?`<div class="kpi"><div class="v" style="color:var(--mut);font-size:16px">${t('excl')(C.excluded)}</div></div>`:'';
   const kpis=[
-    {v:C.rows.filter(r=>!r.skipped).length,l:t('kProjects'),s:statusLine(tasks),alert:tasks.some(isOverdue)},
-    {v:fmt(totF),l:t('kFin'),s:fmt(totP)+' '+t('kPcs')},
-    {v:fmt1(avgF),l:t('kAvgF'),s:fmt1(avgP)+' '+t('kAvgP')},
-    {v:fmt1(pkF.v),l:t('kPeakDay'),s:(pkF.k==='-'?'':pkF.k)+' · '+fmt(pkP.v)+' '+t('kPcs'),alert:pkF.v>avgF*2},
-    {v:fmt(peakWeekV),l:t('kPeakWkM')(metric),s:(peakWeek==='-'?'':t('sWeek')+' '+peakWeek)+' · '+fmt(metric==='fin'?(wP[peakWeek]||0):(wF[peakWeek]||0))+' '+(metric==='fin'?t('unitP'):t('unitF')),alert:cap&&peakWeekV>cap},
-    {v:cap?overCap:'—',l:t('kOver'),s:cap?t('sCapRef')(cap,unit):t('setCap'),alert:overCap>0},
+    {h:'kProj',v:C.rows.filter(r=>!r.skipped).length,l:t('kProjects'),s:statusLine(tasks),alert:tasks.some(isOverdue)},
+    {h:'kFin',v:fmt(totF),l:t('kFin'),s:fmt(totP)+' '+t('kPcs')},
+    {h:'kAvg',v:fmt1(avgF),l:t('kAvgF'),s:fmt1(avgP)+' '+t('kAvgP')},
+    {h:'kPeakDay',v:fmt1(pkF.v),l:t('kPeakDay'),s:(pkF.k==='-'?'':pkF.k)+' · '+fmt(pkP.v)+' '+t('kPcs'),alert:pkF.v>avgF*2},
+    {h:'kPeakWk',v:fmt(peakWeekV),l:t('kPeakWkM')(metric),s:(peakWeek==='-'?'':t('sWeek')+' '+peakWeek)+' · '+fmt(metric==='fin'?(wP[peakWeek]||0):(wF[peakWeek]||0))+' '+(metric==='fin'?t('unitP'):t('unitF')),alert:cap&&peakWeekV>cap},
+    {h:'kOver',v:cap?overCap:'—',l:t('kOver'),s:cap?t('sCapRef')(cap,unit):t('setCap'),alert:overCap>0},
   ];
-  $('#kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.alert?'alert':''}"><div class="v">${k.v}</div><div class="l">${k.l}</div><div class="s">${k.s}</div></div>`).join('')+washExcl;
+  $('#kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.alert?'alert':''}"><div class="v">${k.v}</div><div class="l">${k.l} <span class="qi" data-help="${k.h}">ⓘ</span></div><div class="s">${k.s}</div></div>`).join('')+washExcl;
   $('#weekTitle').textContent=metric==='fin'?t('weekTitleF'):t('weekTitleP');
   $('#calTitle').textContent=metric==='fin'?t('calTitleF'):t('calTitleP');
   $('#buTitle').textContent=metric==='fin'?t('buTitleF'):t('buTitleP');
@@ -959,6 +964,78 @@ function drawTable(rows){
 
 function showTip(e,html){const el=$('#tip');el.innerHTML=html;el.style.display='block';const w=el.offsetWidth,h=el.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth)x=Math.max(4,e.clientX-w-14);if(y+h>innerHeight)y=Math.max(4,innerHeight-h-4);el.style.left=x+'px';el.style.top=y+'px';}
 function hideTip(){$('#tip').style.display='none';}
+// ⓘ help popups: [what it shows, how it's calculated, what to watch] per section / KPI
+const HELP_L={zh:['看什么','怎么算','重点看'],en:['What it shows','How it is calculated','What to watch'],vi:['Xem gì','Cách tính','Cần chú ý']};
+const HELP={
+zh:{
+ gantt:['每个高峰项目从开始到结束的时间，以及洗水排在哪几天。','浅条 = 项目周期，深条 = 洗水周期，白线 = 完成进度，橙线 = 今天，紫色 = 越南法定假期。','橙线左边还没做完的条 = 逾期；很多条叠在同一段时间 = 那段会很忙。'],
+ ins:['系统自动从数据里挑出最需要注意的事，按瓶颈、近期要做、谁最忙、假期分类。','固定规则计算（不是 AI 猜）：产能红绿灯、未来 14 天要开始的项目、负载最高的组、窗口内的假期。','先看带 ⚠ 的条目。'],
+ kProj:['筛选后，时间窗内的项目数；下面一行是各状态数量。','按上方的客户、负责人、状态、时间范围筛选后计数。','变红 = 有逾期项目（已过结束日还没完成）。'],
+ kFin:['时间窗内要洗的总款数；下面是总件数。','每个项目的量平均分到它的工作日，只算落在时间窗内的部分。','和上个月或产能比，看这段时间整体有多重。'],
+ kAvg:['平均每个工作日要洗多少款 / 件。','总量 ÷ 工作日（周一到周六，不含周日和越南法定假期）。','日均越高，每天越紧；和日常产能对比。'],
+ kPeakDay:['最忙的那一天要洗多少。','每天把所有项目分到当天的量加总，取最大。','比日均高 2 倍以上会变红 = 某天任务太集中，可以考虑前后挪。'],
+ kPeakWk:['最忙的那一周的量（按当前指标：款数或件数）。','每周把每天的量加总，取最大。','超过"周产能参考"会变红。'],
+ kOver:['有几周超过"周产能参考"。','逐周比较：该周量 > 周产能（假期周按工作日缩小）就算一周。','0 最好；越多说明越需要提前排产或加人。'],
+ tl:['每周高峰项目的件数，和我们实际还能做多少件比，一眼看出哪周会爆。','可用 / 周 = 技术人数 × 每人每月件数 ÷ 4.33 × (1 − 日常办占比)；有假期的周 × 工作日 ÷ 6。负载率 = 该周件数 ÷ 可用。','绿 <85% 安全；橙 85–100% 偏紧；红 >100% 超负荷，要提前做、拆单或加人。'],
+ hm:['每个负责人组（括号内是品牌代号）每周有多少件，找出哪个组在哪一周最忙。','格内 = 该组该周件数；颜色越深越忙；鼠标停留看款数。','同一行连续几周很深 = 这个组持续高压；同一列很多深格 = 全部门那周都忙。'],
+ week:['每周总量按客户（或 DEV/BULK）堆叠，看是哪个客户把这一周撑高的。','每个项目的量平均分到它的工作日，再按周加总；红线 = 周产能参考。','柱子高过红线的周；某个颜色占大块 = 这个客户是那周的主因。'],
+ bu:['累计需求 vs 累计产能，看积压从哪天开始、会积多少。','从时间窗第一天起，把每天的需求和每天的产能分别累加。','需求线跑到产能线上方的那天 = 开始积压；两条线的距离 = 积压量。'],
+ cal:['每天的量，用颜色深浅看哪几天最忙。','每个项目的量 ÷ 它的工作日，分到每一天；周日和假期不排。','颜色很深的格子 = 最忙的日子；紫色 = 假期。'],
+ tbl:['每个项目的明细，方便查某一个款或项目。','每日量 = 总量 ÷ 工作日。点表头可以排序。','按"每日量"排序找最重的项目；注意逾期标记。'],
+ ownWeek:['每周总量按负责人组堆叠，看谁被压爆。','和"每周"图一样，只是按负责人组分颜色。','某个组的颜色在好几周都占大块 = 这个组需要支援。'],
+ ownTbl:['每个负责人组的项目数、款数、件数汇总。','把该组所有项目在时间窗内的量加总。点表头排序。','总量最高、逾期最多的组优先跟进。'],
+ window:['用哪段日期来排量。','项目周期 = 项目开始到结束；洗水周期 = 洗水开始到结束（没有洗水日期的项目会被排除）。','想看洗水房真实压力，用洗水周期。'],
+ metric:['图表按款数还是件数来看。','款数 = 洗水款数；件数 = 衣服件数。','排产和产能对比用件数更准；看工作量多少款用款数。'],
+ qty:['负载按"还剩多少"还是"计划全部"来算。','剩余 = 计划量 × (1 − 进度)，从今天排到结束日；计划全量 = 不管进度全部算。','看接下来的压力用"剩余"；回顾整个计划用"计划全量"。'],
+ cap:['每周能做的上限，用来画红线和算超载周数。','款数和件数各存一个值；有假期的周自动按工作日 ÷ 6 缩小。只保存在你这台电脑的浏览器里。','设成你们真实的周产能，红线才有意义。']},
+en:{
+ gantt:['When each peak project runs, and which days are set for washing.','Light bar = project window, dark bar = washing window, white line = progress, orange line = today, purple = Vietnam public holiday.','Unfinished bars left of the orange line are overdue; many bars stacked in the same period = a busy stretch.'],
+ ins:['The few things in the data that need attention most, grouped as bottleneck, coming up, who is busiest, and holidays.','Fixed rules (no AI guessing): capacity traffic light, projects starting in the next 14 days, the busiest team, holidays in the window.','Read the ⚠ items first.'],
+ kProj:['Projects in the window after filters; the line below splits them by status.','Counted after the customer, owner, status and time-range filters.','Red = at least one project is overdue (past its end date, not done).'],
+ kFin:['Total styles to wash in the window; total pieces below.','Each project is spread evenly over its workdays; only the part inside the window counts.','Compare with last month or capacity to see how heavy the period is.'],
+ kAvg:['Average styles / pieces per working day.','Total ÷ workdays (Mon–Sat, excluding Sundays and Vietnam public holidays).','The higher it is, the tighter each day; compare with normal daily output.'],
+ kPeakDay:['The busiest single day.','Daily load = sum of every project share on that day; take the max.','Red when more than 2× the daily average: work is bunched up, consider moving some.'],
+ kPeakWk:['Load of the busiest week (in the current metric: styles or pieces).','Sum the days in each week; take the max.','Red when above the weekly capacity reference.'],
+ kOver:['How many weeks go over the weekly capacity reference.','Week by week: load > capacity (holiday weeks scaled by workdays) counts as one.','0 is best; more means start earlier or add people.'],
+ tl:['Peak-project pieces per week against what we can still make, so you see at a glance which week breaks.','Available / week = technical heads × pcs per head per month ÷ 4.33 × (1 − routine share); holiday weeks × workdays ÷ 6. Load % = week pcs ÷ available.','Green <85% safe; amber 85–100% tight; red >100% overloaded: pull work forward, split orders or add people.'],
+ hm:['Pieces per owner team (brand codes in brackets) per week, to find which team is busiest when.','Cell = that team’s pcs that week; darker = busier; hover for styles.','A row dark for several weeks = sustained pressure on one team; a column with many dark cells = the whole department is busy that week.'],
+ week:['Weekly total stacked by customer (or DEV/BULK), to see which customer drives a week up.','Each project spread evenly over its workdays, then summed per week; red line = weekly capacity reference.','Bars above the red line; one big colour block = that customer is the main cause.'],
+ bu:['Cumulative demand vs cumulative capacity: when backlog starts and how big it gets.','From the first day of the window, add up daily demand and daily capacity separately.','The day demand crosses above capacity = backlog starts; the gap between the lines = backlog size.'],
+ cal:['Load per day, coloured so the busiest days stand out.','Each project ÷ its workdays, spread to each day; no work on Sundays or holidays.','Dark cells = busiest days; purple = holiday.'],
+ tbl:['Row-level detail for each project, to look up a style or project.','Per day = total ÷ workdays. Click a header to sort.','Sort by per-day to find the heaviest projects; watch the overdue marks.'],
+ ownWeek:['Weekly total stacked by owner team, to see who is overloaded.','Same as the weekly chart, coloured by owner team.','One team’s colour taking a big share for several weeks = that team needs help.'],
+ ownTbl:['Projects, styles and pieces per owner team.','Sum of every project of that team inside the window. Click a header to sort.','Follow up first with the team that has the most load and the most overdue.'],
+ window:['Which dates the load is spread over.','Project window = project start to end; washing window = wash start to end (projects without wash dates are left out).','Use the washing window to see real pressure on the laundry.'],
+ metric:['Show charts in styles or in pieces.','Styles = wash finishes; pieces = garments.','Use pieces for capacity planning; styles for how many jobs there are.'],
+ qty:['Count load as what is left, or as the whole plan.','Remaining = planned qty × (1 − progress), spread from today to the end date; planned = everything regardless of progress.','Use remaining for upcoming pressure; planned to review the whole plan.'],
+ cap:['The weekly limit used for the red line and the over-capacity count.','One value for styles, one for pieces; holiday weeks are scaled by workdays ÷ 6. Saved only in this browser.','Set it to your real weekly output, or the red line means nothing.']},
+vi:{
+ gantt:['Mỗi dự án cao điểm chạy từ ngày nào đến ngày nào, và giặt vào những ngày nào.','Thanh nhạt = kỳ dự án, thanh đậm = kỳ giặt, vạch trắng = tiến độ, vạch cam = hôm nay, tím = ngày lễ Việt Nam.','Thanh chưa xong nằm bên trái vạch cam = trễ hạn; nhiều thanh chồng cùng thời gian = giai đoạn bận.'],
+ ins:['Những điểm cần chú ý nhất trong dữ liệu, chia nhóm: nút thắt, sắp làm, ai bận nhất, ngày lễ.','Theo quy tắc cố định (không phải AI đoán): đèn năng lực, dự án bắt đầu trong 14 ngày tới, nhóm tải cao nhất, ngày lễ trong khoảng thời gian.','Xem các mục có ⚠ trước.'],
+ kProj:['Số dự án trong khoảng thời gian sau khi lọc; dòng dưới chia theo trạng thái.','Đếm sau bộ lọc khách hàng, phụ trách, trạng thái, thời gian.','Màu đỏ = có dự án trễ hạn (quá ngày kết thúc mà chưa xong).'],
+ kFin:['Tổng số kiểu cần giặt trong khoảng thời gian; dòng dưới là tổng số cái.','Mỗi dự án chia đều cho các ngày làm việc; chỉ tính phần nằm trong khoảng thời gian.','So với tháng trước hoặc năng lực để biết giai đoạn này nặng thế nào.'],
+ kAvg:['Trung bình mỗi ngày làm việc phải giặt bao nhiêu kiểu / cái.','Tổng ÷ số ngày làm việc (T2–T7, không tính Chủ nhật và ngày lễ Việt Nam).','Càng cao thì mỗi ngày càng căng; so với sản lượng ngày bình thường.'],
+ kPeakDay:['Ngày bận nhất.','Tải ngày = cộng phần của mọi dự án trong ngày đó; lấy lớn nhất.','Đỏ khi gấp hơn 2 lần trung bình: việc dồn vào một ngày, nên dời bớt.'],
+ kPeakWk:['Tải của tuần bận nhất (theo chỉ số đang chọn: kiểu hoặc cái).','Cộng các ngày trong tuần; lấy lớn nhất.','Đỏ khi vượt năng lực/tuần tham chiếu.'],
+ kOver:['Bao nhiêu tuần vượt năng lực/tuần tham chiếu.','So từng tuần: tải > năng lực (tuần có lễ giảm theo ngày làm việc) thì tính một tuần.','0 là tốt nhất; càng nhiều càng cần làm sớm hoặc thêm người.'],
+ tl:['Số cái của dự án cao điểm mỗi tuần so với số còn làm được, nhìn là biết tuần nào quá tải.','Khả dụng / tuần = số người kỹ thuật × số cái/người/tháng ÷ 4,33 × (1 − tỷ lệ việc thường ngày); tuần có lễ × ngày làm việc ÷ 6. Tải % = số cái tuần ÷ khả dụng.','Xanh <85% an toàn; cam 85–100% căng; đỏ >100% quá tải: làm sớm, tách đơn hoặc thêm người.'],
+ hm:['Số cái của từng nhóm phụ trách (mã brand trong ngoặc) mỗi tuần, để biết nhóm nào bận nhất vào lúc nào.','Ô = số cái của nhóm trong tuần; đậm hơn = bận hơn; rê chuột xem số kiểu.','Một hàng đậm nhiều tuần liền = nhóm đó chịu áp lực kéo dài; một cột nhiều ô đậm = cả bộ phận bận tuần đó.'],
+ week:['Tổng mỗi tuần xếp chồng theo khách hàng (hoặc DEV/BULK), để biết khách nào làm tuần đó cao lên.','Mỗi dự án chia đều cho ngày làm việc, rồi cộng theo tuần; vạch đỏ = năng lực/tuần tham chiếu.','Cột vượt vạch đỏ; một màu chiếm phần lớn = khách đó là nguyên nhân chính.'],
+ bu:['Nhu cầu cộng dồn so với năng lực cộng dồn: tồn đọng bắt đầu từ ngày nào và lớn bao nhiêu.','Từ ngày đầu của khoảng thời gian, cộng dồn riêng nhu cầu và năng lực mỗi ngày.','Ngày đường nhu cầu vượt lên trên đường năng lực = bắt đầu tồn; khoảng cách hai đường = lượng tồn.'],
+ cal:['Tải mỗi ngày, tô màu để thấy ngày bận nhất.','Mỗi dự án ÷ số ngày làm việc, chia cho từng ngày; không xếp Chủ nhật và ngày lễ.','Ô đậm = ngày bận nhất; tím = ngày lễ.'],
+ tbl:['Chi tiết từng dự án, để tra một kiểu hoặc dự án.','Mỗi ngày = tổng ÷ ngày làm việc. Bấm tiêu đề cột để sắp xếp.','Sắp theo "mỗi ngày" để tìm dự án nặng nhất; chú ý dấu trễ hạn.'],
+ ownWeek:['Tổng mỗi tuần xếp chồng theo nhóm phụ trách, để biết ai bị quá tải.','Giống biểu đồ tuần, nhưng tô màu theo nhóm phụ trách.','Màu của một nhóm chiếm phần lớn nhiều tuần = nhóm đó cần hỗ trợ.'],
+ ownTbl:['Số dự án, kiểu, cái của từng nhóm phụ trách.','Cộng mọi dự án của nhóm trong khoảng thời gian. Bấm tiêu đề cột để sắp xếp.','Theo dõi trước nhóm có tải cao nhất và trễ hạn nhiều nhất.'],
+ window:['Dùng khoảng ngày nào để chia tải.','Kỳ dự án = từ bắt đầu đến kết thúc dự án; kỳ giặt = từ bắt đầu đến kết thúc giặt (dự án không có ngày giặt sẽ bị loại).','Muốn thấy áp lực thật ở xưởng giặt thì dùng kỳ giặt.'],
+ metric:['Xem biểu đồ theo số kiểu hay số cái.','Kiểu = số kiểu giặt; cái = số sản phẩm.','Lập kế hoạch năng lực dùng số cái; xem bao nhiêu việc thì dùng số kiểu.'],
+ qty:['Tính tải theo phần còn lại hay toàn bộ kế hoạch.','Còn lại = số lượng kế hoạch × (1 − tiến độ), chia từ hôm nay đến ngày kết thúc; kế hoạch = tính hết, không xét tiến độ.','Xem áp lực sắp tới dùng "còn lại"; xem lại cả kế hoạch dùng "kế hoạch".'],
+ cap:['Giới hạn mỗi tuần, dùng để vẽ vạch đỏ và đếm tuần quá tải.','Một giá trị cho kiểu, một cho cái; tuần có lễ tự giảm theo ngày làm việc ÷ 6. Chỉ lưu trong trình duyệt này.','Đặt đúng sản lượng tuần thực tế thì vạch đỏ mới có ý nghĩa.']}};
+function helpHtml(k){const h=(HELP[LANG]||HELP.zh)[k];if(!h)return '';const L=HELP_L[LANG]||HELP_L.zh;
+  return h.map((x,i)=>`<div class="hl"><b>${['👀','🧮','🎯'][i]} ${L[i]}</b><br>${esc(x)}</div>`).join('');}
+document.addEventListener('mousemove',e=>{const q=e.target.closest&&e.target.closest('.qi[data-help]');if(q){showTip(e,helpHtml(q.dataset.help));}});
+document.addEventListener('mouseout',e=>{const q=e.target.closest&&e.target.closest('.qi[data-help]');if(q&&!q.contains(e.relatedTarget))hideTip();});
+document.addEventListener('click',e=>{const q=e.target.closest&&e.target.closest('.qi[data-help]');if(q){e.preventDefault();e.stopPropagation();showTip(e,helpHtml(q.dataset.help));}},true);
+
 
 // ---------- shared report data ----------
 function capFinVal(){return(capFin===''||capFin==null||isNaN(+capFin)||+capFin<=0)?null:+capFin;}
@@ -1069,7 +1146,7 @@ const INS_CATS=[['bn','🚦'],['todo','📋'],['who','👥'],['hol','📅']];
 function insGroups(list){return INS_CATS.map(([c,ic])=>({c,ic,items:list.filter(i=>i.cat===c)})).filter(g=>g.items.length);}
 function drawInsights(){const R=computeReport(),gs=insGroups(insights(R));
   const isOpen=g=>{const v=LS.get('insOpen_'+g.c,null);return v==null?(g.c==='bn'||g.items.some(i=>i.hot)&&g.c==='todo'):v;};
-  $('#insCard').innerHTML=`<h4>${t('insT')}</h4>`+gs.map(g=>{const hot=g.items.filter(i=>i.hot).length;
+  $('#insCard').innerHTML=`<h4>${t('insT')} <span class="qi" data-help="ins">ⓘ</span></h4>`+gs.map(g=>{const hot=g.items.filter(i=>i.hot).length;
     return `<details class="insg" data-c="${g.c}"${isOpen(g)?' open':''}><summary><span>${g.ic} ${t('cat_'+g.c)}</span><span class="cnt">${g.items.length}${hot?` · <b>⚠ ${hot}</b>`:''}</span></summary><ul>${g.items.map(i=>`<li class="${i.hot?'hot':''}">${esc(i.txt)}</li>`).join('')}</ul></details>`;}).join('');
   $('#insCard').querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>LS.set('insOpen_'+d.dataset.c,d.open)));}
 // build the summary in one language by temporarily switching LANG
