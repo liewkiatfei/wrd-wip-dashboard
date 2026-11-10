@@ -63,6 +63,7 @@
   .tlrow .fill{height:100%;border-radius:4px}.tlrow .cap100{position:absolute;top:0;bottom:0;width:2px;background:var(--txt);opacity:.5}.tlrow.hol .wk{color:#b18cff}.tlrow .num{text-align:right;font-variant-numeric:tabular-nums}
   table.hm{border-collapse:separate;border-spacing:2px;font-size:11px}table.hm th{font-weight:500;color:var(--mut);padding:2px 4px;white-space:nowrap}table.hm td{min-width:44px;text-align:center;padding:4px 2px;border-radius:3px}table.hm td.own{text-align:left;white-space:nowrap;padding-right:8px}
   @media(max-width:700px){.tlrow{grid-template-columns:70px 1fr 104px}}
+  #tip table td,#tip table th{padding:1px 8px;border:0;background:none}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:22px}
   .card h2{font-size:14px;margin:0 0 14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .card h2 .hint{font-weight:400;color:var(--mut);font-size:12px}
@@ -213,7 +214,7 @@
       <div class="tlcfg"><label><span data-i18n="tlHeads">技术人数</span><input class="cap" type="number" id="tlHeads" min="1"></label>
         <label><span data-i18n="tlPer">每人每月件数</span><input class="cap" type="number" id="tlPer" min="1"></label>
         <label><span data-i18n="tlRoutine">日常办占比 %</span><input class="cap" type="number" id="tlRoutine" min="0" max="99"></label>
-        <span class="muted" id="tlAvail"></span></div>
+        <span class="muted" id="tlAvail" style="cursor:help;border-bottom:1px dashed var(--mut)"></span></div>
       <div class="muted" id="tlMach" style="font-size:12px;margin:-4px 0 10px"></div>
       <div id="tlBars"></div>
       <div class="legend"><span><i style="background:#41d18f"></i>&lt;85%</span><span><i style="background:#ffb454"></i>85–100%</span><span><i style="background:#ff6b6b"></i>&gt;100%</span><span><i style="background:rgba(177,140,255,.5)"></i><span data-i18n="holT">假期</span></span></div>
@@ -324,7 +325,7 @@ const I18N={
   lblStack:'堆叠方式',skCust:'客户',skDev:'DEV/BULK',showNums:'格内显示数字',hRange:'每格 ',
   shareBtn:'📋 生成总结',sumTitle:'负载总结 / 邮件',fmtPlain:'纯文本',fmtEmail:'邮件格式',btnCopy:'复制到剪贴板',btnCopied:'已复制 ✓',btnMail:'用邮件打开',btnExcel:'导出 Excel',btnWord:'导出 Word',btnClose:'关闭',
   sScope:'筛选范围',sKey:'关键指标',sProjects:'项目数',sTotFin:'总款数(洗水)',sTotPcs:'总件数',sAvg:'平均每日',sPeakDay:'最高单日',sPeakWk:'最高单周',sCapRefL:'周产能参考',sOverL:'超产能周数',sNoCap:'未设',sAlertL:'⚠ 超产能周',sWeeklyL:'每周款数(洗水)',sOwnersL:'负责人负载',sDevBulkL:'DEV/BULK 款数',sAllCusts:'全部客户',
-  tlMach:(n,l)=>`洗水机 ${n} 台：${l}`,tlTitle:'产能 vs 负载（件数）',tlHint:'可用 = 技术人数（洗水+手工+喷马骝）× 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小',tlHeads:'技术人数',tlPer:'每人每月件数',tlRoutine:'日常办占比 %',
+  tipHow:'怎么算出来的',tipHeads:'= 洗水 30 + 手工 37 + 喷马骝 8（2026 年 10 月）',tipPer:'= 2026 年 1–10 月“每月件数 ÷ 技术人数”的中位数',tipMonth:'件 / 月（整个版房）',tipWeek:'件 / 周（一个月约 4.33 周）',tipPeak:'件 / 周留给高峰项目（扣掉日常办占比）',tipHol:'假期周再按工作日比例缩小（例如少 1 天 × 5/6）',tipMo:'月份',tipPcs:'件数',tipHc:'技术人数',tipPh:'每人件数',tipSrc:'来源：YDVL Oct 2026.xlsx · YDVL WRD Y26（开发办 + 大货办折合件数）',tipLoad:'高峰项目负载',tipAvailW:'本周可用',tlMach:(n,l)=>`洗水机 ${n} 台：${l}`,tlTitle:'产能 vs 负载（件数）',tlHint:'可用 = 技术人数（洗水+手工+喷马骝）× 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小',tlHeads:'技术人数',tlPer:'每人每月件数',tlRoutine:'日常办占比 %',
   tlAvail:v=>`→ 高峰项目每周可用约 ${v} 件`,hmTitle:'负责人组 × 周',hmHint:'格内 = 件数 · 颜色越深越忙 · 鼠标停留看款数',hmGrp:'组',
   insNext:(w,l,c,p,cu,ow)=>`下一个瓶颈：${w} 那周，高峰项目 ${l} 件，可用 ${c} 件（${p}%），主要是客户 ${cu}、${ow} 组。`,
   insMove:(w,p)=>`前面 ${w} 那周只用了 ${p}%，可以考虑把部分提前。`,
@@ -367,7 +368,7 @@ const I18N={
   lblStack:'Stack by',skCust:'Customer',skDev:'DEV/BULK',showNums:'numbers in cells',hRange:'per cell ',
   shareBtn:'📋 Summary',sumTitle:'Load summary / email',fmtPlain:'Plain text',fmtEmail:'Email',btnCopy:'Copy to clipboard',btnCopied:'Copied ✓',btnMail:'Open in email',btnExcel:'Export Excel',btnWord:'Export Word',btnClose:'Close',
   sScope:'Filter scope',sKey:'Key metrics',sProjects:'Projects',sTotFin:'Total finishes (washes)',sTotPcs:'Total pieces',sAvg:'Avg per day',sPeakDay:'Peak day',sPeakWk:'Peak week',sCapRefL:'Weekly capacity',sOverL:'Weeks over capacity',sNoCap:'not set',sAlertL:'⚠ Over-capacity weeks',sWeeklyL:'Weekly finishes (washes)',sOwnersL:'Owner load',sDevBulkL:'DEV/BULK finishes',sAllCusts:'All customers',
-  tlMach:(n,l)=>`Washing machines: ${n} (${l})`,tlTitle:'Capacity vs load (pcs)',tlHint:'Available = technical heads (washing + dry + PP) × pcs per head per month ÷ 4.33 × (1 − routine share) · holiday weeks scaled by workdays',tlHeads:'Technical heads',tlPer:'Pcs / head / month',tlRoutine:'Routine share %',
+  tipHow:'How this is calculated',tipHeads:'= washing 30 + dry process 37 + PP 8 (Oct 2026)',tipPer:'= median of monthly pcs ÷ technical heads, Jan–Oct 2026',tipMonth:'pcs / month (whole room)',tipWeek:'pcs / week (≈4.33 weeks per month)',tipPeak:'pcs / week left for peak projects (after routine share)',tipHol:'Holiday weeks are scaled by workdays (e.g. one day off × 5/6)',tipMo:'Month',tipPcs:'Pcs',tipHc:'Tech heads',tipPh:'Pcs / head',tipSrc:'Source: YDVL Oct 2026.xlsx · YDVL WRD Y26 (dev + pre-pro pcs)',tipLoad:'Peak project load',tipAvailW:'Available this week',tlMach:(n,l)=>`Washing machines: ${n} (${l})`,tlTitle:'Capacity vs load (pcs)',tlHint:'Available = technical heads (washing + dry + PP) × pcs per head per month ÷ 4.33 × (1 − routine share) · holiday weeks scaled by workdays',tlHeads:'Technical heads',tlPer:'Pcs / head / month',tlRoutine:'Routine share %',
   tlAvail:v=>`→ about ${v} pcs/week left for peak projects`,hmTitle:'Owner team × week',hmHint:'Cell = pcs · darker = busier · hover for styles',hmGrp:'Team',
   insNext:(w,l,c,p,cu,ow)=>`Next bottleneck: week of ${w}, peak projects ${l} pcs vs ${c} pcs available (${p}%), mainly customer ${cu} and team ${ow}.`,
   insMove:(w,p)=>`The week of ${w} is only at ${p}%; consider pulling some work forward.`,
@@ -410,7 +411,7 @@ const I18N={
   lblStack:'Xếp chồng theo',skCust:'Khách hàng',skDev:'DEV/BULK',showNums:'hiện số trong ô',hRange:'mỗi ô ',
   shareBtn:'📋 Tổng hợp',sumTitle:'Tổng hợp tải / email',fmtPlain:'Văn bản',fmtEmail:'Email',btnCopy:'Sao chép',btnCopied:'Đã chép ✓',btnMail:'Mở bằng email',btnExcel:'Xuất Excel',btnWord:'Xuất Word',btnClose:'Đóng',
   sScope:'Phạm vi lọc',sKey:'Chỉ số chính',sProjects:'Số dự án',sTotFin:'Tổng số kiểu (giặt)',sTotPcs:'Tổng số cái',sAvg:'Trung bình mỗi ngày',sPeakDay:'Cao nhất 1 ngày',sPeakWk:'Cao nhất 1 tuần',sCapRefL:'Năng lực/tuần',sOverL:'Số tuần vượt năng lực',sNoCap:'chưa đặt',sAlertL:'⚠ Tuần vượt năng lực',sWeeklyL:'Số kiểu theo tuần (giặt)',sOwnersL:'Tải theo người',sDevBulkL:'Số kiểu DEV/BULK',sAllCusts:'Tất cả khách hàng',
-  tlMach:(n,l)=>`Máy giặt: ${n} máy (${l})`,tlTitle:'Năng lực vs tải (cái)',tlHint:'Khả dụng = số kỹ thuật (giặt + thủ công + phun PP) × cái/người/tháng ÷ 4.33 × (1 − tỷ lệ việc thường) · tuần có ngày lễ giảm theo ngày làm',tlHeads:'Số kỹ thuật',tlPer:'Cái/người/tháng',tlRoutine:'Tỷ lệ việc thường %',
+  tipHow:'Cách tính',tipHeads:'= giặt 30 + thủ công 37 + phun PP 8 (tháng 10/2026)',tipPer:'= trung vị số cái/tháng ÷ số kỹ thuật, tháng 1–10/2026',tipMonth:'cái / tháng (cả xưởng)',tipWeek:'cái / tuần (≈4.33 tuần mỗi tháng)',tipPeak:'cái / tuần cho dự án cao điểm (trừ phần việc thường)',tipHol:'Tuần có ngày lễ giảm theo ngày làm (vd. nghỉ 1 ngày × 5/6)',tipMo:'Tháng',tipPcs:'Cái',tipHc:'Số KT',tipPh:'Cái/người',tipSrc:'Nguồn: YDVL Oct 2026.xlsx · YDVL WRD Y26 (cái phát triển + tiền SX)',tipLoad:'Tải dự án cao điểm',tipAvailW:'Khả dụng tuần này',tlMach:(n,l)=>`Máy giặt: ${n} máy (${l})`,tlTitle:'Năng lực vs tải (cái)',tlHint:'Khả dụng = số kỹ thuật (giặt + thủ công + phun PP) × cái/người/tháng ÷ 4.33 × (1 − tỷ lệ việc thường) · tuần có ngày lễ giảm theo ngày làm',tlHeads:'Số kỹ thuật',tlPer:'Cái/người/tháng',tlRoutine:'Tỷ lệ việc thường %',
   tlAvail:v=>`→ còn khoảng ${v} cái/tuần cho dự án cao điểm`,hmTitle:'Nhóm phụ trách × tuần',hmHint:'Ô = số cái · đậm hơn = bận hơn · rê chuột xem số kiểu',hmGrp:'Nhóm',
   insNext:(w,l,c,p,cu,ow)=>`Điểm nghẽn tiếp theo: tuần ${w}, dự án cao điểm ${l} cái so với ${c} cái khả dụng (${p}%), chủ yếu khách ${cu} và nhóm ${ow}.`,
   insMove:(w,p)=>`Tuần ${w} mới dùng ${p}%, có thể đẩy một phần lên sớm.`,
@@ -516,6 +517,8 @@ let capFin=LS.get('capFin',''), capPcs=LS.get('capPcs','');
 // pcs-first capacity for peak projects. Defaults from YDVL Oct-2026 report: technical heads = washing 30 + dry process 37 + PP 8 = 75;
 // 2026 Jan-Oct median 73 pcs (dev + pre-pro) per technical head per month. Keys v2 so old per-washer values don't linger.
 let tlHeads=LS.get('tlHeads2',75), tlPer=LS.get('tlPer2',73), tlRoutine=LS.get('tlRoutine',80);
+// 2026 actuals from YDVL Oct 2026.xlsx sheet "YDVL WRD Y26": pcs = 开发办 + 大货办折合件数, heads = 洗水 + 手工 + PP
+const HIST=[['01',3939,63],['02',2580,63],['03',5790,62],['04',5373,58],['05',2958,60],['06',4494,64],['07',5107,69],['08',5515,74],['09',5628,75],['10',5362,75]];
 const MACHINES=[['600 lb',2],['250 lb',7],['100 lb',12],['50 lb',4]]; // capacity in pounds (report header says KG but it is lb)
 const availWk=()=>tlHeads*tlPer/4.33*(1-tlRoutine/100);
 const availOf=wk=>availWk()*weekWd(wk)/6;
@@ -946,7 +949,7 @@ function drawTable(rows){
   $('#tbl thead').querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;}drawTable(rows);});
 }
 
-function showTip(e,html){const el=$('#tip');el.innerHTML=html;el.style.display='block';let x=e.clientX+14,y=e.clientY+14;if(x+300>innerWidth)x=e.clientX-300;if(y+150>innerHeight)y=e.clientY-150;el.style.left=x+'px';el.style.top=y+'px';}
+function showTip(e,html){const el=$('#tip');el.innerHTML=html;el.style.display='block';const w=el.offsetWidth,h=el.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth)x=Math.max(4,e.clientX-w-14);if(y+h>innerHeight)y=Math.max(4,innerHeight-h-4);el.style.left=x+'px';el.style.top=y+'px';}
 function hideTip(){$('#tip').style.display='none';}
 
 // ---------- shared report data ----------
@@ -1023,13 +1026,21 @@ const custCode=c=>{const m=String(c).match(/\b(A[A-Z]?\d{1,2})\b/);return m?m[1]
 function ownLab(o){const cs=[...new Set(DATA.tasks.filter(x=>(x.owner||'—')===o).map(x=>custCode(x.cust)).filter(Boolean))].sort();return cs.length?`${o} (${cs.join(' ')})`:o;}
 function weekPcs(C){return weekAgg(dayTotals(C.perPc));}
 function tlColor(p){return p>100?'#ff6b6b':p>=85?'#ffb454':'#41d18f';}
+function availTip(){const mo=tlHeads*tlPer,wk=mo/4.33;
+  const rows=HIST.map(([m,p,h])=>`<tr><td>2026-${m}</td><td style="text-align:right">${fmt(p)}</td><td style="text-align:right">${h}</td><td style="text-align:right">${Math.round(p/h)}</td></tr>`).join('');
+  return `<b>${t('tipHow')}</b><br>①&nbsp;${t('tlHeads')}: <b>${tlHeads}</b> ${t('tipHeads')}<br>②&nbsp;${t('tlPer')}: <b>${tlPer}</b> ${t('tipPer')}<br>`+
+    `③&nbsp;${tlHeads} × ${tlPer} = <b>${fmt(mo)}</b> ${t('tipMonth')}<br>④&nbsp;${fmt(mo)} ÷ 4.33 = <b>${fmt(wk)}</b> ${t('tipWeek')}<br>`+
+    `⑤&nbsp;${fmt(wk)} × (1 − ${tlRoutine}%) = <b>${fmt(availWk())}</b> ${t('tipPeak')}<br>⑥&nbsp;${t('tipHol')}<br>`+
+    `<table style="margin-top:6px;font-size:11px;border-collapse:collapse"><tr><th>${t('tipMo')}</th><th>${t('tipPcs')}</th><th>${t('tipHc')}</th><th>${t('tipPh')}</th></tr>${rows}</table><span style="color:var(--mut);font-size:11px">${t('tipSrc')}</span>`;}
 function drawTL(C){
   $('#tlHeads').value=tlHeads;$('#tlPer').value=tlPer;$('#tlRoutine').value=tlRoutine;
-  $('#tlAvail').textContent=t('tlAvail')(fmt(availWk()));
+  $('#tlAvail').textContent=t('tlAvail')(fmt(availWk()))+' ⓘ';$('#tlAvail').onmousemove=e=>showTip(e,availTip());$('#tlAvail').onmouseleave=hideTip;$('#tlAvail').onclick=e=>showTip(e,availTip());
   $('#tlMach').textContent=t('tlMach')(MACHINES.reduce((a,m)=>a+m[1],0),MACHINES.map(([k,n])=>k+' × '+n).join(' · '));
   const w=weekPcs(C),wks=Object.keys(w).sort().slice(0,20);
   $('#tlBars').innerHTML=wks.map(k=>{const a=availOf(k),p=a?Math.round(100*w[k]/a):0,lost=6-weekWd(k);
-    return `<div class="tlrow${lost?' hol':''}"><span class="wk">${k.slice(5)}${lost?` 📅-${lost}${t('holD').trim()}`:''}</span><div class="trk"><div class="fill" style="width:${Math.min(p,150)/1.5}%;background:${tlColor(p)}"></div><div class="cap100" style="left:66.7%"></div></div><span class="num">${fmt(w[k])} / ${fmt(a)} · <b style="color:${tlColor(p)}">${p}%</b></span></div>`;}).join('')||`<div class="muted">${t('noLoad')}</div>`;}
+    return `<div class="tlrow${lost?' hol':''}" data-k="${k}"><span class="wk">${k.slice(5)}${lost?` 📅-${lost}${t('holD').trim()}`:''}</span><div class="trk"><div class="fill" style="width:${Math.min(p,150)/1.5}%;background:${tlColor(p)}"></div><div class="cap100" style="left:66.7%"></div></div><span class="num">${fmt(w[k])} / ${fmt(a)} · <b style="color:${tlColor(p)}">${p}%</b></span></div>`;}).join('')||`<div class="muted">${t('noLoad')}</div>`;
+  $('#tlBars').querySelectorAll('.tlrow').forEach(el=>{const k=el.dataset.k,a=availOf(k),wd=weekWd(k),hs=holInRange(k,key(new Date(parseD(k).getTime()+6*864e5)));
+    el.onmousemove=e=>showTip(e,`<b>${t('sWeek')} ${k}</b><br>${t('tipLoad')}: ${fmt(w[k])} ${t('unitP')}<br>${t('tipAvailW')}: ${fmt(availWk())} × ${wd}/6 = ${fmt(a)} ${t('unitP')}`+(hs.length?`<br><span style="color:#b18cff">📅 ${hs.map(holLabel).join(', ')}</span>`:'')+`<br>${fmt(w[k])} ÷ ${fmt(a)} = <b>${a?Math.round(100*w[k]/a):0}%</b>`);el.onmouseleave=hideTip;});}
 function drawHeat(C){
   const wk={},wf={};const put=(m,o)=>Object.keys(m).forEach(dk=>{const k=key(weekStart(parseD(dk)));Object.entries(m[dk]).forEach(([g,v])=>{((o[g]=o[g]||{})[k])=(o[g][k]||0)+v;});});
   put(C.perPo,wk);put(C.perFo,wf);
