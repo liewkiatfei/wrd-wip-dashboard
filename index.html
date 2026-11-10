@@ -330,7 +330,7 @@ let LANG=['zh','en','vi'].includes(QS.get('lang'))?QS.get('lang'):LS.get('lang',
 (()=>{let inFrame=false;try{inFrame=window.self!==window.top;}catch(e){inFrame=true;}if(inFrame||QS.get('embed')==='1')document.body.classList.add('embed');})();
 
 const I18N={
- zh:{title:'Sample Peak WIP Dashboard',inprogT:'进行中',pendT:'待做',doneT:'已完成',rToday:'今天起',rMonth:'本月',rNext:'下月',rHint:'可直接改日期 · 留空 = 不限',rOpen:'不限',done:'已完成',overdue:'逾期',lateStart:'该开始未开始',tplTag:'需模版',sTplL:'DEV 需猫须模版',sOverdueL:'⚠ 逾期 / 该开始未开始',chkTitle:'⚠ 数据待核对：',chkDoneFuture:'标“已完成”但开始日还没到',chkEndBefore:'结束日早于开始日',noStatus:'请至少选一个状态',dropTitle:'把 Excel 甘特文件拖到这里，或 <b>点击选择文件</b>',dropHint:'支持 .xlsx · 读取第一个工作表 · 数据只在你浏览器里处理，不会上传到任何服务器',
+ zh:{title:'Sample Peak WIP Dashboard',inprogT:'进行中',pendT:'待做',doneT:'已完成',rToday:'今天起',rMonth:'本月',rNext:'下月',rHint:'可直接改日期 · 留空 = 不限',rOpen:'不限',done:'已完成',overdue:'逾期',lateStart:'该开始未开始',tplTag:'需模版',sTplL:'DEV 需猫须模版',sOverdueL:'⚠ 逾期 / 该开始未开始',chkTitle:'⚠ 数据待核对：',chkDoneFuture:'标“已完成”但开始日还没到',chkEndBefore:'结束日早于开始日',noStatus:'请至少选一个状态',dropTitle:'把 Excel 甘特文件拖到这里，或 <b>点击选择文件</b>',dropHint:'支持 .xlsx · 读取第一个工作表 · 数据只在你浏览器里处理，不会上传到任何服务器',dropHintApp:'支持 .xlsx · 读取第一个工作表 · 在 WRD 学习 App 里：主管拖入的文件会保存，大家看到同一份；其他人拖入的只在自己屏幕上看',
   lblWindow:'时间基准',winProj:'项目周期',winWash:'洗水周期',lblQty:'负载基准',qtyRem:'剩余(进度加权)',qtyPlan:'计划全量',
   lblCust:'客户 / 部门',lblOwner:'负责人',lblStatus:'状态',stActive:'进行中 + 待做',stAll:'全部',stIp:'仅进行中',stPd:'仅待做',
   lblCap:'周产能参考',reset:'重置',selAll:'全选',clrNone:'清空',lblDevBulk:'DEV / BULK',dbAll:'全部',tabGantt:'计划甘特图',tabSummary:'负载汇总',tabOwner:'负责人负载',
@@ -373,7 +373,7 @@ const I18N={
   oName:'负责人/组',oProj:'项目数',oFin:'总款数',oPcs:'总件数',oAvgF:'每日款',oPeakWk:'峰值周款',oShare:'款数占比',
   parseErr:'解析失败：找不到有效项目行。请确认上传的是甘特主表（第一个工作表，含 START/END 与 GARMENT QUANTITY 列）。',readErr:'读取文件出错：',
   total:'合计',dayU:'日',fill:'填写',sep:'、',capRed:'红=达/超日产能'},
- en:{title:'Sample Peak WIP Dashboard',inprogT:'In Progress',pendT:'Pending',doneT:'Completed',rToday:'From today',rMonth:'This month',rNext:'Next month',rHint:'edit dates directly · blank = open',rOpen:'open',done:'completed',overdue:'overdue',lateStart:'start overdue',tplTag:'template',sTplL:'DEV needing whisker template',sOverdueL:'⚠ Overdue / late start',chkTitle:'⚠ Data to check:',chkDoneFuture:'marked Completed but start date not reached',chkEndBefore:'end date before start date',noStatus:'Pick at least one status',dropTitle:'Drop the Excel Gantt file here, or <b>click to choose a file</b>',dropHint:'.xlsx supported · reads the first sheet · processed only in your browser, never uploaded',
+ en:{title:'Sample Peak WIP Dashboard',inprogT:'In Progress',pendT:'Pending',doneT:'Completed',rToday:'From today',rMonth:'This month',rNext:'Next month',rHint:'edit dates directly · blank = open',rOpen:'open',done:'completed',overdue:'overdue',lateStart:'start overdue',tplTag:'template',sTplL:'DEV needing whisker template',sOverdueL:'⚠ Overdue / late start',chkTitle:'⚠ Data to check:',chkDoneFuture:'marked Completed but start date not reached',chkEndBefore:'end date before start date',noStatus:'Pick at least one status',dropTitle:'Drop the Excel Gantt file here, or <b>click to choose a file</b>',dropHint:'.xlsx supported · reads the first sheet · processed only in your browser, never uploaded',dropHintApp:'.xlsx supported · reads the first sheet · in the WRD Learning App: a manager\'s file is saved and everyone sees it; anyone else\'s stays on their own screen',
   lblWindow:'Time basis',winProj:'Project window',winWash:'Washing cycle',lblQty:'Load basis',qtyRem:'Remaining (weighted)',qtyPlan:'Planned (full)',
   lblCust:'Customer / Dept',lblOwner:'Owner',lblStatus:'Status',stActive:'In Progress + Pending',stAll:'All',stIp:'In Progress only',stPd:'Pending only',
   lblCap:'Weekly capacity',reset:'Reset',selAll:'Select all',clrNone:'Clear',lblDevBulk:'DEV / BULK',dbAll:'All',tabGantt:'Plan (Gantt)',tabSummary:'Load Summary',tabOwner:'Owner load',
@@ -416,7 +416,7 @@ const I18N={
   oName:'Owner/team',oProj:'Projects',oFin:'Total finishes',oPcs:'Total pieces',oAvgF:'Fin/day',oPeakWk:'Peak week fin',oShare:'Finishes share',
   parseErr:'Parse failed: no valid project rows. Upload the master Gantt sheet (first sheet, with START/END and GARMENT QUANTITY).',readErr:'Error reading file: ',
   total:'total',dayU:'d',fill:'set',sep:', ',capRed:'red = at/over daily cap'},
- vi:{title:'Sample Peak WIP Dashboard',inprogT:'Đang làm',pendT:'Chờ',doneT:'Hoàn thành',rToday:'Từ hôm nay',rMonth:'Tháng này',rNext:'Tháng sau',rHint:'sửa ngày trực tiếp · để trống = không giới hạn',rOpen:'không giới hạn',done:'hoàn thành',overdue:'trễ hạn',lateStart:'trễ bắt đầu',tplTag:'cần mẫu',sTplL:'DEV cần làm mẫu râu mèo',sOverdueL:'⚠ Trễ hạn / trễ bắt đầu',chkTitle:'⚠ Dữ liệu cần kiểm tra:',chkDoneFuture:'ghi Hoàn thành nhưng chưa tới ngày bắt đầu',chkEndBefore:'ngày kết thúc trước ngày bắt đầu',noStatus:'Hãy chọn ít nhất một trạng thái',dropTitle:'Kéo file Excel Gantt vào đây, hoặc <b>bấm để chọn file</b>',dropHint:'Hỗ trợ .xlsx · đọc sheet đầu tiên · chỉ xử lý trên trình duyệt của bạn, không tải lên máy chủ',
+ vi:{title:'Sample Peak WIP Dashboard',inprogT:'Đang làm',pendT:'Chờ',doneT:'Hoàn thành',rToday:'Từ hôm nay',rMonth:'Tháng này',rNext:'Tháng sau',rHint:'sửa ngày trực tiếp · để trống = không giới hạn',rOpen:'không giới hạn',done:'hoàn thành',overdue:'trễ hạn',lateStart:'trễ bắt đầu',tplTag:'cần mẫu',sTplL:'DEV cần làm mẫu râu mèo',sOverdueL:'⚠ Trễ hạn / trễ bắt đầu',chkTitle:'⚠ Dữ liệu cần kiểm tra:',chkDoneFuture:'ghi Hoàn thành nhưng chưa tới ngày bắt đầu',chkEndBefore:'ngày kết thúc trước ngày bắt đầu',noStatus:'Hãy chọn ít nhất một trạng thái',dropTitle:'Kéo file Excel Gantt vào đây, hoặc <b>bấm để chọn file</b>',dropHint:'Hỗ trợ .xlsx · đọc sheet đầu tiên · chỉ xử lý trên trình duyệt của bạn, không tải lên máy chủ',dropHintApp:'Hỗ trợ .xlsx · đọc sheet đầu tiên · trong WRD Learning App: file quản lý kéo vào được lưu cho mọi người; người khác kéo vào chỉ xem trên máy mình',
   lblWindow:'Mốc thời gian',winProj:'Kỳ dự án',winWash:'Chu kỳ giặt',lblQty:'Cơ sở tải',qtyRem:'Còn lại (theo tiến độ)',qtyPlan:'Kế hoạch (toàn bộ)',
   lblCust:'Khách hàng / Bộ phận',lblOwner:'Phụ trách',lblStatus:'Trạng thái',stActive:'Đang làm + Chờ',stAll:'Tất cả',stIp:'Chỉ đang làm',stPd:'Chỉ chờ',
   lblCap:'Năng lực/tuần',reset:'Đặt lại',selAll:'Chọn tất cả',clrNone:'Bỏ chọn',lblDevBulk:'DEV / BULK',dbAll:'Tất cả',tabGantt:'Sơ đồ Gantt',tabSummary:'Tổng hợp tải',tabOwner:'Tải theo người',
@@ -555,7 +555,7 @@ function setLang(l){LANG=l;LS.set('lang',l);applyLang();renderChips();render();}
 $('#lzh').onclick=()=>setLang('zh');
 $('#len').onclick=()=>setLang('en');
 $('#lvi').onclick=()=>setLang('vi');
-function refreshMeta(){const tag=DATA.uploaded?t('uploaded'):(DATA.generated||'');$('#meta').textContent=DATA.source?`${t('source')}: ${DATA.source}${tag?' · '+tag:''}`:'';}
+function refreshMeta(){const tag=DATA.note||(DATA.uploaded?t('uploaded'):(DATA.generated||''));$('#meta').textContent=DATA.source?`${t('source')}: ${DATA.source}${tag?' · '+tag:''}`:'';}
 
 // ---------- parsing ----------
 function lead(v){if(v==null)return null;if(typeof v==='number')return Math.round(v);const m=String(v).match(/^\s*(\d+)/);return m?+m[1]:null;}
@@ -602,15 +602,36 @@ function parseWB(ab){
   }
   return {tasks};
 }
+function showData(name,ab,note){
+  $('#err').textContent='';
+  try{const res=parseWB(ab);
+    if(!res.tasks.length){$('#err').textContent=t('parseErr');return false;}
+    DATA={source:name,uploaded:true,note:note||'',tasks:res.tasks};initFilters();refreshMeta();render();return true;
+  }catch(err){$('#err').textContent=t('readErr')+err.message;return false;}
+}
 function loadFile(file){
   $('#err').textContent='';const r=new FileReader();
   r.onerror=()=>{$('#err').textContent=t('readErr')+r.error;};
-  r.onload=e=>{try{const res=parseWB(e.target.result);
-    if(!res.tasks.length){$('#err').textContent=t('parseErr');return;}
-    DATA={source:file.name,uploaded:true,tasks:res.tasks};initFilters();refreshMeta();render();
-  }catch(err){$('#err').textContent=t('readErr')+err.message;}};
+  r.onload=e=>{const ab=e.target.result;if(showData(file.name,ab.slice(0))&&appOrigin)window.parent.postMessage({wip:'upload',name:file.name,buf:ab},appOrigin,[ab]);};
   r.readAsArrayBuffer(file);
 }
+
+// ---------- shared file (embedded in the WRD Learning App) ----------
+// The app keeps the latest file a manager uploaded and hands it in when this
+// page says "ready"; a file dropped here is handed back so the app can save
+// it for everyone. Files only go to the app's own addresses. The app says
+// "hello" once it is listening, in case it missed the first "ready".
+const APP_ORIGIN=/^(https:\/\/app-ashy-mu-41\.vercel\.app|https:\/\/app(-[a-z0-9-]+)?-ionliewkiatfei1995-3819s-projects\.vercel\.app|http:\/\/localhost(:\d+)?)$/;
+let appOrigin=null;
+window.addEventListener('message',e=>{
+  if(e.source!==window.parent||window.parent===window||!APP_ORIGIN.test(e.origin))return;
+  if(!appOrigin){const h=document.querySelector('[data-i18n="dropHint"]');if(h){h.dataset.i18n='dropHintApp';h.textContent=t('dropHintApp');}}
+  appOrigin=e.origin;const m=e.data||{};
+  if(m.wip==='file'&&m.buf instanceof ArrayBuffer)showData(String(m.name||''),m.buf,String(m.note||''));
+  else if(m.wip==='note'&&DATA.source){DATA.note=String(m.note||'');refreshMeta();}
+  else if(m.wip==='hello')window.parent.postMessage({wip:'ready'},appOrigin);
+});
+if(window.parent!==window)window.parent.postMessage({wip:'ready'},'*');
 const drop=$('#drop');
 drop.onclick=()=>$('#file').click();
 $('#file').onchange=e=>{if(e.target.files[0])loadFile(e.target.files[0]);};
