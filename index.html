@@ -57,7 +57,14 @@
   .kpi .l{color:var(--mut);font-size:12px;margin-top:4px}
   .kpi .s{color:var(--mut);font-size:11px;margin-top:6px}
   .kpi.alert .v{color:var(--warn)}
-  .ins h4{margin:0 0 8px;font-size:14px}.ins ul{margin:0;padding-left:18px;line-height:1.7;font-size:13px}.ins li.hot{color:var(--warn)}
+  .ins h4{margin:0 0 8px;font-size:14px}
+  details.insg{border-top:1px solid var(--line);padding:6px 0}details.insg:first-of-type{border-top:0}
+  details.insg summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px;list-style:none}
+  details.insg summary::-webkit-details-marker{display:none}details.insg summary::before{content:'▸';color:var(--mut);margin-right:6px;transition:transform .15s}
+  details.insg[open] summary::before{transform:rotate(90deg)}details.insg summary span:first-child{flex:1}details.insg .cnt{font-weight:400;color:var(--mut);font-size:12px}details.insg .cnt b{color:var(--warn)}
+  details.insg ul{margin:6px 0 2px}
+  .sticky{position:sticky;top:0;z-index:30;background:var(--bg);padding:10px 0 8px;margin-top:-10px;border-bottom:1px solid var(--line);box-shadow:0 6px 10px -8px rgba(0,0,0,.5)}
+  .ctx{flex:1 1 100%;font-size:12px;color:var(--mut);order:-1}.ctx b{color:var(--txt);font-weight:500}.ins ul{margin:0;padding-left:18px;line-height:1.7;font-size:13px}.ins li.hot{color:var(--warn)}
   .tlcfg{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px;font-size:12px;color:var(--mut)}.tlcfg label{display:flex;align-items:center;gap:6px}.tlcfg input{width:80px}
   .tlrow{display:grid;grid-template-columns:110px 1fr 150px;gap:10px;align-items:center;font-size:12px;padding:3px 0}.tlrow .trk{background:var(--grid);border-radius:4px;height:16px;position:relative;overflow:hidden}
   .tlrow .fill{height:100%;border-radius:4px}.tlrow .cap100{position:absolute;top:0;bottom:0;width:2px;background:var(--txt);opacity:.5}.tlrow.hol .wk{color:#b18cff}.tlrow .num{text-align:right;font-variant-numeric:tabular-nums}
@@ -191,7 +198,8 @@
 
   <!-- ===== SUMMARY ===== -->
   <div id="paneSum" style="display:none">
-    <div class="filters">
+    <div class="filters sticky" id="sumFilters">
+      <div class="ctx" id="sumCtx"></div>
       <div class="fg"><label data-i18n="lblMetric">分析指标</label>
         <div class="seg" id="segMetric"><button data-v="fin" class="on" data-i18n="mFin">款数(洗水)</button><button data-v="pcs" data-i18n="mPcs">件数</button></div>
       </div>
@@ -325,7 +333,7 @@ const I18N={
   lblStack:'堆叠方式',skCust:'客户',skDev:'DEV/BULK',showNums:'格内显示数字',hRange:'每格 ',
   shareBtn:'📋 生成总结',sumTitle:'负载总结 / 邮件',fmtPlain:'纯文本',fmtEmail:'邮件格式',btnCopy:'复制到剪贴板',btnCopied:'已复制 ✓',btnMail:'用邮件打开',btnExcel:'导出 Excel',btnWord:'导出 Word',btnClose:'关闭',
   sScope:'筛选范围',sKey:'关键指标',sProjects:'项目数',sTotFin:'总款数(洗水)',sTotPcs:'总件数',sAvg:'平均每日',sPeakDay:'最高单日',sPeakWk:'最高单周',sCapRefL:'周产能参考',sOverL:'超产能周数',sNoCap:'未设',sAlertL:'⚠ 超产能周',sWeeklyL:'每周款数(洗水)',sOwnersL:'负责人负载',sDevBulkL:'DEV/BULK 款数',sAllCusts:'全部客户',
-  tipHow:'怎么算出来的',tipHeads:'= 洗水 30 + 手工 37 + 喷马骝 8（2026 年 10 月）',tipPer:'= 2026 年 1–10 月“每月件数 ÷ 技术人数”的中位数',tipMonth:'件 / 月（整个版房）',tipWeek:'件 / 周（一个月约 4.33 周）',tipPeak:'件 / 周留给高峰项目（扣掉日常办占比）',tipHol:'假期周再按工作日比例缩小（例如少 1 天 × 5/6）',tipMo:'月份',tipPcs:'件数',tipHc:'技术人数',tipPh:'每人件数',tipSrc:'来源：YDVL Oct 2026.xlsx · YDVL WRD Y26（开发办 + 大货办折合件数）',tipLoad:'高峰项目负载',tipAvailW:'本周可用',tlMach:(n,l)=>`洗水机 ${n} 台：${l}`,tlTitle:'产能 vs 负载（件数）',tlHint:'可用 = 技术人数（洗水+手工+喷马骝）× 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小',tlHeads:'技术人数',tlPer:'每人每月件数',tlRoutine:'日常办占比 %',
+  cat_bn:'瓶颈与产能',cat_todo:'近期要做',cat_who:'负载集中在谁',cat_hol:'假期',ctxLbl:'当前筛选',tipHow:'怎么算出来的',tipHeads:'= 洗水 30 + 手工 37 + 喷马骝 8（2026 年 10 月）',tipPer:'= 2026 年 1–10 月“每月件数 ÷ 技术人数”的中位数',tipMonth:'件 / 月（整个版房）',tipWeek:'件 / 周（一个月约 4.33 周）',tipPeak:'件 / 周留给高峰项目（扣掉日常办占比）',tipHol:'假期周再按工作日比例缩小（例如少 1 天 × 5/6）',tipMo:'月份',tipPcs:'件数',tipHc:'技术人数',tipPh:'每人件数',tipSrc:'来源：YDVL Oct 2026.xlsx · YDVL WRD Y26（开发办 + 大货办折合件数）',tipLoad:'高峰项目负载',tipAvailW:'本周可用',tlMach:(n,l)=>`洗水机 ${n} 台：${l}`,tlTitle:'产能 vs 负载（件数）',tlHint:'可用 = 技术人数（洗水+手工+喷马骝）× 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小',tlHeads:'技术人数',tlPer:'每人每月件数',tlRoutine:'日常办占比 %',
   tlAvail:v=>`→ 高峰项目每周可用约 ${v} 件`,hmTitle:'负责人组 × 周',hmHint:'格内 = 件数 · 颜色越深越忙 · 鼠标停留看款数',hmGrp:'组',
   insNext:(w,l,c,p,cu,ow)=>`下一个瓶颈：${w} 那周，高峰项目 ${l} 件，可用 ${c} 件（${p}%），主要是客户 ${cu}、${ow} 组。`,
   insMove:(w,p)=>`前面 ${w} 那周只用了 ${p}%，可以考虑把部分提前。`,
@@ -368,7 +376,7 @@ const I18N={
   lblStack:'Stack by',skCust:'Customer',skDev:'DEV/BULK',showNums:'numbers in cells',hRange:'per cell ',
   shareBtn:'📋 Summary',sumTitle:'Load summary / email',fmtPlain:'Plain text',fmtEmail:'Email',btnCopy:'Copy to clipboard',btnCopied:'Copied ✓',btnMail:'Open in email',btnExcel:'Export Excel',btnWord:'Export Word',btnClose:'Close',
   sScope:'Filter scope',sKey:'Key metrics',sProjects:'Projects',sTotFin:'Total finishes (washes)',sTotPcs:'Total pieces',sAvg:'Avg per day',sPeakDay:'Peak day',sPeakWk:'Peak week',sCapRefL:'Weekly capacity',sOverL:'Weeks over capacity',sNoCap:'not set',sAlertL:'⚠ Over-capacity weeks',sWeeklyL:'Weekly finishes (washes)',sOwnersL:'Owner load',sDevBulkL:'DEV/BULK finishes',sAllCusts:'All customers',
-  tipHow:'How this is calculated',tipHeads:'= washing 30 + dry process 37 + PP 8 (Oct 2026)',tipPer:'= median of monthly pcs ÷ technical heads, Jan–Oct 2026',tipMonth:'pcs / month (whole room)',tipWeek:'pcs / week (≈4.33 weeks per month)',tipPeak:'pcs / week left for peak projects (after routine share)',tipHol:'Holiday weeks are scaled by workdays (e.g. one day off × 5/6)',tipMo:'Month',tipPcs:'Pcs',tipHc:'Tech heads',tipPh:'Pcs / head',tipSrc:'Source: YDVL Oct 2026.xlsx · YDVL WRD Y26 (dev + pre-pro pcs)',tipLoad:'Peak project load',tipAvailW:'Available this week',tlMach:(n,l)=>`Washing machines: ${n} (${l})`,tlTitle:'Capacity vs load (pcs)',tlHint:'Available = technical heads (washing + dry + PP) × pcs per head per month ÷ 4.33 × (1 − routine share) · holiday weeks scaled by workdays',tlHeads:'Technical heads',tlPer:'Pcs / head / month',tlRoutine:'Routine share %',
+  cat_bn:'Bottlenecks & capacity',cat_todo:'Coming up',cat_who:'Who carries the load',cat_hol:'Holidays',ctxLbl:'Current filter',tipHow:'How this is calculated',tipHeads:'= washing 30 + dry process 37 + PP 8 (Oct 2026)',tipPer:'= median of monthly pcs ÷ technical heads, Jan–Oct 2026',tipMonth:'pcs / month (whole room)',tipWeek:'pcs / week (≈4.33 weeks per month)',tipPeak:'pcs / week left for peak projects (after routine share)',tipHol:'Holiday weeks are scaled by workdays (e.g. one day off × 5/6)',tipMo:'Month',tipPcs:'Pcs',tipHc:'Tech heads',tipPh:'Pcs / head',tipSrc:'Source: YDVL Oct 2026.xlsx · YDVL WRD Y26 (dev + pre-pro pcs)',tipLoad:'Peak project load',tipAvailW:'Available this week',tlMach:(n,l)=>`Washing machines: ${n} (${l})`,tlTitle:'Capacity vs load (pcs)',tlHint:'Available = technical heads (washing + dry + PP) × pcs per head per month ÷ 4.33 × (1 − routine share) · holiday weeks scaled by workdays',tlHeads:'Technical heads',tlPer:'Pcs / head / month',tlRoutine:'Routine share %',
   tlAvail:v=>`→ about ${v} pcs/week left for peak projects`,hmTitle:'Owner team × week',hmHint:'Cell = pcs · darker = busier · hover for styles',hmGrp:'Team',
   insNext:(w,l,c,p,cu,ow)=>`Next bottleneck: week of ${w}, peak projects ${l} pcs vs ${c} pcs available (${p}%), mainly customer ${cu} and team ${ow}.`,
   insMove:(w,p)=>`The week of ${w} is only at ${p}%; consider pulling some work forward.`,
@@ -411,7 +419,7 @@ const I18N={
   lblStack:'Xếp chồng theo',skCust:'Khách hàng',skDev:'DEV/BULK',showNums:'hiện số trong ô',hRange:'mỗi ô ',
   shareBtn:'📋 Tổng hợp',sumTitle:'Tổng hợp tải / email',fmtPlain:'Văn bản',fmtEmail:'Email',btnCopy:'Sao chép',btnCopied:'Đã chép ✓',btnMail:'Mở bằng email',btnExcel:'Xuất Excel',btnWord:'Xuất Word',btnClose:'Đóng',
   sScope:'Phạm vi lọc',sKey:'Chỉ số chính',sProjects:'Số dự án',sTotFin:'Tổng số kiểu (giặt)',sTotPcs:'Tổng số cái',sAvg:'Trung bình mỗi ngày',sPeakDay:'Cao nhất 1 ngày',sPeakWk:'Cao nhất 1 tuần',sCapRefL:'Năng lực/tuần',sOverL:'Số tuần vượt năng lực',sNoCap:'chưa đặt',sAlertL:'⚠ Tuần vượt năng lực',sWeeklyL:'Số kiểu theo tuần (giặt)',sOwnersL:'Tải theo người',sDevBulkL:'Số kiểu DEV/BULK',sAllCusts:'Tất cả khách hàng',
-  tipHow:'Cách tính',tipHeads:'= giặt 30 + thủ công 37 + phun PP 8 (tháng 10/2026)',tipPer:'= trung vị số cái/tháng ÷ số kỹ thuật, tháng 1–10/2026',tipMonth:'cái / tháng (cả xưởng)',tipWeek:'cái / tuần (≈4.33 tuần mỗi tháng)',tipPeak:'cái / tuần cho dự án cao điểm (trừ phần việc thường)',tipHol:'Tuần có ngày lễ giảm theo ngày làm (vd. nghỉ 1 ngày × 5/6)',tipMo:'Tháng',tipPcs:'Cái',tipHc:'Số KT',tipPh:'Cái/người',tipSrc:'Nguồn: YDVL Oct 2026.xlsx · YDVL WRD Y26 (cái phát triển + tiền SX)',tipLoad:'Tải dự án cao điểm',tipAvailW:'Khả dụng tuần này',tlMach:(n,l)=>`Máy giặt: ${n} máy (${l})`,tlTitle:'Năng lực vs tải (cái)',tlHint:'Khả dụng = số kỹ thuật (giặt + thủ công + phun PP) × cái/người/tháng ÷ 4.33 × (1 − tỷ lệ việc thường) · tuần có ngày lễ giảm theo ngày làm',tlHeads:'Số kỹ thuật',tlPer:'Cái/người/tháng',tlRoutine:'Tỷ lệ việc thường %',
+  cat_bn:'Điểm nghẽn & năng lực',cat_todo:'Việc sắp tới',cat_who:'Tải dồn vào ai',cat_hol:'Ngày nghỉ lễ',ctxLbl:'Bộ lọc hiện tại',tipHow:'Cách tính',tipHeads:'= giặt 30 + thủ công 37 + phun PP 8 (tháng 10/2026)',tipPer:'= trung vị số cái/tháng ÷ số kỹ thuật, tháng 1–10/2026',tipMonth:'cái / tháng (cả xưởng)',tipWeek:'cái / tuần (≈4.33 tuần mỗi tháng)',tipPeak:'cái / tuần cho dự án cao điểm (trừ phần việc thường)',tipHol:'Tuần có ngày lễ giảm theo ngày làm (vd. nghỉ 1 ngày × 5/6)',tipMo:'Tháng',tipPcs:'Cái',tipHc:'Số KT',tipPh:'Cái/người',tipSrc:'Nguồn: YDVL Oct 2026.xlsx · YDVL WRD Y26 (cái phát triển + tiền SX)',tipLoad:'Tải dự án cao điểm',tipAvailW:'Khả dụng tuần này',tlMach:(n,l)=>`Máy giặt: ${n} máy (${l})`,tlTitle:'Năng lực vs tải (cái)',tlHint:'Khả dụng = số kỹ thuật (giặt + thủ công + phun PP) × cái/người/tháng ÷ 4.33 × (1 − tỷ lệ việc thường) · tuần có ngày lễ giảm theo ngày làm',tlHeads:'Số kỹ thuật',tlPer:'Cái/người/tháng',tlRoutine:'Tỷ lệ việc thường %',
   tlAvail:v=>`→ còn khoảng ${v} cái/tuần cho dự án cao điểm`,hmTitle:'Nhóm phụ trách × tuần',hmHint:'Ô = số cái · đậm hơn = bận hơn · rê chuột xem số kiểu',hmGrp:'Nhóm',
   insNext:(w,l,c,p,cu,ow)=>`Điểm nghẽn tiếp theo: tuần ${w}, dự án cao điểm ${l} cái so với ${c} cái khả dụng (${p}%), chủ yếu khách ${cu} và nhóm ${ow}.`,
   insMove:(w,p)=>`Tuần ${w} mới dùng ${p}%, có thể đẩy một phần lên sớm.`,
@@ -750,7 +758,7 @@ function drawSummary(C,tasks){
   drawBurnup($('#buChart'),dayTotals(map),cap,unit);
   drawCalendar(map,unit,cap);
   drawTable(C.rows.filter(r=>!r.skipped));
-  drawTL(C);drawHeat(C);drawInsights();
+  drawTL(C);drawHeat(C);drawInsights();drawCtx();
 }
 
 function statusLine(tasks){const n=s=>tasks.filter(x=>stOf(x)===s).length,od=tasks.filter(isOverdue).length;
@@ -990,7 +998,7 @@ function topInWeek(map,wk){const a={};Object.keys(map).forEach(dk=>{if(key(weekS
 function addDays(k,n){const d=parseD(k);d.setDate(d.getDate()+n);return key(d);}
 // plain-language findings: each entry {txt, hot}; rule-based, computed from the same filtered data
 function insights(R){
-  const out=[],add=(txt,hot)=>out.push({txt,hot:!!hot});
+  const out=[];let cat='bn';const add=(txt,hot)=>out.push({txt,hot:!!hot,cat});
   if(!R.rows.length||R.totF<=0){add(t('insNone'));return out;}
   {const td=key(weekStart(TODAY)),wks=R.weeks.filter(w=>w>=td&&(R.wP[w]||0)>0);
    const pc=w=>{const a=availOf(w);return a?Math.round(100*(R.wP[w]||0)/a):0;};
@@ -1009,15 +1017,18 @@ function insights(R){
     if(c&&o)add(t('insPeakWho')(c.g,c.sh,ownLab(o.g),o.sh));
     if(R.peakWeekP!==R.peakWeek&&R.peakWeekP!=='-')add(t('insPeakP')(R.peakWeekP,fp(R.wF[R.peakWeekP]||0,R.wP[R.peakWeekP]||0)));}
   if(R.cap&&R.over.length)add(t('insCap')(R.over.length,R.over[0]),true);
+  cat='who';
   if(R.owners.length>1){const o=R.owners[0],sh=pct(o.f,R.totF);add(t('insOwner')(ownLab(o.o),sh,sh>=40),sh>=40);}
   const cs={};R.rows.forEach(r=>{cs[r.cust]=(cs[r.cust]||0)+r.remF;});const tc=Object.keys(cs).sort((a,b)=>cs[b]-cs[a]);
   if(tc.length>1)add(t('insCust')(tc[0],pct(cs[tc[0]],R.totF)));
   const td=key(TODAY),d7=addDays(td,6),d14=addDays(td,13);
   const st=R.rows.filter(r=>stOf(r)==='Pending'&&r.start&&r.start>=td&&r.start<=d7);
+  cat='todo';
   if(st.length)add(t('insStart')(st.length,fp(st.reduce((s,r)=>s+r.finN,0),st.reduce((s,r)=>s+r.pieces,0))));
   const tp=R.rows.filter(r=>needsTpl(r)&&!isDone(r)&&r.start&&r.start>=td&&r.start<=d14);
   if(tp.length)add(t('insTpl')(tp.length,tp.slice(0,5).map(r=>`${r.cust} · ${r.name} (${r.start.slice(5)})`).join(t('sep'))+(tp.length>5?' …':'')),true);
   if(R.late.length)add(t('insLate')(R.late.length),true);
+  cat='hol';
   if(R.hol.length)add(t('insHol')(R.hol.map(holLabel).join(t('sep'))),R.hol.some(h=>holLost(h)>=3));
   return out;
 }
@@ -1051,8 +1062,16 @@ function drawHeat(C){
   $('#heat').innerHTML=`<table class="hm"><tr><th>${t('hmGrp')}</th>${weeks.map(k=>`<th style="${weekWd(k)<6?'color:#b18cff':''}">${k.slice(5)}${weekWd(k)<6?'📅':''}</th>`).join('')}</tr>`+
     own.map(o=>`<tr><td class="own">${esc(ownLab(o))}</td>${weeks.map(k=>{const v=wk[o][k]||0,f=(wf[o]||{})[k]||0,a=v/mx;
       return `<td title="${esc(o)} · ${k}: ${fp(f,v)}" style="background:rgba(255,107,107,${v?(0.12+0.78*a).toFixed(2):0});${a>0.55?'color:#1a1d23;font-weight:600':''}">${v?fmt(v):''}</td>`;}).join('')}</tr>`).join('')+'</table>';}
-function drawInsights(){const R=computeReport();
-  $('#insCard').innerHTML=`<h4>${t('insT')}</h4><ul>${insights(R).map(i=>`<li class="${i.hot?'hot':''}">${esc(i.txt)}</li>`).join('')}</ul>`;}
+function drawCtx(){const custs=selectedCusts.size===allCusts.length?t('sAllCusts'):`${selectedCusts.size}/${allCusts.length} ${t('lblCust')}`;
+  const ow=$('#fOwner').value,db=$('#fDevBulk').value,st=STATUSES.filter(x=>statusSet.has(x)).map(statusTxt).join(' + ')||'—';
+  $('#sumCtx').innerHTML=`${t('ctxLbl')}: <b>📅 ${esc(winLabel())}</b> · <b>${esc(st)}</b> · <b>${esc(custs)}</b>`+(ow?` · <b>${esc(ownLab(ow))}</b>`:'')+(db?` · <b>${esc(db)}</b>`:'');}
+const INS_CATS=[['bn','🚦'],['todo','📋'],['who','👥'],['hol','📅']];
+function insGroups(list){return INS_CATS.map(([c,ic])=>({c,ic,items:list.filter(i=>i.cat===c)})).filter(g=>g.items.length);}
+function drawInsights(){const R=computeReport(),gs=insGroups(insights(R));
+  const isOpen=g=>{const v=LS.get('insOpen_'+g.c,null);return v==null?(g.c==='bn'||g.items.some(i=>i.hot)&&g.c==='todo'):v;};
+  $('#insCard').innerHTML=`<h4>${t('insT')}</h4>`+gs.map(g=>{const hot=g.items.filter(i=>i.hot).length;
+    return `<details class="insg" data-c="${g.c}"${isOpen(g)?' open':''}><summary><span>${g.ic} ${t('cat_'+g.c)}</span><span class="cnt">${g.items.length}${hot?` · <b>⚠ ${hot}</b>`:''}</span></summary><ul>${g.items.map(i=>`<li class="${i.hot?'hot':''}">${esc(i.txt)}</li>`).join('')}</ul></details>`;}).join('');
+  $('#insCard').querySelectorAll('details').forEach(d=>d.addEventListener('toggle',()=>LS.set('insOpen_'+d.dataset.c,d.open)));}
 // build the summary in one language by temporarily switching LANG
 function inLang(l,fn){const was=LANG;LANG=l;try{return fn();}finally{LANG=was;}}
 let sumLang=LS.get('sumLang','all');
@@ -1072,7 +1091,7 @@ function genSummary1(){
   L.push(`• ${t('sPeakDay')}: ${R.pkF.k} — ${fmt1(R.pkF.v)} ${uF} (${fmt((R.dtP.find(d=>d.k===R.pkF.k)||{v:0}).v)} ${uP})`);
   L.push(`• ${t('sPeakWk')}: ${W} ${R.peakWeek} — ${fp(R.wF[R.peakWeek]||0,R.wP[R.peakWeek]||0)}`);
   L.push(`• ${t('sCapRefL')}: ${R.cap?R.cap+' '+uF+'/'+W:t('sNoCap')}　${t('sOverL')}: ${R.cap?R.over.length:'—'}`);
-  const ins=insights(R);L.push('');L.push(`【${t('insT').replace(/^\S+\s/,'')}】`);ins.forEach(i=>L.push(`${i.hot?'⚠':'•'} ${i.txt}`));
+  const ins=insights(R);L.push('');L.push(`【${t('insT').replace(/^\S+\s/,'')}】`);insGroups(ins).forEach(g=>{L.push(`  ▸ ${t('cat_'+g.c)}`);g.items.forEach(i=>L.push(`${i.hot?'⚠':'•'} ${i.txt}`));});
   if(R.over.length){L.push('');L.push(`【${t('sAlertL')}】`);R.over.forEach(w=>L.push(`• ${W} ${w}: ${fp(R.wF[w],R.wP[w]||0)} > ${fmt(capWk(R.cap,w))} (${t('overBy')} ${fmt(R.wF[w]-capWk(R.cap,w))})`));}
   if(R.late.length){L.push('');L.push(`【${t('sOverdueL')}】`);R.late.forEach(x=>L.push(`• ${x.cust} · ${x.name} [${fmt(leadN(x.finishes)||0)} ${uF} (${fmt(x.pieces)} ${uP})] — ${isOverdue(x)?t('overdue')+' ('+x.end+')':t('lateStart')+' ('+x.start+')'}`));}
   if(R.weeks.length){L.push('');L.push(`【${t('sWeeklyL')}】`);R.weeks.slice(0,12).forEach(w=>L.push(`• ${w}: ${fp(R.wF[w],R.wP[w]||0)}${weekWd(w)<6?` [${weekWd(w)}/6 ${t('wdU')}]`:''}${R.cap&&R.wF[w]>capWk(R.cap,w)?' ⚠':''}`));}
