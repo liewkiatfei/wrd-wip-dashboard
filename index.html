@@ -57,6 +57,12 @@
   .kpi .l{color:var(--mut);font-size:12px;margin-top:4px}
   .kpi .s{color:var(--mut);font-size:11px;margin-top:6px}
   .kpi.alert .v{color:var(--warn)}
+  .ins h4{margin:0 0 8px;font-size:14px}.ins ul{margin:0;padding-left:18px;line-height:1.7;font-size:13px}.ins li.hot{color:var(--warn)}
+  .tlcfg{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px;font-size:12px;color:var(--mut)}.tlcfg label{display:flex;align-items:center;gap:6px}.tlcfg input{width:80px}
+  .tlrow{display:grid;grid-template-columns:110px 1fr 150px;gap:10px;align-items:center;font-size:12px;padding:3px 0}.tlrow .trk{background:var(--grid);border-radius:4px;height:16px;position:relative;overflow:hidden}
+  .tlrow .fill{height:100%;border-radius:4px}.tlrow .cap100{position:absolute;top:0;bottom:0;width:2px;background:var(--txt);opacity:.5}.tlrow.hol .wk{color:#b18cff}.tlrow .num{text-align:right;font-variant-numeric:tabular-nums}
+  table.hm{border-collapse:separate;border-spacing:2px;font-size:11px}table.hm th{font-weight:500;color:var(--mut);padding:2px 4px;white-space:nowrap}table.hm td{min-width:44px;text-align:center;padding:4px 2px;border-radius:3px}table.hm td.own{text-align:left;white-space:nowrap;padding-right:8px}
+  @media(max-width:700px){.tlrow{grid-template-columns:70px 1fr 104px}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:22px}
   .card h2{font-size:14px;margin:0 0 14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:10px}
   .card h2 .hint{font-weight:400;color:var(--mut);font-size:12px}
@@ -79,6 +85,7 @@
   .caldays{display:grid;grid-template-columns:repeat(31,1fr);gap:3px;flex:1}
   .cell{aspect-ratio:1;border-radius:3px;background:var(--grid);position:relative;font-size:9px;color:var(--mut);display:flex;align-items:flex-start;justify-content:flex-end;padding:1px 2px}
   .cell.sun{opacity:.4}
+  .cell.hol{background:repeating-linear-gradient(45deg,rgba(177,140,255,.35) 0 3px,transparent 3px 6px)!important;color:#b18cff}
   .tip{position:fixed;pointer-events:none;background:#000;color:#fff;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:12px;z-index:50;display:none;max-width:300px;line-height:1.5}
   .muted{color:var(--mut)}
   .capwrap{display:flex;align-items:center;gap:8px}.capwrap input{width:80px}
@@ -97,7 +104,7 @@
   .gright{flex:1;overflow-x:auto}
   .ginner{position:relative}
   .grow,.glabel-row{height:26px;display:flex;align-items:center}
-  .ghead,.ghead-l{height:30px;border-bottom:1px solid var(--line)}
+  .ghead,.ghead-l{height:40px;border-bottom:1px solid var(--line)}
   .grp-row,.glabel-grp{height:24px;display:flex;align-items:center;background:var(--panel2);font-size:12px;font-weight:600;color:var(--mut);padding:0 10px;border-bottom:1px solid var(--line)}
   .glabel-row{padding:0 10px;font-size:12px;gap:7px;overflow:hidden;white-space:nowrap;border-bottom:1px solid rgba(128,128,128,.08)}
   .glabel-row .nm{overflow:hidden;text-overflow:ellipsis}
@@ -110,6 +117,8 @@
   .gbar.wash{top:9px;height:8px;opacity:1;border-radius:3px}
   .gprog{position:absolute;top:17px;height:3px;border-radius:2px;background:var(--txt);opacity:.8}
   .gline{position:absolute;top:0;bottom:0;width:1px;background:rgba(128,128,128,.14)}
+  .ghol{position:absolute;top:0;bottom:0;background:rgba(177,140,255,.16);border-left:1px dashed #b18cff;z-index:1}
+  .gholname{position:absolute;bottom:2px;font-size:10px;color:#b18cff;white-space:nowrap;padding-left:2px}
   .gtoday{position:absolute;top:0;bottom:0;width:2px;background:#ffb454;z-index:3}
   .gmname{position:absolute;top:7px;font-size:11px;color:var(--mut);padding-left:4px}
   /* phone / embedded in the WRD Learning App Tools page */
@@ -196,7 +205,23 @@
       </div>
     </div>
 
+    <div class="card ins" id="insCard"></div>
     <div class="kpis" id="kpis"></div>
+
+    <div class="card" id="tlCard">
+      <h2><span data-i18n="tlTitle">产能 vs 负载（件数）</span><span class="hint" data-i18n="tlHint">可用 = 洗水人数 × 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小</span></h2>
+      <div class="tlcfg"><label><span data-i18n="tlHeads">洗水人数</span><input class="cap" type="number" id="tlHeads" min="1"></label>
+        <label><span data-i18n="tlPer">每人每月件数</span><input class="cap" type="number" id="tlPer" min="1"></label>
+        <label><span data-i18n="tlRoutine">日常办占比 %</span><input class="cap" type="number" id="tlRoutine" min="0" max="99"></label>
+        <span class="muted" id="tlAvail"></span></div>
+      <div id="tlBars"></div>
+      <div class="legend"><span><i style="background:#41d18f"></i>&lt;85%</span><span><i style="background:#ffb454"></i>85–100%</span><span><i style="background:#ff6b6b"></i>&gt;100%</span><span><i style="background:rgba(177,140,255,.5)"></i><span data-i18n="holT">假期</span></span></div>
+    </div>
+
+    <div class="card">
+      <h2><span data-i18n="hmTitle">负责人组 × 周</span><span class="hint" data-i18n="hmHint">格内 = 件数 · 颜色越深越忙 · 鼠标停留看款数</span></h2>
+      <div id="heat" style="overflow-x:auto"></div>
+    </div>
 
     <div class="card">
       <h2><span id="weekTitle"></span><span class="hint" data-i18n="weekHint">按客户堆叠 · 红线 = 周产能参考</span></h2>
@@ -239,6 +264,7 @@
 
 <div class="modal" id="modal"><div class="modalbox">
   <div class="modalrow"><h3 id="modalTitle" data-i18n="sumTitle">负载总结</h3><span class="spacer"></span>
+    <div class="seg" id="segSumLang"><button data-v="zh">中文</button><button data-v="en">EN</button><button data-v="vi">VI</button><button data-v="all" data-i18n="sLangAll">三语</button></div>
     <div class="seg" id="segFmt"><button data-v="plain" class="on" data-i18n="fmtPlain">纯文本</button><button data-v="email" data-i18n="fmtEmail">邮件格式</button></div>
   </div>
   <textarea id="sumText" spellcheck="false"></textarea>
@@ -297,6 +323,22 @@ const I18N={
   lblStack:'堆叠方式',skCust:'客户',skDev:'DEV/BULK',showNums:'格内显示数字',hRange:'每格 ',
   shareBtn:'📋 生成总结',sumTitle:'负载总结 / 邮件',fmtPlain:'纯文本',fmtEmail:'邮件格式',btnCopy:'复制到剪贴板',btnCopied:'已复制 ✓',btnMail:'用邮件打开',btnExcel:'导出 Excel',btnWord:'导出 Word',btnClose:'关闭',
   sScope:'筛选范围',sKey:'关键指标',sProjects:'项目数',sTotFin:'总款数(洗水)',sTotPcs:'总件数',sAvg:'平均每日',sPeakDay:'最高单日',sPeakWk:'最高单周',sCapRefL:'周产能参考',sOverL:'超产能周数',sNoCap:'未设',sAlertL:'⚠ 超产能周',sWeeklyL:'每周款数(洗水)',sOwnersL:'负责人负载',sDevBulkL:'DEV/BULK 款数',sAllCusts:'全部客户',
+  tlTitle:'产能 vs 负载（件数）',tlHint:'可用 = 洗水人数 × 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小',tlHeads:'洗水人数',tlPer:'每人每月件数',tlRoutine:'日常办占比 %',
+  tlAvail:v=>`→ 高峰项目每周可用约 ${v} 件`,hmTitle:'负责人组 × 周',hmHint:'格内 = 件数 · 颜色越深越忙 · 鼠标停留看款数',hmGrp:'组',
+  insNext:(w,l,c,p,cu,ow)=>`下一个瓶颈：${w} 那周，高峰项目 ${l} 件，可用 ${c} 件（${p}%），主要是客户 ${cu}、${ow} 组。`,
+  insMove:(w,p)=>`前面 ${w} 那周只用了 ${p}%，可以考虑把部分提前。`,
+  insWorst:(w,p,n)=>`最严重的是 ${w} 那周（${p}%）；共 ${n} 周超过可用产能。`,
+  insTight:(w,p)=>`目前没有超过可用产能的周，最紧的是 ${w} 那周（${p}%）。`,
+  holD:'天',wdU:'工作日',holT:'假期',insHol:l=>`时间窗口内有假期：${l}。这些天不排产，负载已摊到其它工作日。`,sHolL:'📅 假期（不排产）',sLangAll:'三语',insT:'💡 重点观察',insNone:'当前筛选下没有负载。',
+  insPeak:(w,fp,x)=>`最忙的一周是 ${w} 那周：${fp}，是平均每周的 ${x} 倍。`,
+  insPeakP:(w,fp)=>`按件数算，最忙的是 ${w} 那周：${fp}。`,
+  insPeakWho:(c,cs,o,os)=>`这一周主要压在客户 ${c}（占 ${cs}%）和负责人 ${o}（占 ${os}%）身上。`,
+  insOwner:(o,sh,hot)=>`负责人里 ${o} 占全部负载的 ${sh}%`+(hot?'，最可能成为瓶颈。':'。'),
+  insCust:(c,sh)=>`客户里 ${c} 占全部负载的 ${sh}%。`,
+  insStart:(n,fp)=>`未来 7 天要开工 ${n} 单，共 ${fp}。`,
+  insTpl:(n,l)=>`未来 14 天开工的 DEV 单有 ${n} 个，猫须模版要提前做：${l}。`,
+  insLate:n=>`有 ${n} 单逾期或该开始未开始，建议先处理。`,
+  insCap:(n,w)=>`${n} 周超过周产能参考，第一周是 ${w}。`,
   sSubject:'WRD 版房 WIP 负载总结',sHi:'各位好，',sIntro:'以下为当前版房 WIP 负载总结（款=洗水）：',sBye:'— 本总结由 WRD Sample Peak WIP Dashboard 自动生成',
   weekHint:'按客户堆叠 · 红线 = 周产能参考',calHint:'蓝→黄→红 越红当天越烫手 · 悬停看明细',tblTitle:'项目明细',tblHint:'点表头排序 · 每日量 = 总量 ÷ 工作日',
   buHint:'需求 vs 产能累积 · 需求超过产能即开始积压',ownHint:'按负责人/组堆叠 · 看谁被压爆',ownTblTitle:'负责人负载明细',ownTblHint:'点表头排序',
@@ -324,6 +366,22 @@ const I18N={
   lblStack:'Stack by',skCust:'Customer',skDev:'DEV/BULK',showNums:'numbers in cells',hRange:'per cell ',
   shareBtn:'📋 Summary',sumTitle:'Load summary / email',fmtPlain:'Plain text',fmtEmail:'Email',btnCopy:'Copy to clipboard',btnCopied:'Copied ✓',btnMail:'Open in email',btnExcel:'Export Excel',btnWord:'Export Word',btnClose:'Close',
   sScope:'Filter scope',sKey:'Key metrics',sProjects:'Projects',sTotFin:'Total finishes (washes)',sTotPcs:'Total pieces',sAvg:'Avg per day',sPeakDay:'Peak day',sPeakWk:'Peak week',sCapRefL:'Weekly capacity',sOverL:'Weeks over capacity',sNoCap:'not set',sAlertL:'⚠ Over-capacity weeks',sWeeklyL:'Weekly finishes (washes)',sOwnersL:'Owner load',sDevBulkL:'DEV/BULK finishes',sAllCusts:'All customers',
+  tlTitle:'Capacity vs load (pcs)',tlHint:'Available = washing heads × pcs per head per month ÷ 4.33 × (1 − routine share) · holiday weeks scaled by workdays',tlHeads:'Washing heads',tlPer:'Pcs / head / month',tlRoutine:'Routine share %',
+  tlAvail:v=>`→ about ${v} pcs/week left for peak projects`,hmTitle:'Owner team × week',hmHint:'Cell = pcs · darker = busier · hover for styles',hmGrp:'Team',
+  insNext:(w,l,c,p,cu,ow)=>`Next bottleneck: week of ${w}, peak projects ${l} pcs vs ${c} pcs available (${p}%), mainly customer ${cu} and team ${ow}.`,
+  insMove:(w,p)=>`The week of ${w} is only at ${p}%; consider pulling some work forward.`,
+  insWorst:(w,p,n)=>`The worst is the week of ${w} (${p}%); ${n} weeks are over available capacity.`,
+  insTight:(w,p)=>`No week is over available capacity; the tightest is the week of ${w} (${p}%).`,
+  holD:'d',wdU:'workdays',holT:'Holiday',insHol:l=>`Holidays in this window: ${l}. No work is planned on these days; load is spread over the other working days.`,sHolL:'📅 Holidays (no work)',sLangAll:'All 3',insT:'💡 Key insights',insNone:'No load under the current filter.',
+  insPeak:(w,fp,x)=>`Busiest week is the week of ${w}: ${fp}, ${x}× the average week.`,
+  insPeakP:(w,fp)=>`By pieces, the busiest week is ${w}: ${fp}.`,
+  insPeakWho:(c,cs,o,os)=>`That week is driven mainly by customer ${c} (${cs}%) and owner ${o} (${os}%).`,
+  insOwner:(o,sh,hot)=>`${o} carries ${sh}% of the total load`+(hot?' and is the most likely bottleneck.':'.'),
+  insCust:(c,sh)=>`${c} is ${sh}% of the total load.`,
+  insStart:(n,fp)=>`${n} projects start in the next 7 days: ${fp}.`,
+  insTpl:(n,l)=>`${n} DEV projects start in the next 14 days and need whisker templates made first: ${l}.`,
+  insLate:n=>`${n} projects are overdue or should have started; handle these first.`,
+  insCap:(n,w)=>`${n} weeks exceed the weekly capacity reference; the first is ${w}.`,
   sSubject:'WRD sample-room WIP load summary',sHi:'Hi all,',sIntro:'Current sample-room WIP load summary (finishes = washes):',sBye:'— Auto-generated by the WRD Sample Peak WIP Dashboard',
   weekHint:'Stacked by customer · red line = weekly capacity',calHint:'Blue→amber→red: redder = hotter day · hover for detail',tblTitle:'Project breakdown',tblHint:'Click header to sort · per day = total ÷ working days',
   buHint:'Demand vs capacity (cumulative) · backlog builds once demand exceeds capacity',ownHint:'Stacked by owner/team · see who is overloaded',ownTblTitle:'Owner load breakdown',ownTblHint:'Click header to sort',
@@ -351,6 +409,22 @@ const I18N={
   lblStack:'Xếp chồng theo',skCust:'Khách hàng',skDev:'DEV/BULK',showNums:'hiện số trong ô',hRange:'mỗi ô ',
   shareBtn:'📋 Tổng hợp',sumTitle:'Tổng hợp tải / email',fmtPlain:'Văn bản',fmtEmail:'Email',btnCopy:'Sao chép',btnCopied:'Đã chép ✓',btnMail:'Mở bằng email',btnExcel:'Xuất Excel',btnWord:'Xuất Word',btnClose:'Đóng',
   sScope:'Phạm vi lọc',sKey:'Chỉ số chính',sProjects:'Số dự án',sTotFin:'Tổng số kiểu (giặt)',sTotPcs:'Tổng số cái',sAvg:'Trung bình mỗi ngày',sPeakDay:'Cao nhất 1 ngày',sPeakWk:'Cao nhất 1 tuần',sCapRefL:'Năng lực/tuần',sOverL:'Số tuần vượt năng lực',sNoCap:'chưa đặt',sAlertL:'⚠ Tuần vượt năng lực',sWeeklyL:'Số kiểu theo tuần (giặt)',sOwnersL:'Tải theo người',sDevBulkL:'Số kiểu DEV/BULK',sAllCusts:'Tất cả khách hàng',
+  tlTitle:'Năng lực vs tải (cái)',tlHint:'Khả dụng = số người giặt × cái/người/tháng ÷ 4.33 × (1 − tỷ lệ việc thường) · tuần có ngày lễ giảm theo ngày làm',tlHeads:'Số người giặt',tlPer:'Cái/người/tháng',tlRoutine:'Tỷ lệ việc thường %',
+  tlAvail:v=>`→ còn khoảng ${v} cái/tuần cho dự án cao điểm`,hmTitle:'Nhóm phụ trách × tuần',hmHint:'Ô = số cái · đậm hơn = bận hơn · rê chuột xem số kiểu',hmGrp:'Nhóm',
+  insNext:(w,l,c,p,cu,ow)=>`Điểm nghẽn tiếp theo: tuần ${w}, dự án cao điểm ${l} cái so với ${c} cái khả dụng (${p}%), chủ yếu khách ${cu} và nhóm ${ow}.`,
+  insMove:(w,p)=>`Tuần ${w} mới dùng ${p}%, có thể đẩy một phần lên sớm.`,
+  insWorst:(w,p,n)=>`Nặng nhất là tuần ${w} (${p}%); có ${n} tuần vượt năng lực khả dụng.`,
+  insTight:(w,p)=>`Chưa có tuần nào vượt năng lực khả dụng; tuần căng nhất là ${w} (${p}%).`,
+  holD:' ngày',wdU:'ngày làm',holT:'Ngày nghỉ',insHol:l=>`Có ngày nghỉ lễ trong khoảng này: ${l}. Không xếp việc vào các ngày này; tải đã chia sang ngày làm việc khác.`,sHolL:'📅 Ngày nghỉ lễ (không làm)',sLangAll:'3 ngôn ngữ',insT:'💡 Điểm cần chú ý',insNone:'Không có tải theo bộ lọc hiện tại.',
+  insPeak:(w,fp,x)=>`Tuần bận nhất là tuần ${w}: ${fp}, gấp ${x} lần tuần trung bình.`,
+  insPeakP:(w,fp)=>`Tính theo số cái, tuần bận nhất là ${w}: ${fp}.`,
+  insPeakWho:(c,cs,o,os)=>`Tuần đó chủ yếu dồn vào khách ${c} (${cs}%) và người phụ trách ${o} (${os}%).`,
+  insOwner:(o,sh,hot)=>`${o} gánh ${sh}% tổng tải`+(hot?', dễ thành điểm nghẽn nhất.':'.'),
+  insCust:(c,sh)=>`Khách ${c} chiếm ${sh}% tổng tải.`,
+  insStart:(n,fp)=>`${n} đơn bắt đầu trong 7 ngày tới, tổng ${fp}.`,
+  insTpl:(n,l)=>`${n} đơn DEV bắt đầu trong 14 ngày tới, cần làm khuôn râu mèo trước: ${l}.`,
+  insLate:n=>`${n} đơn trễ hạn hoặc đáng lẽ đã bắt đầu, nên xử lý trước.`,
+  insCap:(n,w)=>`${n} tuần vượt năng lực tham chiếu, tuần đầu tiên là ${w}.`,
   sSubject:'Tổng hợp tải WIP xưởng mẫu WRD',sHi:'Chào mọi người,',sIntro:'Dưới đây là tổng hợp tải WIP xưởng mẫu hiện tại (kiểu = lần giặt):',sBye:'— Tự động tạo bởi WRD Sample Peak WIP Dashboard',
   weekHint:'Xếp chồng theo khách hàng · vạch đỏ = năng lực/tuần',calHint:'Xanh→vàng→đỏ: càng đỏ càng nặng · rê chuột xem chi tiết',tblTitle:'Chi tiết dự án',tblHint:'Bấm tiêu đề để sắp xếp · mỗi ngày = tổng ÷ ngày làm việc',
   buHint:'Nhu cầu vs năng lực (lũy kế) · tồn đọng khi nhu cầu vượt năng lực',ownHint:'Xếp chồng theo người/nhóm · xem ai quá tải',ownTblTitle:'Chi tiết tải theo người',ownTblHint:'Bấm tiêu đề để sắp xếp',
@@ -374,11 +448,37 @@ const t=k=>I18N[LANG][k];
 
 const fmt=n=>Math.round(n).toLocaleString();
 const fmt1=n=>(Math.round(n*10)/10).toLocaleString();
+const diffDays=(a,b)=>Math.round((b-a)/86400000);
 const parseD=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);};
 const key=dt=>dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-const diffDays=(a,b)=>Math.round((b-a)/86400000);
 const TODAY=(()=>{const t=new Date();return new Date(t.getFullYear(),t.getMonth(),t.getDate());})();
-function workdays(a,b){const o=[];let d=new Date(a);while(d<=b){if(d.getDay()!==0)o.push(new Date(d));d.setDate(d.getDate()+1);}return o;}
+// Vietnam public holidays (Labour Code 2019 Art.112 + Nghị định on Ngày Văn hóa VN 24/11), as published by Bộ Nội vụ.
+// Sample room works Mon–Sat, so Sundays inside a range are already off; only Mon–Sat days count as lost.
+// Add a new year here once the government announces it (usually Sep–Oct of the year before).
+const HOLIDAYS=[
+ {f:'2026-01-01',t:'2026-01-01',zh:'元旦',en:"New Year",vi:'Tết Dương lịch'},
+ {f:'2026-02-14',t:'2026-02-22',zh:'春节',en:'Tết',vi:'Tết Nguyên đán'},
+ {f:'2026-04-27',t:'2026-04-27',zh:'雄王节(补)',en:'Hung Kings (in lieu)',vi:'Giỗ Tổ (nghỉ bù)'},
+ {f:'2026-04-30',t:'2026-05-01',zh:'解放日+劳动节',en:'30/4 + 1/5',vi:'30/4 + 1/5'},
+ {f:'2026-09-01',t:'2026-09-02',zh:'国庆',en:'National Day',vi:'Quốc khánh'},
+ {f:'2026-11-24',t:'2026-11-24',zh:'越南文化日',en:'Vietnam Culture Day',vi:'Ngày Văn hóa VN'},
+ {f:'2027-01-01',t:'2027-01-01',zh:'元旦',en:'New Year',vi:'Tết Dương lịch'},
+ {f:'2027-02-04',t:'2027-02-10',zh:'春节',en:'Tết',vi:'Tết Nguyên đán'},
+ {f:'2027-04-16',t:'2027-04-16',zh:'雄王节',en:'Hung Kings',vi:'Giỗ Tổ Hùng Vương'},
+ {f:'2027-04-30',t:'2027-05-01',zh:'解放日+劳动节',en:'30/4 + 1/5',vi:'30/4 + 1/5'},
+ {f:'2027-09-02',t:'2027-09-03',zh:'国庆',en:'National Day',vi:'Quốc khánh'},
+ {f:'2027-11-24',t:'2027-11-24',zh:'越南文化日',en:'Vietnam Culture Day',vi:'Ngày Văn hóa VN'},
+];
+const HOLI={};HOLIDAYS.forEach(h=>{for(let d=parseD(h.f);d<=parseD(h.t);d.setDate(d.getDate()+1))HOLI[key(d)]=h;});
+const isWork=d=>d.getDay()!==0&&!HOLI[key(d)];
+const holName=h=>h[LANG]||h.en;
+function holLost(h){let n=0;for(let d=parseD(h.f);d<=parseD(h.t);d.setDate(d.getDate()+1))if(d.getDay()!==0)n++;return n;} // Mon–Sat days lost
+const holLabel=h=>`${holName(h)} ${h.f.slice(5)}${h.t!==h.f?'→'+h.t.slice(5):''} (-${holLost(h)}${t('holD')})`;
+function holInRange(a,b){return HOLIDAYS.filter(h=>(!b||h.f<=b)&&(!a||h.t>=a));}
+// working days in the Mon-start week wk (6 normally, fewer in holiday weeks)
+function weekWd(wk){const d=parseD(wk);let n=0;for(let i=0;i<7;i++){if(isWork(d))n++;d.setDate(d.getDate()+1);}return n;}
+const capWk=(cap,wk)=>cap*weekWd(wk)/6;
+function workdays(a,b){const o=[];let d=new Date(a);while(d<=b){if(isWork(d))o.push(new Date(d));d.setDate(d.getDate()+1);}return o;}
 function weekStart(dt){const d=new Date(dt);const wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd);return d;}
 function leadN(v){if(v==null)return 0;const m=String(v).match(/(\d+)/);return m?+m[1]:0;}
 function cssVar(n){return getComputedStyle(document.body).getPropertyValue(n).trim();}
@@ -412,6 +512,10 @@ function winLabel(){return`${winFrom||t('rOpen')} → ${winTo||t('rOpen')}`;}
 function winTag(){return(winFrom||'start')+'_'+(winTo||'open');}
 function workdaySpan(dt){return dt.length?workdays(parseD(dt[0].k),parseD(dt[dt.length-1].k)).length:0;}
 let capFin=LS.get('capFin',''), capPcs=LS.get('capPcs','');
+// pcs-first capacity for peak projects: defaults from YDVL Oct-2026 report (30 washing heads, 169 pcs/head/month median 2026)
+let tlHeads=LS.get('tlHeads',30), tlPer=LS.get('tlPer',169), tlRoutine=LS.get('tlRoutine',80);
+const availWk=()=>tlHeads*tlPer/4.33*(1-tlRoutine/100);
+const availOf=wk=>availWk()*weekWd(wk)/6;
 
 function applyTheme(){document.body.classList.toggle('light',THEME==='light');$('#themeBtn').textContent=THEME==='light'?'☀️':'🌙';}
 function applyLang(){
@@ -516,6 +620,8 @@ $('#clrNone').onclick=()=>{selectedCusts=new Set();saveCusts();renderChips();ren
 document.querySelectorAll('#segStatus button').forEach(b=>b.onclick=()=>{const v=b.dataset.v;statusSet.has(v)?statusSet.delete(v):statusSet.add(v);syncSeg();render();});
 ['#dFrom','#dTo'].forEach(s=>$(s).addEventListener('change',()=>{winFrom=$('#dFrom').value;winTo=$('#dTo').value;
   if(winFrom&&winTo&&winTo<winFrom)[winFrom,winTo]=[winTo,winFrom];winPreset='custom';syncSeg();render();}));
+[['#tlHeads','tlHeads'],['#tlPer','tlPer'],['#tlRoutine','tlRoutine']].forEach(([id,k])=>$(id).addEventListener('change',()=>{const v=+$(id).value;if(!(v>=0))return;
+  if(k==='tlHeads')tlHeads=v;else if(k==='tlPer')tlPer=v;else tlRoutine=Math.min(99,v);LS.set(k,v);render();}));
 $('#cap').addEventListener('input',()=>{const raw=$('#cap').value;const v=raw===''?'':(+raw);if(metric==='fin'){capFin=v;LS.set('capFin',v);}else{capPcs=v;LS.set('capPcs',v);}render();});
 $('#reset').onclick=()=>{selectedCusts=new Set(allCusts);saveCusts();$('#fOwner').value='';$('#fDevBulk').value='';statusSet=new Set(DEF_STATUS);
   dateBasis='proj';qtyBasis='remaining';metric='fin';winPreset='today';[winFrom,winTo]=presetRange(winPreset);stackDim='cust';syncSeg();renderChips();render();};
@@ -598,10 +704,10 @@ function updateBanner(C){
   const cap=capOf();const b=$('#banner');
   if(!cap){b.className='banner';return;}
   const map=metric==='fin'?C.perFc:C.perPc;const w=weekAgg(dayTotals(map));
-  const over=Object.keys(w).filter(k=>w[k]>cap).sort();
+  const over=Object.keys(w).filter(k=>w[k]>capWk(cap,k)).sort();
   if(!over.length){b.className='banner';return;}
   const unit=metric==='fin'?t('unitF'):t('unitP');
-  const chips=over.slice(0,6).map(k=>`<span class="wk">${t('sWeek')} ${k.slice(5)} · ${fmt(w[k])} &gt; ${cap} (${t('overBy')} ${fmt(w[k]-cap)})</span>`).join('');
+  const chips=over.slice(0,6).map(k=>`<span class="wk">${t('sWeek')} ${k.slice(5)} · ${fmt(w[k])} &gt; ${fmt(capWk(cap,k))} (${t('overBy')} ${fmt(w[k]-capWk(cap,k))})</span>`).join('');
   b.className='banner show';b.innerHTML=`<b>${t('alertOver')(over.length)}</b> ${chips}`;
 }
 
@@ -617,7 +723,7 @@ function drawSummary(C,tasks){
   const wMap=metric==='fin'?wF:wP;const weeks=Object.keys(wMap).sort();
   const peakWeek=weeks.reduce((m,w)=>wMap[w]>wMap[m]?w:m,weeks[0]||'-');
   const peakWeekV=weeks.length?wMap[peakWeek]:0;
-  const overCap=cap?weeks.filter(w=>wMap[w]>cap).length:0;
+  const overCap=cap?weeks.filter(w=>wMap[w]>capWk(cap,w)).length:0;
   const washExcl=(dateBasis==='wash'&&C.excluded)?`<div class="kpi"><div class="v" style="color:var(--mut);font-size:16px">${t('excl')(C.excluded)}</div></div>`:'';
   const kpis=[
     {v:C.rows.filter(r=>!r.skipped).length,l:t('kProjects'),s:statusLine(tasks),alert:tasks.some(isOverdue)},
@@ -638,6 +744,7 @@ function drawSummary(C,tasks){
   drawBurnup($('#buChart'),dayTotals(map),cap,unit);
   drawCalendar(map,unit,cap);
   drawTable(C.rows.filter(r=>!r.skipped));
+  drawTL(C);drawHeat(C);drawInsights();
 }
 
 function statusLine(tasks){const n=s=>tasks.filter(x=>stOf(x)===s).length,od=tasks.filter(isOverdue).length;
@@ -688,12 +795,16 @@ function drawStacked(cv,map,groups,colorFn,CAP,unit,legendEl){
   for(let i=0;i<=4;i++){const y=padT+plotH*i/4;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();ctx.fillText(fmt(maxV*(1-i/4)),4,y+3);}
   if(CAP){const capY=padT+plotH*(1-CAP/maxV);ctx.strokeStyle='#ff6b6b';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(padL,capY);ctx.lineTo(W-padR,capY);ctx.stroke();ctx.setLineDash([]);}
   cv._bars=[];
+  weeks.forEach((w,i)=>{const lost=6-weekWd(w);if(!lost)return;const x0=padL+step*i;
+    ctx.fillStyle='rgba(177,140,255,.13)';ctx.fillRect(x0+1,padT,step-2,plotH);
+    ctx.fillStyle='#b18cff';ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText('📅-'+lost+t('holD').trim(),x0+step/2,padT+9);ctx.textAlign='left';
+    if(CAP){const cy=padT+plotH*(1-capWk(CAP,w)/maxV);ctx.strokeStyle='#ff6b6b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0+4,cy);ctx.lineTo(x0+step-4,cy);ctx.stroke();ctx.lineWidth=1;}});
   weeks.forEach((w,i)=>{const x=padL+step*i+(step-bw)/2;let acc=0;
     groups.forEach(c=>{const v=wc[w][c]||0;if(!v)return;const h=plotH*v/maxV,y=padT+plotH-acc-h;ctx.fillStyle=colorFn(c);ctx.fillRect(x,y,bw,h);cv._bars.push({x,y,w:bw,h,week:w,grp:c,val:v});acc+=h;});
     ctx.fillStyle=CC.mut;ctx.save();ctx.translate(x+bw/2,H-padB+12);ctx.rotate(-Math.PI/5);ctx.textAlign='right';ctx.fillText(w.slice(5),0,0);ctx.restore();
     const tot=wtot(w);ctx.fillStyle=CC.txt;ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText(fmt(tot),x+bw/2,padT+plotH-plotH*tot/maxV-3);ctx.textAlign='left';ctx.font='10px sans-serif';});
-  legendEl.innerHTML=groups.map(c=>`<span><i style="background:${colorFn(c)}"></i>${c}</span>`).join('')+(CAP?`<span><i style="background:#ff6b6b"></i>${t('capLine')(CAP,unit)}</span>`:'');
-  cv.onmousemove=e=>{const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;const b=(cv._bars||[]).find(b=>mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);if(b)showTip(e,`<b>${t('sWeek')} ${b.week}</b><br>${b.grp}<br>${fmt1(b.val)} ${unit}`);else hideTip();};
+  legendEl.innerHTML=groups.map(c=>`<span><i style="background:${colorFn(c)}"></i>${c}</span>`).join('')+(weeks.some(w=>weekWd(w)<6)?`<span><i style="background:rgba(177,140,255,.5)"></i>${t('holT')}</span>`:'')+(CAP?`<span><i style="background:#ff6b6b"></i>${t('capLine')(CAP,unit)}</span>`:'');
+  cv.onmousemove=e=>{const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;const b=(cv._bars||[]).find(b=>mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);if(b){const hs=holInRange(b.week,key(new Date(parseD(b.week).getTime()+6*864e5)));showTip(e,`<b>${t('sWeek')} ${b.week}</b><br>${b.grp}<br>${fmt1(b.val)} ${unit}`+(hs.length?`<br><span style="color:#b18cff">📅 ${hs.map(holLabel).join(', ')}</span>`:''));}else hideTip();};
   cv.onmouseleave=hideTip;
 }
 
@@ -752,6 +863,8 @@ function drawGantt(tasks){
   const mn=MONTHS();
   let ticks='',gridlines='';let mc=new Date(min.getFullYear(),min.getMonth(),1);
   while(mc<=max){const x=diffDays(min,mc)*ppd;if(x>=0){ticks+=`<div class="gmname" style="left:${x}px">${mn[mc.getMonth()]}${mc.getMonth()===0?"'"+String(mc.getFullYear()).slice(2):''}</div>`;gridlines+=`<div class="gline" style="left:${x}px"></div>`;}mc.setMonth(mc.getMonth()+1);}
+  const holBands=holInRange(key(min),key(max)).map(h=>{const sp=span(h.f,h.t);return sp?`<div class="ghol" style="left:${sp.l}px;width:${sp.w}px" title="${esc(holLabel(h))}"></div>`:'';}).join('');
+  const holTicks=holInRange(key(min),key(max)).map(h=>{const sp=span(h.f,h.t);return sp?`<div class="gholname" style="left:${sp.l}px">📅${esc(holName(h))} -${holLost(h)}${t('holD').trim()}</div>`:'';}).join('');
   const todayLine=(diffDays(min,TODAY)>=0&&TODAY<=max)?`<div class="gtoday" style="left:${xOf(key(TODAY))}px"></div>`:'';
   const leftRows=seq.map(it=>it.grp!==undefined
     ?`<div class="glabel-grp"><span class="dot" style="background:${custColor[it.grp]||'#888'}"></span>&nbsp;${it.grp}</div>`
@@ -769,15 +882,15 @@ function drawGantt(tasks){
     return `<div class="gtrack">${bars}</div>`;
   }).join('');
   host.innerHTML=`<div class="gwrap"><div class="gleft" style="width:${labelW}px"><div class="ghead-l"></div>${leftRows}</div>
-    <div class="gright"><div class="ginner" style="width:${tlW}px"><div class="ghead" style="position:relative">${ticks}</div>
-    <div class="gbody">${gridlines}${todayLine}${bodyRows}</div></div></div></div>`;
+    <div class="gright"><div class="ginner" style="width:${tlW}px"><div class="ghead" style="position:relative">${ticks}${holTicks}</div>
+    <div class="gbody">${holBands}${gridlines}${todayLine}${bodyRows}</div></div></div></div>`;
   const taskSeq=seq.filter(s=>s.t).map(s=>s.t);
   host.querySelectorAll('.gtrack').forEach((el,idx)=>{const r=taskSeq[idx];if(!r)return;
     el.onmousemove=e=>{const sz=statusTxt(r.status);
       let h=`<b>${r.name}</b><br>${r.cust} · ${r.owner||''}<br>${sz} · ${Math.round((r.prog||0)*100)}%${isOverdue(r)?` · <b style="color:var(--warn)">${t('overdue')}</b>`:isLateStart(r)?` · <b style="color:#ffb454">${t('lateStart')}</b>`:''}${needsTpl(r)?` · ✂ ${t('tplTag')}`:''}<br>${leadN(r.finishes)}${t('unitF')} · ${fmt(r.pieces)}${t('unitP')}<br>${t('gProj')}: ${r.start}→${r.end}`;
       if(r.washStart)h+=`<br>${t('gWash')}: ${r.washStart}→${r.washEnd}`;showTip(e,h);};
     el.onmouseleave=hideTip;});
-  $('#ganttLegend').innerHTML=`<span><i style="background:var(--accent);opacity:.5"></i>${t('gProj')}</span><span><i style="background:var(--accent)"></i>${t('gWash')}</span><span><i style="background:var(--txt)"></i>${t('gProgress')}</span><span><i style="background:#ffb454"></i>${t('today')}</span><span><i style="outline:2px solid var(--warn);background:transparent"></i>${t('overdue')}</span><span><i style="outline:2px dashed #ffb454;background:transparent"></i>${t('lateStart')}</span><span>✂ ${t('tplTag')} (DEV)</span>`;
+  $('#ganttLegend').innerHTML=`<span><i style="background:var(--accent);opacity:.5"></i>${t('gProj')}</span><span><i style="background:var(--accent)"></i>${t('gWash')}</span><span><i style="background:var(--txt)"></i>${t('gProgress')}</span><span><i style="background:#ffb454"></i>${t('today')}</span><span><i style="outline:2px solid var(--warn);background:transparent"></i>${t('overdue')}</span><span><i style="outline:2px dashed #ffb454;background:transparent"></i>${t('lateStart')}</span><span>✂ ${t('tplTag')} (DEV)</span><span><i style="background:rgba(177,140,255,.45)"></i>${t('holT')}</span>`;
   // auto-scroll so today is near the left third
   const gr=host.querySelector('.gright');if(gr&&diffDays(min,TODAY)>=0&&TODAY<=max)gr.scrollLeft=Math.max(0,xOf(key(TODAY))-gr.clientWidth*0.3);
 }
@@ -794,7 +907,7 @@ function drawCalendar(map,unit,cap){
   months.forEach(m=>{const row=document.createElement('div');row.className='calmonth';
     const dim=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();let cells='';
     for(let d=1;d<=dim;d++){const dd=new Date(m.getFullYear(),m.getMonth(),d),k=key(dd);
-      const v=map[k]?Object.values(map[k]).reduce((a,b)=>a+b,0):0;const sun=dd.getDay()===0?'sun':'';
+      const v=map[k]?Object.values(map[k]).reduce((a,b)=>a+b,0):0;const sun=dd.getDay()===0?'sun':HOLI[k]?'hol':'';
       let bg='var(--grid)';if(v>0)bg=hotColor(v/denom);
       const border=k===key(TODAY)?'box-shadow:0 0 0 2px #ffb454 inset;':'';
       const tc=(v>0&&v/denom>0.45)?'color:#1a1d23;':'';
@@ -802,10 +915,10 @@ function drawCalendar(map,unit,cap){
       cells+=`<div class="cell ${sun}" style="background:${bg};${border}${tc}" data-k="${k}" data-v="${v}">${num}${d}</div>`;}
     for(let d=dim;d<31;d++)cells+='<div></div>';
     row.innerHTML=`<div class="mname">${m.getFullYear()} ${mn[m.getMonth()]}</div><div class="caldays">${cells}</div>`;cal.appendChild(row);});
-  cal.querySelectorAll('.cell').forEach(c=>{c.onmousemove=e=>{const k=c.dataset.k,v=+c.dataset.v;if(v===0){showTip(e,`${k}<br>${t('noLoad')}`);return;}
+  cal.querySelectorAll('.cell').forEach(c=>{c.onmousemove=e=>{const k=c.dataset.k,v=+c.dataset.v;if(HOLI[k]){showTip(e,`${k}<br>📅 ${esc(holLabel(HOLI[k]))}`);return;}if(v===0){showTip(e,`${k}<br>${t('noLoad')}`);return;}
     const det=map[k];const lines=Object.entries(det).sort((a,b)=>b[1]-a[1]).map(([cu,val])=>`<span style="color:${custColor[cu]||ownerColor[cu]||'#888'}">■</span> ${cu}: ${fmt1(val)}`).join('<br>');
     showTip(e,`<b>${k} · ${t('total')} ${fmt1(v)} ${unit}</b>${cap?` · ${fmt1(100*v/(cap/6))}%`:''}<br>${lines}`);};c.onmouseleave=hideTip;});
-  const e=[0,.25,.5,.75,1].map(x=>x*denom);const dd=t('dayU');
+  const e=[0,.25,.5,.75,1].map(x=>x*denom);const dd=t('holD');
   let bk='';for(let i=0;i<4;i++){const lab=(i===3&&cap)?('≥'+fmt1(e[3])):(fmt1(e[i])+'–'+fmt1(e[i+1]));bk+=`<span><i style="background:${hotColor((i+0.5)/4)}"></i>${lab}</span>`;}
   const note=cap?`（${unit}/${dd} · ${t('capRed')} ${fmt1(denom)}）`:`（${unit}/${dd}）`;
   $('#calLegend').innerHTML=bk+`<span class="muted">${note}</span><span><i style="box-shadow:0 0 0 2px #ffb454 inset;background:var(--grid)"></i>${t('today')}</span><span class="muted">${t('sunDim')}</span>`;
@@ -844,7 +957,7 @@ function computeReport(){
   const pkF=peakOf(dtF),pkP=peakOf(dtP);
   const nWd=workdaySpan(dtF)||1,avgF=totF/nWd,avgP=totP/nWd;
   const peakWeek=weeks.reduce((m,w)=>wF[w]>wF[m]?w:m,weeks[0]||'-');
-  const cap=capFinVal();const over=cap?weeks.filter(w=>wF[w]>cap):[];
+  const cap=capFinVal();const over=cap?weeks.filter(w=>wF[w]>capWk(cap,w)):[];
   const ip=tasks.filter(x=>stOf(x)==='In Progress').length,pd=tasks.filter(x=>stOf(x)==='Pending').length,dn=tasks.filter(isDone).length;
   const late=tasks.filter(x=>isOverdue(x)||isLateStart(x));
   const tpl=rows.filter(needsTpl),tplF=tpl.reduce((s,r)=>s+r.remF,0);
@@ -857,24 +970,96 @@ function computeReport(){
   const stLabel=STATUSES.filter(x=>statusSet.has(x)).map(statusTxt).join(' + ')||'—';
   const basis=dateBasis==='wash'?t('winWash'):t('winProj');
   const scopeStr=`${winLabel()} · ${custLabel} · ${stLabel} · ${basis}`;
-  return {tasks,C,rows,dtF,dtP,totF,totP,wF,wP,weeks,pkF,pkP,avgF,avgP,peakWeek,cap,over,ip,pd,dn,late,tpl,tplF,owners,devbulk,hasDB,scopeStr};
+  const tplP=tpl.reduce((s,r)=>s+r.remP,0);
+  const peakWeekP=weeks.reduce((m,w)=>(wP[w]||0)>(wP[m]||0)?w:m,weeks[0]||'-');
+  const hol=dtF.length?holInRange(winFrom||dtF[0].k,winTo||dtF[dtF.length-1].k):[];
+  return {hol,tasks,C,rows,dtF,dtP,totF,totP,wF,wP,weeks,pkF,pkP,avgF,avgP,peakWeek,peakWeekP,cap,over,ip,pd,dn,late,tpl,tplF,tplP,owners,devbulk,hasDB,scopeStr};
 }
+// styles first, pieces in brackets: "12 款 (340 件)"
+function fp(f,p){return `${fmt(f)} ${t('unitF')} (${fmt(p)} ${t('unitP')})`;}
+const pct=(a,b)=>b?Math.round(100*a/b):0;
+// top key of {day:{grp:v}} restricted to one week
+function topInWeek(map,wk){const a={};Object.keys(map).forEach(dk=>{if(key(weekStart(parseD(dk)))!==wk)return;Object.entries(map[dk]).forEach(([g,v])=>{a[g]=(a[g]||0)+v;});});
+  const tot=Object.values(a).reduce((x,y)=>x+y,0);const g=Object.keys(a).sort((x,y)=>a[y]-a[x])[0];return g?{g,sh:pct(a[g],tot)}:null;}
+function addDays(k,n){const d=parseD(k);d.setDate(d.getDate()+n);return key(d);}
+// plain-language findings: each entry {txt, hot}; rule-based, computed from the same filtered data
+function insights(R){
+  const out=[],add=(txt,hot)=>out.push({txt,hot:!!hot});
+  if(!R.rows.length||R.totF<=0){add(t('insNone'));return out;}
+  {const td=key(weekStart(TODAY)),wks=R.weeks.filter(w=>w>=td&&(R.wP[w]||0)>0);
+   const pc=w=>{const a=availOf(w);return a?Math.round(100*(R.wP[w]||0)/a):0;};
+   if(wks.length){const over=wks.find(w=>pc(w)>100),w=over||wks.reduce((m,x)=>pc(x)>pc(m)?x:m,wks[0]);
+     if(over){const c=topInWeek(R.C.perPc,w),o=topInWeek(R.C.perPo,w);
+       add(t('insNext')(w,fmt(R.wP[w]),fmt(availOf(w)),pc(w),c?c.g:'—',o?o.g:'—'),true);
+       const prev=wks.filter(x=>x<w&&x>=key(new Date(parseD(w).getTime()-21*864e5))&&pc(x)<70).pop();
+       if(prev)add(t('insMove')(prev,pc(prev)));
+       const worst=wks.reduce((m,x)=>pc(x)>pc(m)?x:m,wks[0]),nOver=wks.filter(x=>pc(x)>100).length;
+       if(worst!==w)add(t('insWorst')(worst,pc(worst),nOver),true);}
+     else add(t('insTight')(w,pc(w)),pc(w)>=85);}}
+  const live=R.weeks.filter(w=>R.wF[w]>0),avgW=live.length?live.reduce((s,w)=>s+R.wF[w],0)/live.length:0;
+  if(R.peakWeek!=='-'){const x=avgW?(R.wF[R.peakWeek]/avgW).toFixed(1):'1.0';
+    add(t('insPeak')(R.peakWeek,fp(R.wF[R.peakWeek],R.wP[R.peakWeek]||0),x),+x>=1.5);
+    const c=topInWeek(R.C.perFc,R.peakWeek),o=topInWeek(R.C.perFo,R.peakWeek);
+    if(c&&o)add(t('insPeakWho')(c.g,c.sh,o.g,o.sh));
+    if(R.peakWeekP!==R.peakWeek&&R.peakWeekP!=='-')add(t('insPeakP')(R.peakWeekP,fp(R.wF[R.peakWeekP]||0,R.wP[R.peakWeekP]||0)));}
+  if(R.cap&&R.over.length)add(t('insCap')(R.over.length,R.over[0]),true);
+  if(R.owners.length>1){const o=R.owners[0],sh=pct(o.f,R.totF);add(t('insOwner')(o.o,sh,sh>=40),sh>=40);}
+  const cs={};R.rows.forEach(r=>{cs[r.cust]=(cs[r.cust]||0)+r.remF;});const tc=Object.keys(cs).sort((a,b)=>cs[b]-cs[a]);
+  if(tc.length>1)add(t('insCust')(tc[0],pct(cs[tc[0]],R.totF)));
+  const td=key(TODAY),d7=addDays(td,6),d14=addDays(td,13);
+  const st=R.rows.filter(r=>stOf(r)==='Pending'&&r.start&&r.start>=td&&r.start<=d7);
+  if(st.length)add(t('insStart')(st.length,fp(st.reduce((s,r)=>s+r.finN,0),st.reduce((s,r)=>s+r.pieces,0))));
+  const tp=R.rows.filter(r=>needsTpl(r)&&!isDone(r)&&r.start&&r.start>=td&&r.start<=d14);
+  if(tp.length)add(t('insTpl')(tp.length,tp.slice(0,5).map(r=>`${r.cust} · ${r.name} (${r.start.slice(5)})`).join(t('sep'))+(tp.length>5?' …':'')),true);
+  if(R.late.length)add(t('insLate')(R.late.length),true);
+  if(R.hol.length)add(t('insHol')(R.hol.map(holLabel).join(t('sep'))),R.hol.some(h=>holLost(h)>=3));
+  return out;
+}
+function weekPcs(C){return weekAgg(dayTotals(C.perPc));}
+function tlColor(p){return p>100?'#ff6b6b':p>=85?'#ffb454':'#41d18f';}
+function drawTL(C){
+  $('#tlHeads').value=tlHeads;$('#tlPer').value=tlPer;$('#tlRoutine').value=tlRoutine;
+  $('#tlAvail').textContent=t('tlAvail')(fmt(availWk()));
+  const w=weekPcs(C),wks=Object.keys(w).sort().slice(0,20);
+  $('#tlBars').innerHTML=wks.map(k=>{const a=availOf(k),p=a?Math.round(100*w[k]/a):0,lost=6-weekWd(k);
+    return `<div class="tlrow${lost?' hol':''}"><span class="wk">${k.slice(5)}${lost?` 📅-${lost}${t('holD').trim()}`:''}</span><div class="trk"><div class="fill" style="width:${Math.min(p,150)/1.5}%;background:${tlColor(p)}"></div><div class="cap100" style="left:66.7%"></div></div><span class="num">${fmt(w[k])} / ${fmt(a)} · <b style="color:${tlColor(p)}">${p}%</b></span></div>`;}).join('')||`<div class="muted">${t('noLoad')}</div>`;}
+function drawHeat(C){
+  const wk={},wf={};const put=(m,o)=>Object.keys(m).forEach(dk=>{const k=key(weekStart(parseD(dk)));Object.entries(m[dk]).forEach(([g,v])=>{((o[g]=o[g]||{})[k])=(o[g][k]||0)+v;});});
+  put(C.perPo,wk);put(C.perFo,wf);
+  const weeks=[...new Set(Object.values(wk).flatMap(o=>Object.keys(o)))].sort().slice(0,16);
+  const own=Object.keys(wk).sort((a,b)=>Object.values(wk[b]).reduce((x,y)=>x+y,0)-Object.values(wk[a]).reduce((x,y)=>x+y,0));
+  const mx=Math.max(1,...own.flatMap(o=>weeks.map(k=>wk[o][k]||0)));
+  if(!weeks.length){$('#heat').innerHTML=`<div class="muted">${t('noLoad')}</div>`;return;}
+  $('#heat').innerHTML=`<table class="hm"><tr><th>${t('hmGrp')}</th>${weeks.map(k=>`<th style="${weekWd(k)<6?'color:#b18cff':''}">${k.slice(5)}${weekWd(k)<6?'📅':''}</th>`).join('')}</tr>`+
+    own.map(o=>`<tr><td class="own">${esc(o)}</td>${weeks.map(k=>{const v=wk[o][k]||0,f=(wf[o]||{})[k]||0,a=v/mx;
+      return `<td title="${esc(o)} · ${k}: ${fp(f,v)}" style="background:rgba(255,107,107,${v?(0.12+0.78*a).toFixed(2):0});${a>0.55?'color:#1a1d23;font-weight:600':''}">${v?fmt(v):''}</td>`;}).join('')}</tr>`).join('')+'</table>';}
+function drawInsights(){const R=computeReport();
+  $('#insCard').innerHTML=`<h4>${t('insT')}</h4><ul>${insights(R).map(i=>`<li class="${i.hot?'hot':''}">${esc(i.txt)}</li>`).join('')}</ul>`;}
+// build the summary in one language by temporarily switching LANG
+function inLang(l,fn){const was=LANG;LANG=l;try{return fn();}finally{LANG=was;}}
+let sumLang=LS.get('sumLang','all');
 function genSummary(){
+  if(sumLang!=='all')return inLang(sumLang,genSummary1);
+  const parts=['zh','en','vi'].map(l=>inLang(l,genSummary1)),sepL='\n\n'+'─'.repeat(28)+'\n\n';
+  return {subject:parts.map(x=>x.subject).slice(0,2).join(' / '),plain:parts.map(x=>x.plain).join(sepL),email:parts.map(x=>x.email).join(sepL)};
+}
+function genSummary1(){
   const R=computeReport();const uF=t('unitF'),uP=t('unitP'),W=t('sWeek');const L=[];
   L.push(`${t('sScope')}: ${R.scopeStr}`);
   L.push('');L.push(`【${t('sKey')}】`);
   L.push(`• ${t('sProjects')}: ${R.rows.length} (${R.ip} ${t('inprog')} / ${R.pd} ${t('pend')}${R.dn?' / '+R.dn+' '+t('done'):''})`);
-  if(R.tpl.length)L.push(`• ${t('sTplL')}: ${R.tpl.length} (${fmt(R.tplF)} ${uF})`);
+  if(R.tpl.length)L.push(`• ${t('sTplL')}: ${R.tpl.length} — ${fp(R.tplF,R.tplP)}`);
   L.push(`• ${t('sTotFin')}: ${fmt(R.totF)} ${uF}　${t('sTotPcs')}: ${fmt(R.totP)} ${uP}`);
-  L.push(`• ${t('sAvg')}: ${fmt1(R.avgF)} ${uF} / ${fmt1(R.avgP)} ${uP}`);
-  L.push(`• ${t('sPeakDay')}: ${fmt1(R.pkF.v)} ${uF} (${R.pkF.k})`);
-  L.push(`• ${t('sPeakWk')}: ${fmt(R.wF[R.peakWeek]||0)} ${uF} (${W} ${R.peakWeek})`);
+  L.push(`• ${t('sAvg')}: ${fmt1(R.avgF)} ${uF} (${fmt1(R.avgP)} ${uP})`);
+  L.push(`• ${t('sPeakDay')}: ${R.pkF.k} — ${fmt1(R.pkF.v)} ${uF} (${fmt((R.dtP.find(d=>d.k===R.pkF.k)||{v:0}).v)} ${uP})`);
+  L.push(`• ${t('sPeakWk')}: ${W} ${R.peakWeek} — ${fp(R.wF[R.peakWeek]||0,R.wP[R.peakWeek]||0)}`);
   L.push(`• ${t('sCapRefL')}: ${R.cap?R.cap+' '+uF+'/'+W:t('sNoCap')}　${t('sOverL')}: ${R.cap?R.over.length:'—'}`);
-  if(R.over.length){L.push('');L.push(`【${t('sAlertL')}】`);R.over.forEach(w=>L.push(`• ${W} ${w}: ${fmt(R.wF[w])} > ${R.cap} (${t('overBy')} ${fmt(R.wF[w]-R.cap)})`));}
-  if(R.late.length){L.push('');L.push(`【${t('sOverdueL')}】`);R.late.forEach(x=>L.push(`• ${x.cust} · ${x.name} — ${isOverdue(x)?t('overdue')+' ('+x.end+')':t('lateStart')+' ('+x.start+')'}`));}
-  if(R.weeks.length){L.push('');L.push(`【${t('sWeeklyL')}】`);R.weeks.slice(0,12).forEach(w=>L.push(`• ${w}: ${fmt(R.wF[w])} ${uF}${R.cap&&R.wF[w]>R.cap?' ⚠':''}`));}
-  if(R.owners.length){L.push('');L.push(`【${t('sOwnersL')}】`);R.owners.forEach(o=>L.push(`• ${o.o}: ${fmt(o.f)} ${uF} / ${fmt(o.p)} ${uP}`));}
-  if(R.hasDB){L.push('');L.push(`【${t('sDevBulkL')}】`);R.devbulk.forEach(x=>L.push(`• ${x.d}: ${fmt(x.f)} ${uF}`));}
+  const ins=insights(R);L.push('');L.push(`【${t('insT').replace(/^\S+\s/,'')}】`);ins.forEach(i=>L.push(`${i.hot?'⚠':'•'} ${i.txt}`));
+  if(R.over.length){L.push('');L.push(`【${t('sAlertL')}】`);R.over.forEach(w=>L.push(`• ${W} ${w}: ${fp(R.wF[w],R.wP[w]||0)} > ${fmt(capWk(R.cap,w))} (${t('overBy')} ${fmt(R.wF[w]-capWk(R.cap,w))})`));}
+  if(R.late.length){L.push('');L.push(`【${t('sOverdueL')}】`);R.late.forEach(x=>L.push(`• ${x.cust} · ${x.name} [${fmt(leadN(x.finishes)||0)} ${uF} (${fmt(x.pieces)} ${uP})] — ${isOverdue(x)?t('overdue')+' ('+x.end+')':t('lateStart')+' ('+x.start+')'}`));}
+  if(R.weeks.length){L.push('');L.push(`【${t('sWeeklyL')}】`);R.weeks.slice(0,12).forEach(w=>L.push(`• ${w}: ${fp(R.wF[w],R.wP[w]||0)}${weekWd(w)<6?` [${weekWd(w)}/6 ${t('wdU')}]`:''}${R.cap&&R.wF[w]>capWk(R.cap,w)?' ⚠':''}`));}
+  if(R.owners.length){L.push('');L.push(`【${t('sOwnersL')}】`);R.owners.forEach(o=>L.push(`• ${o.o}: ${fp(o.f,o.p)} · ${pct(o.f,R.totF)}%`));}
+  if(R.hasDB){L.push('');L.push(`【${t('sDevBulkL')}】`);R.devbulk.forEach(x=>L.push(`• ${x.d}: ${fp(x.f,x.p)}`));}
   const body=L.join('\n');
   const subject=`${t('sSubject')} (${key(TODAY)})`;
   const src=DATA.source?t('source')+': '+DATA.source+'\n':'';
@@ -974,7 +1159,9 @@ function buildWord(){
 }
 
 let sumFmt='plain',sumData=null;
-function openModal(){sumData=genSummary();$('#sumText').value=sumFmt==='email'?sumData.email:sumData.plain;$('#modal').classList.add('show');}
+function syncSumLang(){document.querySelectorAll('#segSumLang button').forEach(x=>x.classList.toggle('on',x.dataset.v===sumLang));}
+document.querySelectorAll('#segSumLang button').forEach(b=>b.onclick=()=>{sumLang=b.dataset.v;LS.set('sumLang',sumLang);syncSumLang();openModal();});
+function openModal(){syncSumLang();sumData=genSummary();$('#sumText').value=sumFmt==='email'?sumData.email:sumData.plain;$('#modal').classList.add('show');}
 $('#shareBtn').onclick=openModal;
 $('#closeModal').onclick=()=>$('#modal').classList.remove('show');
 $('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('show');};
