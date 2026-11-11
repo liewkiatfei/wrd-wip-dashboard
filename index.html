@@ -268,7 +268,7 @@
   <!-- ===== OWNER ===== -->
   <div id="paneOwner" style="display:none">
     <div class="card">
-      <h2><span class="ttl"><span id="ownWeekTitle"></span><span class="qi" data-help="ownWeek">ⓘ</span></span><span class="hint" data-i18n="ownHint">按负责人/组堆叠 · 看谁被压爆</span></h2>
+      <h2><span class="ttl"><span id="ownWeekTitle"></span><span class="qi" data-help="ownWeek">ⓘ</span></span><span class="seg metricSeg" style="margin-left:auto"><button data-v="fin" data-i18n="mFin">款数(洗水)</button><button data-v="pcs" data-i18n="mPcs">件数</button></span><span class="hint" data-i18n="ownHint">按负责人/组堆叠 · 看谁被压爆</span></h2>
       <canvas id="ownChart" height="300"></canvas>
       <div class="legend" id="ownLegend"></div>
     </div>
@@ -375,7 +375,7 @@ const I18N={
   buDemand:'需求累积',buCapacity:'产能累积',buBacklog:'积压',buSetCap:'填写周产能后显示积压预警',buOnTrack:'按当前产能可如期消化，无积压',buBacklogPeak:'最大积压',
   emptyTitle:'拖入你的 Excel 甘特文件开始',emptySub:'数据只在本机处理，不上传。文件格式参考你们现有的甘特主表。',
   cCust:'客户',cName:'项目',cOwner:'负责人',cStatus:'状态',cFin:'款数',cPcs:'总件数',cWd:'工作日',cPerF:'每日款数',cPerP:'每日件数',cStart:'开始',cEnd:'结束',noData:'无数据',
-  oName:'负责人/组',oProj:'项目数',oFin:'总款数',oPcs:'总件数',oAvgF:'每日款',oPeakWk:'峰值周款',oShare:'款数占比',
+  oName:'负责人/组',oProj:'项目数',oFin:'总款数',oPcs:'总件数',oAvgF:'每日款',oPeakWk:'峰值周款',oShare:'款数占比',oShareP:'件数占比',oPeakWkP:'峰值周件',
   parseErr:'解析失败：找不到有效项目行。请确认上传的是甘特主表（第一个工作表，含 START/END 与 GARMENT QUANTITY 列）。',readErr:'读取文件出错：',
   total:'合计',dayU:'日',fill:'填写',sep:'、',capRed:'红=达/超日产能'},
  en:{title:'Sample Peak WIP Dashboard',inprogT:'In Progress',pendT:'Pending',doneT:'Completed',rToday:'From today',rMonth:'This month',rNext:'Next month',rHint:'edit dates directly · blank = open',rOpen:'open',done:'completed',overdue:'overdue',lateStart:'start overdue',tplTag:'template',sTplL:'DEV needing whisker template',sOverdueL:'⚠ Overdue / late start',chkTitle:'⚠ Data to check:',chkDoneFuture:'marked Completed but start date not reached',chkEndBefore:'end date before start date',noStatus:'Pick at least one status',dropTitle:'Drop the Excel Gantt file here, or <b>click to choose a file</b>',dropHint:'.xlsx supported · reads the first sheet · processed only in your browser, never uploaded',dropHintApp:'.xlsx supported · reads the first sheet · in the WRD Learning App: a manager\'s file is saved and everyone sees it; anyone else\'s stays on their own screen',
@@ -418,7 +418,7 @@ const I18N={
   buDemand:'Cumulative demand',buCapacity:'Cumulative capacity',buBacklog:'Backlog',buSetCap:'Enter weekly capacity to see backlog projection',buOnTrack:'On track at current capacity — no backlog',buBacklogPeak:'Peak backlog',
   emptyTitle:'Drop your Excel Gantt file to start',emptySub:'Processed locally, never uploaded. Use your existing master Gantt sheet format.',
   cCust:'Customer',cName:'Project',cOwner:'Owner',cStatus:'Status',cFin:'Finishes',cPcs:'Pieces',cWd:'Work days',cPerF:'Fin/day',cPerP:'Pcs/day',cStart:'Start',cEnd:'End',noData:'No data',
-  oName:'Owner/team',oProj:'Projects',oFin:'Total finishes',oPcs:'Total pieces',oAvgF:'Fin/day',oPeakWk:'Peak week fin',oShare:'Finishes share',
+  oName:'Owner/team',oProj:'Projects',oFin:'Total finishes',oPcs:'Total pieces',oAvgF:'Fin/day',oPeakWk:'Peak week fin',oShare:'Finishes share',oShareP:'Pieces share',oPeakWkP:'Peak week pcs',
   parseErr:'Parse failed: no valid project rows. Upload the master Gantt sheet (first sheet, with START/END and GARMENT QUANTITY).',readErr:'Error reading file: ',
   total:'total',dayU:'d',fill:'set',sep:', ',capRed:'red = at/over daily cap'},
  vi:{title:'Sample Peak WIP Dashboard',inprogT:'Đang làm',pendT:'Chờ',doneT:'Hoàn thành',rToday:'Từ hôm nay',rMonth:'Tháng này',rNext:'Tháng sau',rHint:'sửa ngày trực tiếp · để trống = không giới hạn',rOpen:'không giới hạn',done:'hoàn thành',overdue:'trễ hạn',lateStart:'trễ bắt đầu',tplTag:'cần mẫu',sTplL:'DEV cần làm mẫu râu mèo',sOverdueL:'⚠ Trễ hạn / trễ bắt đầu',chkTitle:'⚠ Dữ liệu cần kiểm tra:',chkDoneFuture:'ghi Hoàn thành nhưng chưa tới ngày bắt đầu',chkEndBefore:'ngày kết thúc trước ngày bắt đầu',noStatus:'Hãy chọn ít nhất một trạng thái',dropTitle:'Kéo file Excel Gantt vào đây, hoặc <b>bấm để chọn file</b>',dropHint:'Hỗ trợ .xlsx · đọc sheet đầu tiên · chỉ xử lý trên trình duyệt của bạn, không tải lên máy chủ',dropHintApp:'Hỗ trợ .xlsx · đọc sheet đầu tiên · trong WRD Learning App: file quản lý kéo vào được lưu cho mọi người; người khác kéo vào chỉ xem trên máy mình',
@@ -461,7 +461,7 @@ const I18N={
   buDemand:'Nhu cầu lũy kế',buCapacity:'Năng lực lũy kế',buBacklog:'Tồn đọng',buSetCap:'Nhập năng lực/tuần để xem dự báo tồn đọng',buOnTrack:'Đúng tiến độ với năng lực hiện tại — không tồn đọng',buBacklogPeak:'Tồn đọng cao nhất',
   emptyTitle:'Kéo file Excel Gantt vào để bắt đầu',emptySub:'Xử lý cục bộ, không tải lên. Dùng đúng định dạng sheet Gantt chính của bạn.',
   cCust:'Khách hàng',cName:'Dự án',cOwner:'Phụ trách',cStatus:'Trạng thái',cFin:'Số kiểu',cPcs:'Số cái',cWd:'Ngày làm',cPerF:'Kiểu/ngày',cPerP:'Cái/ngày',cStart:'Bắt đầu',cEnd:'Kết thúc',noData:'Không có dữ liệu',
-  oName:'Người/nhóm',oProj:'Dự án',oFin:'Tổng kiểu',oPcs:'Tổng cái',oAvgF:'Kiểu/ngày',oPeakWk:'Kiểu tuần đỉnh',oShare:'Tỷ lệ kiểu',
+  oName:'Người/nhóm',oProj:'Dự án',oFin:'Tổng kiểu',oPcs:'Tổng cái',oAvgF:'Kiểu/ngày',oPeakWk:'Kiểu tuần đỉnh',oShare:'Tỷ lệ kiểu',oShareP:'Tỷ lệ cái',oPeakWkP:'Cái tuần đỉnh',
   parseErr:'Phân tích thất bại: không tìm thấy dòng dự án hợp lệ. Hãy tải lên sheet Gantt chính (sheet đầu tiên, có START/END và GARMENT QUANTITY).',readErr:'Lỗi đọc file: ',
   total:'tổng',dayU:'ng',fill:'nhập',sep:', ',capRed:'đỏ = đạt/vượt năng lực ngày'}
 };
@@ -506,7 +506,7 @@ function cssVar(n){return getComputedStyle(document.body).getPropertyValue(n).tr
 function MONTHS(){return LANG==='zh'?['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']:LANG==='vi'?['Th1','Th2','Th3','Th4','Th5','Th6','Th7','Th8','Th9','Th10','Th11','Th12']:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];}
 function chartColors(){return{line:cssVar('--line')||'#2a2f3a',mut:cssVar('--mut')||'#9aa0ab',txt:cssVar('--txt')||'#e8eaed'};}
 
-let dateBasis='proj', qtyBasis='remaining', metric='fin', stackDim='cust', showNums=false, activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='remF', ownSortDir=1;
+let dateBasis='proj', qtyBasis='remaining', metric='fin', stackDim='cust', showNums=false, activeTab='gantt', sortKey='end', sortDir=1, ownSortKey='f', ownSortDir=-1;
 function dbColor(d){return d==='DEV'?'#ffb454':d==='BULK'?'#41d18f':'#9aa0ab';}
 let custColor={}, ownerColor={}, allCusts=[], selectedCusts=new Set();
 // ---- shared filter state: one time window + one status set, used by every tab and the summary ----
@@ -687,7 +687,7 @@ $('#reset').onclick=()=>{selectedCusts=new Set(allCusts);saveCusts();$('#fOwner'
 function syncSeg(){
   document.querySelectorAll('#segWindow button').forEach(b=>b.classList.toggle('on',b.dataset.v===dateBasis));
   document.querySelectorAll('#segQty button').forEach(b=>b.classList.toggle('on',b.dataset.v===qtyBasis));
-  document.querySelectorAll('#segMetric button').forEach(b=>b.classList.toggle('on',b.dataset.v===metric));
+  document.querySelectorAll('#segMetric button,.metricSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===metric));
   document.querySelectorAll('#segRange button').forEach(b=>b.classList.toggle('on',b.dataset.v===winPreset));
   document.querySelectorAll('#segStatus button').forEach(b=>b.classList.toggle('on',statusSet.has(b.dataset.v)));
   $('#dFrom').value=winFrom;$('#dTo').value=winTo;
@@ -697,7 +697,7 @@ function syncSeg(){
 }
 document.querySelectorAll('#segWindow button').forEach(b=>b.onclick=()=>{dateBasis=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segQty button').forEach(b=>b.onclick=()=>{qtyBasis=b.dataset.v;syncSeg();render();});
-document.querySelectorAll('#segMetric button').forEach(b=>b.onclick=()=>{metric=b.dataset.v;syncSeg();render();});
+document.querySelectorAll('#segMetric button,.metricSeg button').forEach(b=>b.onclick=()=>{metric=b.dataset.v;syncSeg();render();});
 document.querySelectorAll('#segRange button').forEach(b=>b.onclick=()=>{winPreset=b.dataset.v;[winFrom,winTo]=presetRange(winPreset);syncSeg();render();});
 document.querySelectorAll('#segStack button').forEach(b=>b.onclick=()=>{stackDim=b.dataset.v;syncSeg();render();});
 $('#cellNum').addEventListener('change',()=>{showNums=$('#cellNum').checked;render();});
@@ -823,11 +823,11 @@ function drawOwner(C,tasks){
   const nDays={};Object.keys(C.perFo).forEach(dk=>{Object.keys(C.perFo[dk]).forEach(o=>{nDays[o]=(nDays[o]||new Set());nDays[o].add(dk);});});
   const rows=Object.keys(agg).map(o=>{const peak=wkF[o]?Math.max(...Object.values(wkF[o])):0;const nd=nDays[o]?nDays[o].size:0;
     return {o,f:agg[o].f,p:agg[o].p,n:agg[o].n,avgF:nd?agg[o].f/nd:0,peakWk:peak};});
-  const totF=rows.reduce((s,r)=>s+r.f,0)||1;
-  rows.forEach(r=>r.share=100*r.f/totF);
+  const totF=rows.reduce((s,r)=>s+r.f,0)||1,totP=rows.reduce((s,r)=>s+r.p,0)||1;
+  rows.forEach(r=>{r.share=100*r.f/totF;r.shareP=100*r.p/totP;});
   rows.sort((a,b)=>{let x=a[ownSortKey],y=b[ownSortKey];if(typeof x==='string')return x<y?-ownSortDir:x>y?ownSortDir:0;return((x||0)-(y||0))*ownSortDir;});
   const maxF=Math.max(...rows.map(r=>r.f),0.001);
-  const cols=[{k:'o',t:'oName'},{k:'n',t:'oProj',num:1},{k:'f',t:'oFin',num:1},{k:'p',t:'oPcs',num:1},{k:'avgF',t:'oAvgF',num:1},{k:'peakWk',t:'oPeakWk',num:1},{k:'share',t:'oShare',num:1}];
+  const cols=[{k:'o',t:'oName'},{k:'n',t:'oProj',num:1},{k:'f',t:'oFin',num:1},{k:'p',t:'oPcs',num:1},{k:'avgF',t:'oAvgF',num:1},{k:'peakWk',t:metric==='fin'?'oPeakWk':'oPeakWkP',num:1},{k:'share',t:'oShare',num:1},{k:'shareP',t:'oShareP',num:1}];
   $('#ownTbl thead').innerHTML='<tr>'+cols.map(c=>`<th class="${c.num?'num':''}" data-k="${c.k}">${t(c.t)}${ownSortKey===c.k?(ownSortDir>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
   $('#ownTbl tbody').innerHTML=rows.map(r=>`<tr>
     <td><span class="pill" style="background:${(ownerColor[r.o]||'#888')}22;color:${ownerColor[r.o]||'#888'}">${esc(ownLab(r.o))}</span></td>
@@ -835,7 +835,7 @@ function drawOwner(C,tasks){
     <td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><div class="bar" style="width:${44*r.f/maxF+4}px"></div>${fmt(r.f)}</div></td>
     <td class="num">${fmt(r.p)}</td><td class="num">${fmt1(r.avgF)}</td>
     <td class="num" style="${cap&&r.peakWk>cap?'color:var(--warn);font-weight:600':''}">${fmt(r.peakWk)}</td>
-    <td class="num">${fmt1(100*r.f/totF)}%</td></tr>`).join('')||`<tr><td colspan="7" class="muted">${t('noData')}</td></tr>`;
+    <td class="num">${fmt1(r.share)}%</td><td class="num">${fmt1(r.shareP)}%</td></tr>`).join('')||`<tr><td colspan="8" class="muted">${t('noData')}</td></tr>`;
   $('#ownTbl thead').querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(ownSortKey===k)ownSortDir*=-1;else{ownSortKey=k;ownSortDir=k==='o'?1:-1;}drawOwner(C,tasks);});
 }
 
