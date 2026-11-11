@@ -38,7 +38,7 @@
   .gbar.ls{outline:2px dashed #ffb454;outline-offset:1px}
   .tplmark{color:#b18cff;font-size:10px;margin-left:4px}
   select,button.btn,input.cap{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
-  button.btn{cursor:pointer}button.btn:hover{border-color:var(--accent)}
+  button.btn{cursor:pointer}button.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}button.btn:hover{border-color:var(--accent)}
   .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
   .seg button{border:none;background:var(--panel2);color:var(--mut);padding:8px 12px;cursor:pointer;font-size:13px}
   .seg button.on{background:var(--accent);color:#fff}
@@ -108,6 +108,8 @@
   .modal.show{display:flex}
   .modalbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;width:min(760px,94vw);max-height:90vh;display:flex;flex-direction:column;padding:18px}
   .modalbox h3{margin:0;font-size:15px}
+  #sumHtml{flex:1;min-height:60vh;width:100%;background:#fff;border:1px solid var(--line);border-radius:8px}
+  .modal.html #sumText,.modal:not(.html) #sumHtml{display:none}
   .modalbox textarea{flex:1;min-height:330px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;resize:vertical;white-space:pre;overflow:auto}
   .modalrow{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
   .modalrow .spacer{flex:1}
@@ -281,11 +283,14 @@
 <div class="modal" id="modal"><div class="modalbox">
   <div class="modalrow"><h3 id="modalTitle" data-i18n="sumTitle">负载总结</h3><span class="spacer"></span>
     <div class="seg" id="segSumLang"><button data-v="zh">中文</button><button data-v="en">EN</button><button data-v="vi">VI</button><button data-v="all" data-i18n="sLangAll">三语</button></div>
-    <div class="seg" id="segFmt"><button data-v="plain" class="on" data-i18n="fmtPlain">纯文本</button><button data-v="email" data-i18n="fmtEmail">邮件格式</button></div>
+    <div class="seg" id="segFmt"><button data-v="html" class="on" data-i18n="fmtPreview">预览</button><button data-v="plain" data-i18n="fmtPlain">纯文本</button><button data-v="email" data-i18n="fmtEmail">邮件格式</button></div>
   </div>
+  <iframe id="sumHtml" title="preview"></iframe>
   <textarea id="sumText" spellcheck="false"></textarea>
   <div class="modalrow" style="margin-top:10px">
+    <button class="btn primary" id="htmlBtn" data-i18n="btnHtml">复制（带格式，贴进邮件）</button>
     <button class="btn" id="copyBtn" data-i18n="btnCopy">复制到剪贴板</button>
+    <button class="btn" id="pdfBtn" data-i18n="btnPdf">导出 PDF</button>
     <button class="btn" id="mailBtn" data-i18n="btnMail">用邮件打开</button>
     <button class="btn" id="xlsxBtn" data-i18n="btnExcel">导出 Excel</button>
     <button class="btn" id="docBtn" data-i18n="btnWord">导出 Word</button>
@@ -337,7 +342,7 @@ const I18N={
   ganttTitle:'计划甘特图',ganttHint:'按客户分组 · 浅条=项目周期，深条=洗水周期，白线=进度，橙线=今天',
   lblMetric:'分析指标',mFin:'款数(洗水)',mPcs:'件数',lblRange:'时间范围',r7:'未来7天',r14:'未来14天',r30:'未来30天',rAll:'全部',
   lblStack:'堆叠方式',skCust:'客户',skDev:'DEV/BULK',showNums:'格内显示数字',hRange:'每格 ',
-  shareBtn:'📋 生成总结',sumTitle:'负载总结 / 邮件',fmtPlain:'纯文本',fmtEmail:'邮件格式',btnCopy:'复制到剪贴板',btnCopied:'已复制 ✓',btnMail:'用邮件打开',btnExcel:'导出 Excel',btnWord:'导出 Word',btnClose:'关闭',
+  shareBtn:'📋 生成总结',sumTitle:'负载总结 / 邮件',fmtPlain:'纯文本',fmtEmail:'邮件格式',btnCopy:'复制到剪贴板',btnCopied:'已复制 ✓',btnMail:'用邮件打开',btnExcel:'导出 Excel',btnWord:'导出 Word',btnHtml:'复制（带格式，贴进邮件）',btnPdf:'导出 PDF',sAvailL:'高峰可用产能',fmtPreview:'预览',btnClose:'关闭',
   sScope:'筛选范围',sKey:'关键指标',sProjects:'项目数',sTotFin:'总款数(洗水)',sTotPcs:'总件数',sAvg:'平均每日',sPeakDay:'最高单日',sPeakWk:'最高单周',sCapRefL:'周产能参考',sOverL:'超产能周数',sNoCap:'未设',sAlertL:'⚠ 超产能周',sWeeklyL:'每周款数(洗水)',sOwnersL:'负责人负载',sDevBulkL:'DEV/BULK 款数',sAllCusts:'全部客户',
   cat_bn:'瓶颈与产能',cat_todo:'近期要做',cat_who:'负载集中在谁',cat_hol:'假期',ctxLbl:'当前筛选',tipHow:'怎么算出来的',tipHeads:'= 洗水 30 + 手工 37 + 喷马骝 8（2026 年 10 月）',tipPer:'= 2026 年 1–10 月“每月件数 ÷ 技术人数”的中位数',tlBlk:'加入百家衣缩水布的用量',tipBlk:'百家衣',tipPerB:'= 2026 年 1–10 月“(每月件数 + 百家衣缩水布折合件数) ÷ 技术人数”的中位数',tipRoutineB:'76% = 百家衣缩水布 58% + 日常办 12% + 高峰版自己的裤筒和布片 6%；高峰成衣只占 24%。依据：2025-01 至 2026-10 实际折合产量（百家衣 = 疋数 × 3 ÷ 16）。百家衣折合件数只是参考：它主要占洗水机，不用做猫须、PP，难度远低于同样件数的裤子',tipMonth:'件 / 月（整个版房）',tipWeek:'件 / 周（一个月约 4.33 周）',tipPeak:'件 / 周留给高峰项目（扣掉日常办占比）',tipRoutine:'43% = 日常办 28%（工厂PPC 颜色办以外的版 + 首扎/Pilot + 大货清尾）+ 高峰版自己的裤筒和布片 15%。甘特表只记成衣件数，所以这两部分都要先扣掉。依据：2025-01 至 2026-10 实际折合产量',tipHol:'假期周再按工作日比例缩小（例如少 1 天 × 5/6）',tipMo:'月份',tipPcs:'件数',tipHc:'技术人数',tipPh:'每人件数',tipSrc:'来源：YDVL Oct 2026.xlsx · YDVL WRD Y26（开发办 + 大货办折合件数）',tipLoad:'高峰项目负载',tipAvailW:'本周可用',tlMach:(n,l)=>`洗水机 ${n} 台：${l}`,tlTitle:'产能 vs 负载（件数）',tlHint:'可用 = 技术人数（洗水+手工+喷马骝）× 每人每月件数 ÷ 4.33 × (1 − 日常办占比) · 假期周按工作日缩小',tlHeads:'技术人数',tlPer:'每人每月件数',tlRoutine:'日常办占比 %',
   tlAvail:v=>`→ 高峰项目每周可用约 ${v} 件`,hmTitle:'负责人组 × 周',hmHint:'格内 = 件数 · 颜色越深越忙 · 鼠标停留看款数',hmGrp:'组',
@@ -380,7 +385,7 @@ const I18N={
   ganttTitle:'Plan — Gantt chart',ganttHint:'Grouped by customer · light=project, dark=washing, white=progress, orange=today',
   lblMetric:'Metric',mFin:'Finishes (washes)',mPcs:'Pieces',lblRange:'Time range',r7:'Next 7d',r14:'Next 14d',r30:'Next 30d',rAll:'All',
   lblStack:'Stack by',skCust:'Customer',skDev:'DEV/BULK',showNums:'numbers in cells',hRange:'per cell ',
-  shareBtn:'📋 Summary',sumTitle:'Load summary / email',fmtPlain:'Plain text',fmtEmail:'Email',btnCopy:'Copy to clipboard',btnCopied:'Copied ✓',btnMail:'Open in email',btnExcel:'Export Excel',btnWord:'Export Word',btnClose:'Close',
+  shareBtn:'📋 Summary',sumTitle:'Load summary / email',fmtPlain:'Plain text',fmtEmail:'Email',btnCopy:'Copy to clipboard',btnCopied:'Copied ✓',btnMail:'Open in email',btnExcel:'Export Excel',btnWord:'Export Word',btnHtml:'Copy formatted (for email)',btnPdf:'Export PDF',sAvailL:'Capacity left for peak',fmtPreview:'Preview',btnClose:'Close',
   sScope:'Filter scope',sKey:'Key metrics',sProjects:'Projects',sTotFin:'Total finishes (washes)',sTotPcs:'Total pieces',sAvg:'Avg per day',sPeakDay:'Peak day',sPeakWk:'Peak week',sCapRefL:'Weekly capacity',sOverL:'Weeks over capacity',sNoCap:'not set',sAlertL:'⚠ Over-capacity weeks',sWeeklyL:'Weekly finishes (washes)',sOwnersL:'Owner load',sDevBulkL:'DEV/BULK finishes',sAllCusts:'All customers',
   cat_bn:'Bottlenecks & capacity',cat_todo:'Coming up',cat_who:'Who carries the load',cat_hol:'Holidays',ctxLbl:'Current filter',tipHow:'How this is calculated',tipHeads:'= washing 30 + dry process 37 + PP 8 (Oct 2026)',tipPer:'= median of monthly pcs ÷ technical heads, Jan–Oct 2026',tlBlk:'Include blanket & shrinkage fabric',tipBlk:'Blanket',tipPerB:'= median of (monthly pcs + converted blanket/shrinkage pcs) ÷ technical heads, Jan–Oct 2026',tipRoutineB:'76% = blanket & shrinkage fabric 58% + routine 12% + leg panels/fabric pieces of peak samples 6%; peak garments are only 24%. Based on actual converted output Jan 2025–Oct 2026 (blanket = pieces × 3 ÷ 16). The converted blanket count is only a reference: it mainly uses washing machines, needs no whiskers or PP, and is far easier than the same number of trousers',tipMonth:'pcs / month (whole room)',tipWeek:'pcs / week (≈4.33 weeks per month)',tipPeak:'pcs / week left for peak projects (after routine share)',tipRoutine:'43% = routine 28% (factory PPC samples other than colour + first bundle/pilot + bulk clear-up) + leg panels and fabric pieces of peak samples 15%. The Gantt counts garments only, so both are taken off. Based on actual converted output Jan 2025–Oct 2026',tipHol:'Holiday weeks are scaled by workdays (e.g. one day off × 5/6)',tipMo:'Month',tipPcs:'Pcs',tipHc:'Tech heads',tipPh:'Pcs / head',tipSrc:'Source: YDVL Oct 2026.xlsx · YDVL WRD Y26 (dev + pre-pro pcs)',tipLoad:'Peak project load',tipAvailW:'Available this week',tlMach:(n,l)=>`Washing machines: ${n} (${l})`,tlTitle:'Capacity vs load (pcs)',tlHint:'Available = technical heads (washing + dry + PP) × pcs per head per month ÷ 4.33 × (1 − routine share) · holiday weeks scaled by workdays',tlHeads:'Technical heads',tlPer:'Pcs / head / month',tlRoutine:'Routine share %',
   tlAvail:v=>`→ about ${v} pcs/week left for peak projects`,hmTitle:'Owner team × week',hmHint:'Cell = pcs · darker = busier · hover for styles',hmGrp:'Team',
@@ -423,7 +428,7 @@ const I18N={
   ganttTitle:'Kế hoạch — Sơ đồ Gantt',ganttHint:'Nhóm theo khách hàng · thanh nhạt=kỳ dự án, thanh đậm=chu kỳ giặt, vạch trắng=tiến độ, cam=hôm nay',
   lblMetric:'Chỉ số',mFin:'Số kiểu (giặt)',mPcs:'Số cái',lblRange:'Khoảng thời gian',r7:'7 ngày tới',r14:'14 ngày tới',r30:'30 ngày tới',rAll:'Tất cả',
   lblStack:'Xếp chồng theo',skCust:'Khách hàng',skDev:'DEV/BULK',showNums:'hiện số trong ô',hRange:'mỗi ô ',
-  shareBtn:'📋 Tổng hợp',sumTitle:'Tổng hợp tải / email',fmtPlain:'Văn bản',fmtEmail:'Email',btnCopy:'Sao chép',btnCopied:'Đã chép ✓',btnMail:'Mở bằng email',btnExcel:'Xuất Excel',btnWord:'Xuất Word',btnClose:'Đóng',
+  shareBtn:'📋 Tổng hợp',sumTitle:'Tổng hợp tải / email',fmtPlain:'Văn bản',fmtEmail:'Email',btnCopy:'Sao chép',btnCopied:'Đã chép ✓',btnMail:'Mở bằng email',btnExcel:'Xuất Excel',btnWord:'Xuất Word',btnHtml:'Sao chép có định dạng (cho email)',btnPdf:'Xuất PDF',sAvailL:'Năng lực còn cho cao điểm',fmtPreview:'Xem trước',btnClose:'Đóng',
   sScope:'Phạm vi lọc',sKey:'Chỉ số chính',sProjects:'Số dự án',sTotFin:'Tổng số kiểu (giặt)',sTotPcs:'Tổng số cái',sAvg:'Trung bình mỗi ngày',sPeakDay:'Cao nhất 1 ngày',sPeakWk:'Cao nhất 1 tuần',sCapRefL:'Năng lực/tuần',sOverL:'Số tuần vượt năng lực',sNoCap:'chưa đặt',sAlertL:'⚠ Tuần vượt năng lực',sWeeklyL:'Số kiểu theo tuần (giặt)',sOwnersL:'Tải theo người',sDevBulkL:'Số kiểu DEV/BULK',sAllCusts:'Tất cả khách hàng',
   cat_bn:'Điểm nghẽn & năng lực',cat_todo:'Việc sắp tới',cat_who:'Tải dồn vào ai',cat_hol:'Ngày nghỉ lễ',ctxLbl:'Bộ lọc hiện tại',tipHow:'Cách tính',tipHeads:'= giặt 30 + thủ công 37 + phun PP 8 (tháng 10/2026)',tipPer:'= trung vị số cái/tháng ÷ số kỹ thuật, tháng 1–10/2026',tlBlk:'Tính cả vải trăm mảnh & vải co rút',tipBlk:'Trăm mảnh',tipPerB:'= trung vị (số cái/tháng + số quy đổi vải trăm mảnh/co rút) ÷ số kỹ thuật, tháng 1–10/2026',tipRoutineB:'76% = vải trăm mảnh & co rút 58% + việc thường 12% + ống quần/mảnh vải của mẫu cao điểm 6%; quần áo cao điểm chỉ 24%. Theo sản lượng quy đổi thực tế 01/2025–10/2026 (trăm mảnh = số tấm × 3 ÷ 16). Số quy đổi trăm mảnh chỉ để tham khảo: chủ yếu chiếm máy giặt, không cần râu mèo hay PP, dễ hơn nhiều so với cùng số quần',tipMonth:'cái / tháng (cả xưởng)',tipWeek:'cái / tuần (≈4.33 tuần mỗi tháng)',tipPeak:'cái / tuần cho dự án cao điểm (trừ phần việc thường)',tipRoutine:'43% = việc thường 28% (mẫu PPC ngoài mẫu màu + bó đầu/Pilot + dọn hàng bulk) + ống quần và mảnh vải của mẫu cao điểm 15%. Gantt chỉ tính số quần áo, nên trừ cả hai phần. Theo sản lượng quy đổi thực tế 01/2025–10/2026',tipHol:'Tuần có ngày lễ giảm theo ngày làm (vd. nghỉ 1 ngày × 5/6)',tipMo:'Tháng',tipPcs:'Cái',tipHc:'Số KT',tipPh:'Cái/người',tipSrc:'Nguồn: YDVL Oct 2026.xlsx · YDVL WRD Y26 (cái phát triển + tiền SX)',tipLoad:'Tải dự án cao điểm',tipAvailW:'Khả dụng tuần này',tlMach:(n,l)=>`Máy giặt: ${n} máy (${l})`,tlTitle:'Năng lực vs tải (cái)',tlHint:'Khả dụng = số kỹ thuật (giặt + thủ công + phun PP) × cái/người/tháng ÷ 4.33 × (1 − tỷ lệ việc thường) · tuần có ngày lễ giảm theo ngày làm',tlHeads:'Số kỹ thuật',tlPer:'Cái/người/tháng',tlRoutine:'Tỷ lệ việc thường %',
   tlAvail:v=>`→ còn khoảng ${v} cái/tuần cho dự án cao điểm`,hmTitle:'Nhóm phụ trách × tuần',hmHint:'Ô = số cái · đậm hơn = bận hơn · rê chuột xem số kiểu',hmGrp:'Nhóm',
@@ -583,6 +588,10 @@ function mapColumns(rows){
   if(cols.name==null)cols.name=1;
   return {hrow,cols};
 }
+// Owner team as written in the file, minus a trailing note in brackets:
+// "Peach/Jeff (A12 support)" counts as "Peach/Jeff". Names always come from
+// the file last loaded, so renaming a team in Excel renames it here.
+const ownerName=v=>String(v||'').replace(/\n/g,' ').replace(/\s*[(（][^()（）]*[)）]\s*$/,'').trim();
 function parseWB(ab){
   const wb=XLSX.read(ab,{type:'array',cellDates:true});
   const ws=wb.Sheets[wb.SheetNames[0]];
@@ -595,7 +604,7 @@ function parseWB(ab){
     if(B&&PS==null&&E==null){const lab=String(B).trim();if(/^insert new rows/i.test(lab))continue;cur=lab;continue;}
     if(!B||PS==null||PE==null)continue;
     const pieces=lead(E);if(!pieces)continue;
-    tasks.push({cust:cur,name:String(B).trim(),owner:String(g(cols.owner)||'').replace(/\n/g,' ').trim(),
+    tasks.push({cust:cur,name:String(B).trim(),owner:ownerName(g(cols.owner)),
       finishes:String(g(cols.fin)||'').trim(),pieces,devbulk:String(g(cols.devbulk)||'').trim(),
       status:String(g(cols.status)||'').trim(),prog:parseFloat(g(cols.prog))||0,
       start:jsDate(PS),end:jsDate(PE),washStart:jsDate(g(cols.washStart)),washEnd:jsDate(g(cols.washEnd))});
@@ -1182,34 +1191,78 @@ function drawInsights(){const R=computeReport(),gs=insGroups(insights(R));
 function inLang(l,fn){const was=LANG;LANG=l;try{return fn();}finally{LANG=was;}}
 let sumLang=LS.get('sumLang','all');
 function genSummary(){
-  if(sumLang!=='all')return inLang(sumLang,genSummary1);
-  const parts=['zh','en','vi'].map(l=>inLang(l,genSummary1)),sepL='\n\n'+'─'.repeat(28)+'\n\n';
-  return {subject:parts.map(x=>x.subject).slice(0,2).join(' / '),plain:parts.map(x=>x.plain).join(sepL),email:parts.map(x=>x.email).join(sepL)};
+  const langs=sumLang==='all'?['zh','en','vi']:[sumLang];
+  const parts=langs.map(l=>inLang(l,()=>{const r=buildReport();return {subject:`${t('sSubject')} (${key(TODAY)})`,r,hi:t('sHi'),intro:t('sIntro')};}));
+  const sepL='\n\n'+'─'.repeat(28)+'\n\n';
+  return {subject:parts.map(x=>x.subject).slice(0,2).join(' / '),
+    plain:parts.map(x=>repText(x.r)).join(sepL),
+    email:parts.map(x=>`${x.hi}\n\n${x.intro}\n\n${repText(x.r,true)}`).join(sepL),
+    html:wrapHtml(parts.map(x=>repHtml(x.r))),
+    mail:wrapHtml(parts.map(x=>`<p style="margin:0 0 4px;font-size:13px">${esc(x.hi)}</p><p style="margin:0 0 14px;font-size:13px;color:${RC.soft}">${esc(x.intro)}</p>`+repHtml(x.r)))};
 }
-function genSummary1(){
-  const R=computeReport();const uF=t('unitF'),uP=t('unitP'),W=t('sWeek');const L=[];
-  L.push(`${t('sScope')}: ${R.scopeStr}`);
-  L.push('');L.push(`【${t('sKey')}】`);
-  L.push(`• ${t('sProjects')}: ${R.rows.length} (${R.ip} ${t('inprog')} / ${R.pd} ${t('pend')}${R.dn?' / '+R.dn+' '+t('done'):''})`);
-  if(R.tpl.length)L.push(`• ${t('sTplL')}: ${R.tpl.length} — ${fp(R.tplF,R.tplP)}`);
-  L.push(`• ${t('sTotFin')}: ${fmt(R.totF)} ${uF}　${t('sTotPcs')}: ${fmt(R.totP)} ${uP}`);
-  L.push(`• ${t('sAvg')}: ${fmt1(R.avgF)} ${uF} (${fmt1(R.avgP)} ${uP})`);
-  L.push(`• ${t('sPeakDay')}: ${R.pkF.k} — ${fmt1(R.pkF.v)} ${uF} (${fmt((R.dtP.find(d=>d.k===R.pkF.k)||{v:0}).v)} ${uP})`);
-  L.push(`• ${t('sPeakWk')}: ${W} ${R.peakWeek} — ${fp(R.wF[R.peakWeek]||0,R.wP[R.peakWeek]||0)}`);
-  L.push(`• ${t('sCapRefL')}: ${R.cap?R.cap+' '+uF+'/'+W:t('sNoCap')}　${t('sOverL')}: ${R.cap?R.over.length:'—'}`);
-  const ins=insights(R);L.push('');L.push(`【${t('insT').replace(/^\S+\s/,'')}】`);insGroups(ins).forEach(g=>{L.push(`  ▸ ${t('cat_'+g.c)}`);g.items.forEach(i=>L.push(`${i.hot?'⚠':'•'} ${i.txt}`));});
-  if(R.over.length){L.push('');L.push(`【${t('sAlertL')}】`);R.over.forEach(w=>L.push(`• ${W} ${w}: ${fp(R.wF[w],R.wP[w]||0)} > ${fmt(capWk(R.cap,w))} (${t('overBy')} ${fmt(R.wF[w]-capWk(R.cap,w))})`));}
-  if(R.late.length){L.push('');L.push(`【${t('sOverdueL')}】`);R.late.forEach(x=>L.push(`• ${x.cust} · ${x.name} [${fmt(leadN(x.finishes)||0)} ${uF} (${fmt(x.pieces)} ${uP})] — ${isOverdue(x)?t('overdue')+' ('+x.end+')':t('lateStart')+' ('+x.start+')'}`));}
-  if(R.weeks.length){L.push('');L.push(`【${t('sWeeklyL')}】`);R.weeks.slice(0,12).forEach(w=>L.push(`• ${w}: ${fp(R.wF[w],R.wP[w]||0)}${weekWd(w)<6?` [${weekWd(w)}/6 ${t('wdU')}]`:''}${R.cap&&R.wF[w]>capWk(R.cap,w)?' ⚠':''}`));}
-  if(R.owners.length){L.push('');L.push(`【${t('sOwnersL')}】`);R.owners.forEach(o=>L.push(`• ${ownLab(o.o)}: ${fp(o.f,o.p)} · ${pct(o.f,R.totF)}%`));}
-  if(R.hasDB){L.push('');L.push(`【${t('sDevBulkL')}】`);R.devbulk.forEach(x=>L.push(`• ${x.d}: ${fp(x.f,x.p)}`));}
-  const body=L.join('\n');
-  const subject=`${t('sSubject')} (${key(TODAY)})`;
-  const src=DATA.source?t('source')+': '+DATA.source+'\n':'';
-  const plain=`${t('sSubject')} (${key(TODAY)})\n${src}${'='.repeat(28)}\n${body}\n\n${t('sBye')}`;
-  const email=`${t('sHi')}\n\n${t('sIntro')}\n\n${body}\n\n${t('sBye')}`;
-  return {subject,plain,email};
+// preview + PDF without the greeting; the formatted email copy with it
+const wrapHtml=a=>`<div style="font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;color:${RC.ink};line-height:1.5;max-width:760px">`+a.join(`<hr style="border:0;border-top:2px dashed ${RC.line};margin:28px 0">`)+'</div>';
+// One report, written out as plain text (WeChat / Zalo / Teams) and as
+// email HTML with inline styles only (Outlook and Gmail drop <style>).
+// Block kinds: kv (label: value, coloured), bars (load vs capacity),
+// points (coloured cards), table.
+const RC={ink:'#1f2328',soft:'#6b6b6b',line:'#e4e2dc',accent:'#2f3aa3',good:'#0a7d0a',warn:'#b86e00',bad:'#c62828'};
+const plColor=p=>p>100?'#d03b3b':p>=85?'#e8a317':'#2e9e5b';
+function buildReport(){
+  const R=computeReport(),uF=t('unitF'),uP=t('unitP'),W=t('sWeek');
+  // capacity is in pieces (the traffic light): a week is over when its load passes what is available that week
+  const wp=weekPcs(R.C),allW=Object.keys(wp).sort(),overP=allW.filter(k=>wp[k]>availOf(k));
+  const head={kind:'kv',rows:[
+    {k:t('sProjects'),v:`${R.rows.length} (${R.ip} ${t('inprog')} / ${R.pd} ${t('pend')}${R.dn?' / '+R.dn+' '+t('done'):''})`},
+    ...(R.tpl.length?[{k:t('sTplL'),v:`${R.tpl.length} — ${fp(R.tplF,R.tplP)}`,tone:'warn'}]:[]),
+    {k:t('sTotFin'),v:`${fmt(R.totF)} ${uF} (${fmt(R.totP)} ${uP})`},
+    {k:t('sAvg'),v:`${fmt1(R.avgF)} ${uF} (${fmt1(R.avgP)} ${uP})`},
+    {k:t('sPeakDay'),v:`${R.pkF.k} — ${fmt1(R.pkF.v)} ${uF}`},
+    {k:t('sPeakWk'),v:`${W} ${R.peakWeek} — ${fp(R.wF[R.peakWeek]||0,R.wP[R.peakWeek]||0)}`},
+    {k:t('sAvailL'),v:`${fmt(availWk())} ${uP}/${W}`},
+    {k:t('sOverL'),v:String(overP.length),tone:overP.length?'bad':'good'},
+    ...(R.late.length?[{k:t('sOverdueL').replace(/^⚠\s*/,''),v:String(R.late.length),tone:'bad'}]:[])]};
+  const tlw=allW.slice(0,12);
+  const tl={kind:'bars',rows:tlw.map(k=>{const a=availOf(k),p=a?Math.round(100*wp[k]/a):0;return {k:`${k.slice(5)}${weekWd(k)<6?' 📅':''}`,n:wp[k],of:a,p,txt:`${fmt(wp[k])} / ${fmt(a)} ${uP} · ${p}%`};})};
+  const tone={bn:'amber',todo:'blue',who:'blue',hol:'purple'};
+  const pts=insGroups(insights(R)).map(g=>({title:`${g.ic} ${t('cat_'+g.c)}`,blocks:[{kind:'points',rows:g.items.map(i=>({txt:i.txt,tone:i.hot?'red':tone[g.c]}))}]}));
+  const S=[{title:t('sKey'),blocks:[head]}];
+  if(tl.rows.length)S.push({title:'🚦 '+t('tlTitle'),blocks:[tl]});
+  S.push({title:t('insT').replace(/^\S+\s/,''),blocks:pts.flatMap(g=>[{kind:'sub',title:g.title},...g.blocks])});
+  if(overP.length)S.push({title:t('sAlertL'),blocks:[{kind:'table',tone:'bad',head:[W,uP,t('tipAvailW'),'+'],rows:overP.map(w=>[w,fmt(wp[w]),fmt(availOf(w)),'+'+fmt(wp[w]-availOf(w))])}]});
+  if(R.late.length)S.push({title:t('sOverdueL'),blocks:[{kind:'table',tone:'bad',head:[t('cCust'),t('cName'),`${uF} (${uP})`,t('cStatus')],
+    rows:R.late.map(x=>[x.cust,x.name,`${fmt(leadN(x.finishes)||0)} (${fmt(x.pieces)})`,isOverdue(x)?`${t('overdue')} ${x.end}`:`${t('lateStart')} ${x.start}`])}]});
+  if(R.weeks.length)S.push({title:t('sWeeklyL'),blocks:[{kind:'table',head:[W,t('tipLoad'),t('wdU')],
+    rows:R.weeks.slice(0,12).map(w=>[w+(wp[w]>availOf(w)?' ⚠':''),fp(R.wF[w],R.wP[w]||0),`${weekWd(w)}/6`])}]});
+  if(R.owners.length)S.push({title:t('sOwnersL'),blocks:[{kind:'bars',rows:R.owners.map(o=>{const p=pct(o.f,R.totF);return {k:ownLab(o.o),n:o.f,of:R.totF,p,share:true,txt:`${fp(o.f,o.p)} · ${p}%`};})}]});
+  if(R.hasDB)S.push({title:t('sDevBulkL'),blocks:[{kind:'table',head:['DEV/BULK',t('tipLoad')],rows:R.devbulk.map(x=>[x.d,fp(x.f,x.p)])}]});
+  const src=DATA.source?`${t('source')}: ${DATA.source}${DATA.note?' · '+DATA.note:''}`:'';
+  return {title:`${t('sSubject')} (${key(TODAY)})`,meta:[`${t('sScope')}: ${R.scopeStr}`,src].filter(Boolean),sections:S.map((x,i)=>({...x,title:`${i+1}. ${x.title.replace(/^⚠\s*/,'')}`})),footer:t('sBye')};
 }
+const txtBar=(n,of,w=10)=>{const k=of?Math.min(w,Math.round(n/of*w)):0;return '█'.repeat(k)+'░'.repeat(w-k);};
+function repText(r,noHead){
+  const out=noHead?[]:[r.title,...r.meta,'='.repeat(28)];if(noHead)out.push(...r.meta);out.push('');
+  r.sections.forEach(s=>{out.push(`【${s.title}】`);s.blocks.forEach(b=>{
+    if(b.kind==='kv')b.rows.forEach(x=>out.push(`• ${x.k}: ${x.v}`));
+    if(b.kind==='bars')b.rows.forEach(x=>out.push(`${txtBar(x.n,x.of)} ${x.k}  ${x.txt}${!x.share&&x.p>100?' ⚠':''}`));
+    if(b.kind==='sub')out.push(`  ▸ ${b.title}`);
+    if(b.kind==='points')b.rows.forEach(x=>out.push(`${x.tone==='red'?'⚠':'•'} ${x.txt}`));
+    if(b.kind==='table')b.rows.forEach(row=>out.push(`• ${row[0]} — `+row.slice(1).map((c,i)=>`${b.head[i+1]} ${c}`).join(' · ')));});out.push('');});
+  out.push(r.footer);return out.join('\n');}
+function repHtml(r){
+  const e=s=>esc(s).replace(/"/g,'&quot;'),td=`padding:4px 10px 4px 0;border-bottom:1px solid ${RC.line};vertical-align:top`;
+  const edge={red:'#d03b3b',amber:'#e8a317',blue:'#2a78d6',purple:'#8a63d2'},fill={red:'#fdf1f1',amber:'#fdf8ec',blue:'#f2f6fc',purple:'#f6f2fc'};
+  const blk=b=>{
+    if(b.kind==='kv')return `<table style="border-collapse:collapse;font-size:13px">${b.rows.map(x=>`<tr><td style="${td};color:${RC.soft};white-space:nowrap">${e(x.k)}</td><td style="${td}"><b style="color:${x.tone?RC[x.tone]:RC.ink}">${e(x.v)}</b></td></tr>`).join('')}</table>`;
+    if(b.kind==='bars')return `<table style="border-collapse:collapse;font-size:13px">${b.rows.map(x=>{const w=x.of?Math.round(Math.min(1,x.n/x.of)*180):0,c=x.share?RC.accent:plColor(x.p);
+      return `<tr><td style="padding:3px 10px 3px 0;white-space:nowrap">${e(x.k)}</td><td style="padding:3px 8px 3px 0"><div style="width:180px;height:10px;background:${RC.line};border-radius:5px"><div style="width:${w}px;height:10px;background:${c};border-radius:5px"></div></div></td><td style="padding:3px 0;white-space:nowrap;color:${x.share?RC.soft:c};${!x.share&&x.p>100?'font-weight:700':''}">${e(x.txt)}</td></tr>`;}).join('')}</table>`;
+    if(b.kind==='sub')return `<div style="margin:10px 0 2px;font-weight:600;font-size:13px">${e(b.title)}</div>`;
+    if(b.kind==='points')return b.rows.map(x=>`<div style="margin:4px 0;padding:5px 10px;border-left:4px solid ${edge[x.tone]};background:${fill[x.tone]};font-size:13px${x.tone==='red'?';font-weight:600':''}">${e(x.txt)}</div>`).join('');
+    const right=b.head.map((_,i)=>i>0&&/^[\d\s.,%()/—+-]*$/.test(b.rows[0]?.[i]??''));const al=i=>right[i]?'right':'left';
+    return `<table style="border-collapse:collapse;font-size:12.5px${b.tone?`;border-left:4px solid ${edge.red}`:''}"><tr>${b.head.map((h,i)=>`<th style="${td};padding-left:8px;text-align:${al(i)};color:${RC.soft};font-weight:600">${e(h)}</th>`).join('')}</tr>${b.rows.map(row=>`<tr>${row.map((c,i)=>`<td style="${td};padding-left:8px;text-align:${al(i)}${b.tone&&i===row.length-1?`;color:${RC.bad}`:''}">${e(c)}</td>`).join('')}</tr>`).join('')}</table>`;};
+  return `<h2 style="margin:0 0 2px;font-size:20px">${e(r.title)}</h2>${r.meta.map(m=>`<div style="color:${RC.soft};font-size:12px">${e(m)}</div>`).join('')}<div style="height:10px"></div>`+
+    r.sections.map(s=>`<h3 style="margin:18px 0 6px;padding:5px 10px;background:${RC.accent};color:#fff;border-radius:4px;font-size:14px">${e(s.title)}</h3>${s.blocks.map(blk).join('')}`).join('')+
+    `<div style="margin-top:22px;padding-top:10px;border-top:1px solid ${RC.line};font-size:11px;color:${RC.soft}">${e(r.footer)}</div>`;}
 
 // ---------- export helpers ----------
 function saveBlob(content,type,name){const blob=(content instanceof Blob)?content:new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},800);}
@@ -1301,16 +1354,26 @@ function buildWord(){
   saveBlob('﻿'+html,'application/msword','WRD_SamplePeak_WIP_'+winTag()+'.doc');
 }
 
-let sumFmt='plain',sumData=null;
+let sumFmt='html',sumData=null;
 function syncSumLang(){document.querySelectorAll('#segSumLang button').forEach(x=>x.classList.toggle('on',x.dataset.v===sumLang));}
 document.querySelectorAll('#segSumLang button').forEach(b=>b.onclick=()=>{sumLang=b.dataset.v;LS.set('sumLang',sumLang);syncSumLang();openModal();});
-function openModal(){syncSumLang();sumData=genSummary();$('#sumText').value=sumFmt==='email'?sumData.email:sumData.plain;$('#modal').classList.add('show');}
+function showSum(){$('#modal').classList.toggle('html',sumFmt==='html');document.querySelectorAll('#segFmt button').forEach(x=>x.classList.toggle('on',x.dataset.v===sumFmt));
+  if(!sumData)return;$('#sumHtml').srcdoc=`<!doctype html><meta charset="utf-8"><body style="margin:18px;background:#fff">${sumData.html}`;$('#sumText').value=sumFmt==='email'?sumData.email:sumData.plain;}
+function openModal(){syncSumLang();sumData=genSummary();showSum();$('#modal').classList.add('show');}
 $('#shareBtn').onclick=openModal;
 $('#closeModal').onclick=()=>$('#modal').classList.remove('show');
 $('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('show');};
-document.querySelectorAll('#segFmt button').forEach(b=>b.onclick=()=>{sumFmt=b.dataset.v;document.querySelectorAll('#segFmt button').forEach(x=>x.classList.toggle('on',x.dataset.v===sumFmt));if(sumData)$('#sumText').value=sumFmt==='email'?sumData.email:sumData.plain;});
-$('#copyBtn').onclick=async()=>{const ta=$('#sumText');try{await navigator.clipboard.writeText(ta.value);}catch(e){ta.select();document.execCommand('copy');}$('#copyBtn').textContent=t('btnCopied');setTimeout(()=>$('#copyBtn').textContent=t('btnCopy'),1500);};
-$('#mailBtn').onclick=()=>{window.location.href=`mailto:?subject=${encodeURIComponent(sumData.subject)}&body=${encodeURIComponent($('#sumText').value)}`;};
+document.querySelectorAll('#segFmt button').forEach(b=>b.onclick=()=>{sumFmt=b.dataset.v;showSum();});
+const flash=(id,k)=>{$(id).textContent=t('btnCopied');setTimeout(()=>$(id).textContent=t(k),1500);};
+// formatted copy: Outlook / Gmail keep the colours when pasted
+$('#htmlBtn').onclick=async()=>{try{await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([sumData.mail],{type:'text/html'}),'text/plain':new Blob([sumData.email],{type:'text/plain'})})]);flash('#htmlBtn','btnHtml');}
+  catch(e){const d=$('#sumHtml').contentDocument,r=d.createRange();r.selectNodeContents(d.body);const sel=d.getSelection();sel.removeAllRanges();sel.addRange(r);d.execCommand('copy');sel.removeAllRanges();flash('#htmlBtn','btnHtml');}};
+// PDF: print the email layout from a hidden frame; the print dialog saves it as PDF
+$('#pdfBtn').onclick=()=>{const fr=document.createElement('iframe');fr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(fr);
+  const d=fr.contentDocument;d.open();d.write(`<!doctype html><meta charset="utf-8"><title>${esc(sumData.subject)}</title><style>@page{size:A4;margin:14mm}body{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}h3{break-after:avoid}tr,div{break-inside:avoid}</style>${sumData.html}`);d.close();
+  fr.contentWindow.focus();fr.contentWindow.print();setTimeout(()=>fr.remove(),60000);};
+$('#copyBtn').onclick=async()=>{const ta=$('#sumText');if(sumFmt==='html')ta.value=sumData.email;try{await navigator.clipboard.writeText(ta.value);}catch(e){ta.select();document.execCommand('copy');}$('#copyBtn').textContent=t('btnCopied');setTimeout(()=>$('#copyBtn').textContent=t('btnCopy'),1500);};
+$('#mailBtn').onclick=()=>{window.location.href=`mailto:?subject=${encodeURIComponent(sumData.subject)}&body=${encodeURIComponent(sumFmt==='html'?sumData.email:$('#sumText').value)}`;};
 $('#xlsxBtn').onclick=()=>{try{buildExcel();}catch(e){alert('Excel export failed: '+e.message);}};
 $('#docBtn').onclick=()=>{try{buildWord();}catch(e){alert('Word export failed: '+e.message);}};
 
