@@ -618,8 +618,10 @@ function showData(name,ab,note){
     DATA={source:name,uploaded:true,note:note||'',tasks:res.tasks};initFilters();refreshMeta();render();return true;
   }catch(err){$('#err').textContent=t('readErr')+err.message;return false;}
 }
+// a file the person dropped wins over the saved copy the app may still be sending
+let userFile=false;
 function loadFile(file){
-  $('#err').textContent='';const r=new FileReader();
+  userFile=true;$('#err').textContent='';const r=new FileReader();
   r.onerror=()=>{$('#err').textContent=t('readErr')+r.error;};
   r.onload=e=>{const ab=e.target.result;if(showData(file.name,ab.slice(0))&&appOrigin)window.parent.postMessage({wip:'upload',name:file.name,buf:ab},appOrigin,[ab]);};
   r.readAsArrayBuffer(file);
@@ -636,7 +638,7 @@ window.addEventListener('message',e=>{
   if(e.source!==window.parent||window.parent===window||!APP_ORIGIN.test(e.origin))return;
   if(!appOrigin){const h=document.querySelector('[data-i18n="dropHint"]');if(h){h.dataset.i18n='dropHintApp';h.textContent=t('dropHintApp');}}
   appOrigin=e.origin;const m=e.data||{};
-  if(m.wip==='file'&&m.buf instanceof ArrayBuffer)showData(String(m.name||''),m.buf,String(m.note||''));
+  if(m.wip==='file'&&m.buf instanceof ArrayBuffer&&!userFile)showData(String(m.name||''),m.buf,String(m.note||''));
   else if(m.wip==='note'&&DATA.source){DATA.note=String(m.note||'');refreshMeta();}
   else if(m.wip==='hello')window.parent.postMessage({wip:'ready'},appOrigin);
 });
